@@ -5,23 +5,25 @@ import (
 	"os/exec"
 )
 
-var chatModelPath string = "models/Qwen2.5-7B-Instruct-Q4_K_M.gguf"
-var embedModelPath string = "models/models/Qwen3-Embedding-8B-Q6_K.gguf"
+var ChatModelPath string = "models/Qwen2.5-7B-Instruct-Q4_K_M.gguf"
+var ChatModelPort string = "8082"
 
-func startServers(chatModelPath string, chatPort string, embedModelPath string, embedPort string) {
-	// Initialize chat and embedding model servers
-	chatServerCmd := exec.Command("llama-server", "--model", chatModelPath, "--port", chatPort)
-	embedServerCmd := exec.Command("llama-server", "--model", embedModelPath, "--port", "8081", embedPort)
+var EmbedModelPath string = "models/models/Qwen3-Embedding-8B-Q6_K.gguf"
+var EmbedModelPort string = "8081"
 
-	if err := chatServerCmd.Run(); err != nil {
-		log.Fatalf("chat server failed: %v", err)
+func StartLLMServer(modelPath string, port string, embedding bool) {
+	var startServerCmd *exec.Cmd // Declare a variable of type *exec.Cmd
+
+	if !embedding {
+		startServerCmd = exec.Command("llama-server", "--model", chatModelPath, "--port", port)
+	} else {
+		startServerCmd = exec.Command("llama-server", "--model", chatModelPath, "--port", port, "--embedding")
 	}
-	if err := embedServerCmd.Run(); err != nil {
-		log.Fatalf("embed server failed: %v", err)
-	}
 
-}
+	if err := startServerCmd.Run(); err != nil {
+		log.Fatalf("Error: LLM server for model %s failed to start: %v", modelPath, err)
+	}
 
 func main() {
-	startServers("8082", "8081")
+	StartLLMServer()
 }
