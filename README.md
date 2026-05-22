@@ -1,10 +1,8 @@
 Here's the installation setup so far:
 
 ```bash
-# Setup go-llama.cpp
-git clone --recurse-submodules https://github.com/go-skynet/go-llama.cpp
-cd go-llama.cpp
-make libbinding.a
+# Install llama.cpp
+brew install llama.cpp
 
 # Setup Python environment and crawl4ai
 python3 -m venv
