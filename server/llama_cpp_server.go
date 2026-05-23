@@ -23,6 +23,7 @@ func StartLLMServer(modelPath string, port string, embedding bool) *exec.Cmd {
 	}
 
 	cmd := exec.Command("llama-server", args...)
+	// Display outputs in the terminal
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -39,6 +40,7 @@ func StopLLMServer(cmd *exec.Cmd) {
 	cmd.Wait()
 }
 
+// I'll double check this when I have a better understanding of Go
 func WaitForServer(port string) {
 	for {
 		resp, err := http.Get("http://localhost:" + port + "/health")

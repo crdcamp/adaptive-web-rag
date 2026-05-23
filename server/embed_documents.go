@@ -1,7 +1,7 @@
 package main
 
 func EmbedDocuments() {
-	startServer := StartLLMServer(EmbedModelPath, EmbedModelPort, true)
+	embedServer := StartLLMServer(EmbedModelPath, EmbedModelPort, true)
 	WaitForServer(EmbedModelPort)
-	StopLLMServer(startServer)
+	StopLLMServer(embedServer)
 }
