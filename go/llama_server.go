@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
+	"time"
 )
 
 // Chat model params
@@ -35,4 +37,14 @@ func StopLLMServer(cmd *exec.Cmd) {
 		log.Fatalf("Error: Failed to stop LLM server: %v", err)
 	}
 	cmd.Wait()
+}
+
+func WaitForServer(port string) {
+	for {
+		resp, err := http.Get("http://localhost:" + port + "/health")
+		if err == nil && resp.StatusCode == 200 {
+			return
+		}
+		time.Sleep(1 * time.Second)
+	}
 }
