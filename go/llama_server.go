@@ -31,7 +31,8 @@ func StartLLMServer(modelPath string, port string, embedding bool) *exec.Cmd {
 }
 
 func StopLLMServer(cmd *exec.Cmd) {
-	if err := cmd.Process.Kill(); err != nil {
+	if err := cmd.Process.Signal(os.Interrupt); err != nil {
 		log.Fatalf("Error: Failed to stop LLM server: %v", err)
 	}
+	cmd.Wait()
 }
