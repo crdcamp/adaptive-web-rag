@@ -9,6 +9,14 @@ package main
 
 // After that, we can return to the embedding function and work out the logic from there
 
+// Also... don't forget to make the embeddings and document splitting happen simultaneously
+
+// Here are some more variables that should probably be stored differently
+// (not a huge priority while I'm learning an entire new language though)
+
+const ChatBaseURL string = "http://127.0.0.1:8001/v1"
+const EmbedBaseURL string = "http://127.0.0.1:8002/v1"
+
 func main() {
 	EmbedDocuments()
 }
