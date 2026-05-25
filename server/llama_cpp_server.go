@@ -8,13 +8,16 @@ import (
 	"time"
 )
 
+// Need to improve error handling. Right now I'm pretty sure the program just exits if it hits an error
+
+// These probably shouldn't be hard coded. Need a .env file or a config or something like that. Probably json or toml would be best actually
 // Chat model params
 const ChatModelPath string = "models/Qwen2.5-7B-Instruct-Q4_K_M.gguf"
-const ChatModelPort string = "8082"
+const ChatModelPort string = "8081"
 
 // Embed model params
 const EmbedModelPath string = "models/Qwen3-Embedding-8B-Q6_K.gguf"
-const EmbedModelPort string = "8081"
+const EmbedModelPort string = "8082"
 
 func StartLLMServer(modelPath string, port string, embedding bool) *exec.Cmd {
 	args := []string{"--model", modelPath, "--port", port}
@@ -23,7 +26,7 @@ func StartLLMServer(modelPath string, port string, embedding bool) *exec.Cmd {
 	}
 
 	cmd := exec.Command("llama-server", args...)
-	// Display outputs in the terminal
+	// Display outputs and errors in the terminal
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -41,9 +44,11 @@ func StopLLMServer(cmd *exec.Cmd) {
 }
 
 // I'll double check this when I have a better understanding of Go
+// Just search the internet for the relevant code...
+// Need to add a timeout for this function
 func WaitForServer(port string) {
 	for {
-		resp, err := http.Get("http://localhost:" + port + "/health")
+		resp, err := http.Get("http://localhost:" + port + "/health") // Need to find a better way to assign the server path. Probably a .env variable or something like that
 		if err == nil && resp.StatusCode == 200 {
 			return
 		}
