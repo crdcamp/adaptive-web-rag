@@ -39,6 +39,8 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 
 # Running the Servers
 
+As of now, I can only figure out how to use these in separate terminals. Ideally, it'd be a single command, but you can look into that later.
+
 To run the **chat** server:
 
 ```bash
