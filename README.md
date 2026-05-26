@@ -2,7 +2,9 @@
 
 In this project, I learn a new coding language (Golang), start hosting My LLMs locally with HTTP endpoints (rather than running them within a Python script), and build off of the [llama-cpp-llm-embedding](https://github.com/crdcamp/llama-cpp-llm-embedding) repository by adding a new web search fallback capability to the embedding project.
 
-I'm essentially rewriting the entire previous repository in a new language I know nothing about (other than that it scales very well), so there are gonna be some challenges along the way. This one might take a while to get off the ground.
+This is ultimately meant to run on a Macbook base M4 chip, but running these models using `llama-server` instead of `llama-cpp-python` is showing to be a bit more involved than I initially thought.
+
+I'm essentially rewriting the entire previous repository in a new language I know nothing about (other than that it scales very well) as well, so there are gonna be some challenges along the way. This one might take a while to get off the ground.
 
 Keep in mind, this project is in its **very** early stages. Don't look at me!!!
 
@@ -39,7 +41,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 
 # Running the Servers
 
-As of now, I can only figure out how to use these in separate terminals. Ideally, it'd be a single command, but you can look into that later.
+If you're on a Mac base M4 chip like me... DO NOT run these commands simultaneously! If you do, get ready for a lot of screen flickering and the need to force shutdown your computer.
 
 To run the **chat** server:
 
@@ -55,7 +57,7 @@ llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002 -c 1024
 
 # Fixing llama-server RAM issues with new commands
 
-[GitHub Source](https://github.com/ggml-org/llama.cpp/discussions/15396)
+This [GitHub source](https://github.com/ggml-org/llama.cpp/discussions/15396) serves as a good introduction for managing memory usage on Macbooks in general. However, I can't seem to get this RAM (or "unified memory") usage down to what the Python script was able to!
 
 Start **instruct** sever:
 
