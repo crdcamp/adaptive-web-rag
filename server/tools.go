@@ -10,7 +10,7 @@ import (
 func GenerateSearchQueries(userPrompt string) {
 	ctx := context.Background()
 	chatClient := openai.NewClient(
-		option.WithBaseURL(ChatBaseURL),
+		option.WithBaseURL(BaseURL),
 		option.WithAPIKey(APIKey),
 	)
 
