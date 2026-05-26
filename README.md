@@ -83,6 +83,8 @@ llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --n-cpu-moe 12 -c 2048 --por
 
 I think this might actually be what we're looking for!
 
+This enables one model to be loaded at a time. Hopefully this is the start you're looking for. More information on the parameters can be found [here](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
+
 ```bash
-llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001 --models-max 1
+llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001 --models-max 1 --models-autoload
 ```
