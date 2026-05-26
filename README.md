@@ -20,16 +20,18 @@ brew install llama.cpp
 git clone https://github.com/crdcamp/adaptive-web-rag.git
 cd adaptive-web-rag
 
-# Install openai Go package
-cd server
-go get -u 'github.com/openai/openai-go/v3@v3.37.0'
-cd ..
-
 # Setup Python environment and crawl4ai
 python3 -m venv
 source venv/bin/activate
 pip install -r requirements.txt
 crawl4ai-setup
+
+# Install openai Go package
+cd server
+go get -u 'github.com/openai/openai-go/v3@v3.37.0'
+
+# Return to the project root
+cd ..
 ```
 
 ## Installing Models
