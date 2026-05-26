@@ -44,11 +44,11 @@ As of now, I can only figure out how to use these in separate terminals. Ideally
 To run the **chat** server:
 
 ```bash
-llama-server -m models/Qwen2.5-7B-Instruct-Q4_K_M.gguf --port 8001
+llama-server -m models/Qwen2.5-7B-Instruct-Q4_K_M.gguf --port 8001 -c 2048
 ```
 
 To run the **embed** server:
 
 ```bash
-llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002
+llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002 -c 2048
 ```
