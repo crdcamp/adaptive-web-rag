@@ -33,3 +33,26 @@ I also need to find some resources (preferably a video) for having llama-server 
 That's where we'll start then. My god am I in over my head right now.
 
 # You're back! what did you learn?
+
+I figured out how to use router mode! Well... by that I mean I figured out how to launch the server in router mode. I have yet to look into how the actual code can interact with it. 
+
+Router mode is a bit new, so we'll have to make sure we're pinning the version for llama cpp somewhere somehow.
+
+There's also the part that involves managing context. There's like a billion ways to play around with context management listed [here](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md)... and that part is gonna be wayyyy further complicated by the vector database.
+
+That's a problem for later though. 
+
+# Next!
+
+Now that you got the server running in the (what I'm assuming is) the "correct" way, it's time to get this Go code initiated for interacting with the server. Refer to the openai Go docs to get a basic chat running. **Importantly**, this little demo will need to also switch between models. Just get a basic idea of that running for now.
+
+ACTUALLY, you might want to just get the general idea of the Go code for chat completions to start, THEN make the vector database, THEN you can start switching between the models to refer to that vector database. SO, it looks like we actually need to get the crawl4ai code setup before we can begin. Either that, or just recreate the Python code using the same documents in the database. Only this time, we need a database with an SDK for Go. I think the latter would be an easier introduction.
+
+So... **here's the plan**: 
+
+* We need to grab those documents that were uploaded to the previous project's database and figure out how to get them into a new one that has a Go SDK.
+* Then, we get to work on managing a local vector db using Go.
+* The above point might require a new Go file separate from main.go. It would contain all of the logic handling for retrieving documents from, and uploading documents to the vector database.
+* Then you can then start thinking about recreating the previous project in Go (as in, just have the model say "I have no idea" if the requested information isn't in the vector db)
+* FINALLY, it's time to start working on crawl.py. This will be a kinda "tool" that is called in the instance the model says "I don't know"
+* Then you can start doing the deep dive into managing the vector database, or as I'm referring to it: the model's "memory"
