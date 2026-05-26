@@ -14,9 +14,26 @@ package main
 // Here are some more variables that should probably be stored differently
 // (not a huge priority while I'm learning an entire new language though)
 
-const ChatBaseURL string = "http://127.0.0.1:8001/v1"
-const EmbedBaseURL string = "http://127.0.0.1:8002/v1"
-
 func main() {
 	EmbedDocuments()
 }
+
+// Here's how you do it with the openai client:
+
+// package main
+
+// import (
+//     "github.com/openai/openai-go/v3"
+//     "github.com/openai/openai-go/v3/option"
+// )
+
+// var (
+//     chatClient      = openai.NewClient(
+//         option.WithBaseURL("http://localhost:8001/v1"),
+//         option.WithAPIKey("no-key"),
+//     )
+//     embeddingClient = openai.NewClient(
+//         option.WithBaseURL("http://localhost:8002/v1"),
+//         option.WithAPIKey("no-key"),
+//     )
+// )
