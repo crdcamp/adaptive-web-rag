@@ -34,7 +34,7 @@ crawl4ai-setup
 
 For simplicity, I've been manually installing models. Eventually I'll start interacting with the HuggingFace CLI to streamline the installation a bit. For now, just visit these web pages and download the models into the `models` directory:
 
-- [Qwen/Qwen3-Embedding-8B-GGUF](https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF?show_file_info=Qwen3-Embedding-8B-Q6_K.gguf)
+- [Qwen/Qwen3-Embedding-8B-GGUF-Q5_K_M](https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF?show_file_info=Qwen3-Embedding-8B-Q5_K_M.gguf)
 - [bartowski/Qwen2.5-7B-Instruct-Q4_K_M.gguf](https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/blob/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf)
 
 # Running the Servers
@@ -44,11 +44,25 @@ As of now, I can only figure out how to use these in separate terminals. Ideally
 To run the **chat** server:
 
 ```bash
-llama-server -m models/Qwen2.5-7B-Instruct-Q4_K_M.gguf --port 8001 -c 2048
+llama-server -m models/Qwen2.5-7B-Instruct-Q4_K_M.gguf --port 8001 -c 1024
 ```
 
 To run the **embed** server:
 
 ```bash
-llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002 -c 2048
+llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002 -c 1024
 ```
+
+# Fixing llama-server RAM issues with new commands
+
+[GitHub Source](https://github.com/ggml-org/llama.cpp/discussions/15396)
+
+```bash
+llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --n-cpu-moe 12 -c 2048 --port 8002
+```
+
+* `--n-cpu-moe`: Number of MoE layers N to keep on the CPU. This is used in hardware configs that cannot fit the models fully on the GPU. The specific value depends on your memory resources and finding the optimal value requires some experimentation
+
+* `-c`: Specify the context size to use. More context requires more memory. Both gpt-oss models have a maximum context of 128k tokens. Use -c 0 to set to the model's default
+
+* `--no-mmap`: Disables memory-mapping when loading the model file
