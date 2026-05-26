@@ -87,4 +87,7 @@ This enables one model to be loaded at a time. Hopefully this is the start you'r
 
 ```bash
 llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001 --models-max 1 --models-autoload
+
+# Show a list of the models discovered by the Router
+curl http://localhost:8080/models
 ```
