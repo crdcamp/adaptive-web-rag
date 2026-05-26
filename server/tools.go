@@ -8,16 +8,16 @@ import (
 )
 
 func GenerateSearchQueries(userPrompt string) {
-	ctx = context.Background()
+	ctx := context.Background()
 	chatClient := openai.NewClient(
 		option.WithBaseURL(ChatBaseURL),
-		option.WithApiKey(APIKey),
+		option.WithAPIKey(APIKey),
 	)
 
 	systemPrompt := "You are a search query generator. When given a question or topic, generate exactly five concise search engine queries a person could enter into a browser to research it."
 
 	resp, err := chatClient.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
-		Model: ChatModelPath,
+		Model: ChatModel,
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(systemPrompt),
 			openai.UserMessage(userPrompt),
@@ -29,4 +29,4 @@ func GenerateSearchQueries(userPrompt string) {
 	println(resp.Choices[0].Message.Content)
 }
 
-func callCrawlScript()
+//func callCrawlScript()
