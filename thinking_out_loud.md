@@ -8,7 +8,7 @@ Moreover, you got the clients initiated, you found an openai Go library compatib
 
 Maybe beginning by recreating the embedding sever the rest of the logic will come along the way. However, before you do that, you need to figure out how to incorporate that into a multi-line chat, not just a single prompt.
 
-So, maybe the best way to begin is by simply figuring out how to create an embedding server in Go.
+Actually, maybe the best way to begin is by simply figuring out how to create  vector db in Go.
 
 Then, you can learn how to make a continuous chat, THEN, you can think about integrating the embedding server into said chat.
 
