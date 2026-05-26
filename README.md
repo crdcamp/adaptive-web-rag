@@ -41,24 +41,20 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 - [Qwen/Qwen3-Embedding-8B-GGUF-Q5_K_M](https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF?show_file_info=Qwen3-Embedding-8B-Q5_K_M.gguf)
 - [bartowski/Qwen2.5-7B-Instruct-Q4_K_M.gguf](https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/blob/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf)
 
-# Fixing llama-server RAM issues with new commands
+# Starting the Server
 
-[Troubleshooting resource](https://www.youtube.com/watch?v=1_L9cG-X2eY)
+* [Server troubleshooting guide](https://www.youtube.com/watch?v=1_L9cG-X2eY)
+* [Managing hardware interaction for M chips](https://github.com/ggml-org/llama.cpp/discussions/15396)
 
-This [GitHub source](https://github.com/ggml-org/llama.cpp/discussions/15396) serves as a good introduction for managing memory usage on Macbooks in general. However, I can't seem to get this RAM (or "unified memory") usage down to what the Python script was able to!
+The following command starts the server in router mode. The server is set to only allow one model to be loaded at a time. More information on the parameters can be found [here](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
 
-**Note:** You can visit the local host in your browser and be greeted with a web UI. However, if you want to not use the web UI, add this parameter: `--no-webui`.
-
-Start **instruct** sever:
-
-```bash
-llama-server -m models/Qwen2.5-7B-Instruct-Q4_K_M.gguf --n-cpu-moe 12 -c 2048 --port 8001
-```
-
-Start **embedding** server:
+* You can visit the local host in your browser and be greeted with a web UI. However, if you want to not use the web UI, add this parameter: `--no-webui`.
+* We're gonna use the `--verbose` parameter for now as well.
+* You also might wanna change the `--models-autoload` parameter to `--no-models-autoload` later.
+* There's also the issue of whether or not to use a jinja template. Investigate that parameter later.
 
 ```bash
-llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --n-cpu-moe 12 -c 2048 --port 8002
+llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --verbose --port 8001 --models-max 1 --models-autoload
 ```
 
 * `--n-cpu-moe`: Number of MoE layers N to keep on the CPU. This is used in hardware configs that cannot fit the models fully on the GPU. The specific value depends on your memory resources and finding the optimal value requires some experimentation
@@ -66,16 +62,6 @@ llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --n-cpu-moe 12 -c 2048 --por
 * `-c`: Specify the context size to use. More context requires more memory. Both gpt-oss models have a maximum context of 128k tokens. Use -c 0 to set to the model's default
 
 * `--no-mmap`: Disables memory-mapping when loading the model file
-
-# Start in Router Mode
-
-I think this might actually be what we're looking for!
-
-This enables one model to be loaded at a time. Hopefully this is the start you're looking for. More information on the parameters can be found [here](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
-
-```bash
-llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001 --models-max 1 --models-autoload
-```
 
 To show a list of the models discovered by the Router:
 
