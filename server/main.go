@@ -20,6 +20,9 @@ func main() {
 
 // Here's how you do it with the openai client:
 
+// You might wanna "pin" the version with this:
+// go get -u 'github.com/openai/openai-go/v3@v3.37.0'
+
 // package main
 
 // import (

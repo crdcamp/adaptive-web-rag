@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+// Temporary way to store base URL variables
+const ChatBaseURL string = "http://127.0.0.1:8001/v1"
+const EmbedBaseURL string = "http://127.0.0.1:8002/v1"
+
 // Need to improve error handling. Right now I'm pretty sure the program just exits if it hits an error
 
 // These probably shouldn't be hard coded. Need a .env file or a config or something like that. Probably json or toml would be best actually
