@@ -6,10 +6,12 @@ Moreover, you got the clients initiated, you found an openai Go library compatib
 
 # Where to go next
 
-Maybe beginning by recreating the embedding sever the rest of the logic will come along the way. However, before you do that, you need to figure out how to incorporate that into a multi-line chat, not just a single prompt.
+Maybe beginning by creating a vector db the rest of the logic will come along the way. However, before you do that, you need to figure out how to incorporate that into a multi-line chat, not just a single prompt.
 
-Actually, maybe the best way to begin is by simply figuring out how to create  vector db in Go.
+Actually, maybe the best way to begin is by simply figuring out how to create the vector db in Go. Then you'll actually have something to interact with.
 
 Then, you can learn how to make a continuous chat, THEN, you can think about integrating the embedding server into said chat.
+
+After those prerequisites, work on the crawl.py script for the web scraping fallback. After that, the rest of the logic should start falling into place.
 
 Sound like a plan? Yea... sounds like a plan.
