@@ -37,3 +37,11 @@ func main() {
 //         option.WithAPIKey("no-key"),
 //     )
 // )
+
+// Then to use them:
+
+// // Chat
+// chatClient.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{...})
+
+// // Embeddings
+// embeddingClient.Embeddings.New(ctx, openai.EmbeddingNewParams{...})
