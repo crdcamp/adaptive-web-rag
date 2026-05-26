@@ -13,12 +13,12 @@ Here's the installation setup so far:
 # Installation
 
 ```bash
+# Install llama.cpp
+brew install llama.cpp
+
 # Download source code
 git clone https://github.com/crdcamp/adaptive-web-rag.git
 cd adaptive-web-rag
-
-# Install llama.cpp
-brew install llama.cpp
 
 # Install openai Go package
 cd server
@@ -59,6 +59,8 @@ llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002 -c 1024
 
 This [GitHub source](https://github.com/ggml-org/llama.cpp/discussions/15396) serves as a good introduction for managing memory usage on Macbooks in general. However, I can't seem to get this RAM (or "unified memory") usage down to what the Python script was able to!
 
+**Note:** You can visit the local host in your browser and be greeted with a web UI. However, if you want to not use the web UI, add this parameter: `--no-webui`.
+
 Start **instruct** sever:
 
 ```bash
@@ -76,3 +78,11 @@ llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --n-cpu-moe 12 -c 2048 --por
 * `-c`: Specify the context size to use. More context requires more memory. Both gpt-oss models have a maximum context of 128k tokens. Use -c 0 to set to the model's default
 
 * `--no-mmap`: Disables memory-mapping when loading the model file
+
+# Start in Router Mode
+
+I think this might actually be what we're looking for!
+
+```bash
+llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001
+```
