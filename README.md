@@ -57,6 +57,14 @@ llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002 -c 1024
 
 [GitHub Source](https://github.com/ggml-org/llama.cpp/discussions/15396)
 
+Start **instruct** sever:
+
+```bash
+llama-server -m models/Qwen2.5-7B-Instruct-Q4_K_M.gguf --n-cpu-moe 12 -c 2048 --port 8001
+```
+
+Start **embedding** server:
+
 ```bash
 llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --n-cpu-moe 12 -c 2048 --port 8002
 ```
