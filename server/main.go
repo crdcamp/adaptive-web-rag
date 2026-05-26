@@ -24,8 +24,14 @@ import (
 
 // Here are some more variables that should probably be stored differently
 // (not a huge priority while I'm learning an entire new language though)
+
 const ChatBaseURL string = "http://127.0.0.1:8001/v1"
 const EmbedBaseURL string = "http://127.0.0.1:8002/v1"
+
+// embedClient := openai.NewClient(
+	// 	option.WithBaseURL(EmbedBaseURL),
+	// 	option.WithAPIKey("no-key"),
+	// )
 
 func main() {
 	ctx := context.Background()
@@ -33,10 +39,19 @@ func main() {
 		option.WithBaseURL(ChatBaseURL),
 		option.WithAPIKey("no-key"),
 	)
-	embedClient := openai.NewClient(
-		option.WithBaseURL(EmbedBaseURL),
-		option.WithAPIKey("no-key"),
-	)
+
+	question := "What is the capital of France?"
+
+	resp, err := chatClient.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
+		Model: "models/Qwen2.5-7B-Instruct-Q4_K_M.gguf",
+		Messages: []openai.ChatCompletionMessageParamUnion{
+            openai.UserMessage(question),
+        },
+    })
+    if err != nil {
+        panic(err)
+    }
+    println(resp.Choices[0].Message.Content)
 }
 
 // Here's how you do it with the openai client:
