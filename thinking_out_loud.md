@@ -14,4 +14,6 @@ Then, you can learn how to make a continuous chat, THEN, you can think about int
 
 After those prerequisites, work on the crawl.py script for the web scraping fallback. After that, the rest of the logic should start falling into place.
 
+BUT, don't forget about the need to start and stop the embedding server when you're ready. You can save a lot of RAM that way!
+
 Sound like a plan? Yea... sounds like a plan.
