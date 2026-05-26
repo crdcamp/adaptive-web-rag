@@ -39,23 +39,9 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 - [Qwen/Qwen3-Embedding-8B-GGUF-Q5_K_M](https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF?show_file_info=Qwen3-Embedding-8B-Q5_K_M.gguf)
 - [bartowski/Qwen2.5-7B-Instruct-Q4_K_M.gguf](https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/blob/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf)
 
-# Running the Servers
-
-If you're on a Mac base M4 chip like me... DO NOT run these commands simultaneously! If you do, get ready for a lot of screen flickering and the need to force shutdown your computer.
-
-To run the **chat** server:
-
-```bash
-llama-server -m models/Qwen2.5-7B-Instruct-Q4_K_M.gguf --port 8001 -c 1024
-```
-
-To run the **embed** server:
-
-```bash
-llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --port 8002 -c 1024
-```
-
 # Fixing llama-server RAM issues with new commands
+
+[Troubleshooting resource](https://www.youtube.com/watch?v=1_L9cG-X2eY)
 
 This [GitHub source](https://github.com/ggml-org/llama.cpp/discussions/15396) serves as a good introduction for managing memory usage on Macbooks in general. However, I can't seem to get this RAM (or "unified memory") usage down to what the Python script was able to!
 
@@ -87,7 +73,10 @@ This enables one model to be loaded at a time. Hopefully this is the start you'r
 
 ```bash
 llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001 --models-max 1 --models-autoload
+```
 
-# Show a list of the models discovered by the Router
-curl http://localhost:8080/models
+To show a list of the models discovered by the Router:
+
+```bash
+curl http://localhost:8001/v1/models | jq
 ```
