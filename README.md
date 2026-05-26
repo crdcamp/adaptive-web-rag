@@ -84,5 +84,5 @@ llama-server -m models/Qwen3-Embedding-8B-Q6_K.gguf --n-cpu-moe 12 -c 2048 --por
 I think this might actually be what we're looking for!
 
 ```bash
-llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001
+llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --port 8001 --models-max 1
 ```
