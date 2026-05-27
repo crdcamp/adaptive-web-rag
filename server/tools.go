@@ -1,17 +1,42 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
 
 	"github.com/openai/openai-go/v3" // imported as openai
 	"github.com/openai/openai-go/v3/option"
 )
 
+func UnloadModel(modelID string) error {
+	body, err := json.Marshal(map[string]string{"model": modelID})
+	if err != nil {
+		return fmt.Errorf("failed to marshal unload request: %w", err)
+	}
+
+	resp, err := http.Post(
+		ServerBaseURL+"/models/unload",
+		"application/json",
+		bytes.NewReader(body),
+	)
+	if err != nil {
+		return fmt.Errorf("unload request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unload returned status %d", resp.StatusCode)
+	}
+	return nil
+}
+
 func GenerateSearchQueries(userPrompt string) {
 	ctx := context.Background()
 	chatClient := openai.NewClient(
-		option.WithBaseURL(BaseURL),
+		option.WithBaseURL(ServerBaseURL),
 		option.WithAPIKey(APIKey),
 	)
 
@@ -45,6 +70,7 @@ Respond ONLY with a JSON object in this exact format, no other text:
 		panic(err)
 	}
 	println(string(out))
+	UnloadModel(ChatModel)
 }
 
 //func callCrawlScript()
