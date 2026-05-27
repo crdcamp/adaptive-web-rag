@@ -1,4 +1,4 @@
 .env
 .DS_Store
-models/
+models/*
 __pycache__
