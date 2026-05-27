@@ -12,14 +12,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/openai/openai-go/v3" // imported as openai
 	"github.com/openai/openai-go/v3/option"
 )
 
+// {
+//   "model": "ggml-org/gemma-3-4b-it-GGUF:Q4_K_M",
+// }
+
+// Unload the specified model by sending a post request to the `/models/unload` endpoint.
+func UnloadModel(modelName string) {
+	const unloadURL = ServerBaseURL + "/models/unload"
+	fmt.Println("\nURL:", unloadURL)
+
+	data := url.Values{}
+	data.Add("model", modelName)
+	fmt.Println("\ndata:", data)
+	fmt.Printf("data type: %T", data)
+}
+
 // This entire function is AI slop... will review when I have more understanding of Go
 // I have a feeling (I wonder why?) that this function could be further simplified
-func UnloadModel(modelID string) error {
+func UnloadModelna(modelID string) error {
 	body, err := json.Marshal(map[string]string{"model": modelID})
 	if err != nil {
 		return fmt.Errorf("failed to marshal unload request: %w", err)
