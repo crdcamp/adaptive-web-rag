@@ -1,5 +1,11 @@
 package main
 
+// OpenAI API reference: https://pkg.go.dev/github.com/openai/openai-go/v3#section-readme
+
+// INSTEAD OF SAVING THE JSON FILE,
+// POST IT WITH HTTP AND THEN ACCESS THAT FROM THE
+// PYTHON FILE
+
 import (
 	"bytes"
 	"context"
@@ -11,6 +17,8 @@ import (
 	"github.com/openai/openai-go/v3/option"
 )
 
+// This entire function is AI slop... will review when I have more understanding of Go
+// I have a feeling (I wonder why?) that this function could be further simplified
 func UnloadModel(modelID string) error {
 	body, err := json.Marshal(map[string]string{"model": modelID})
 	if err != nil {
@@ -33,6 +41,7 @@ func UnloadModel(modelID string) error {
 	return nil
 }
 
+// Given the user's prompt, generate 5 search queries to be used by `crawl.py` for web scraping
 func GenerateSearchQueries(userPrompt string) {
 	ctx := context.Background()
 	chatClient := openai.NewClient(
@@ -53,11 +62,12 @@ Respond ONLY with a JSON object in this exact format, no other text:
 		},
 	})
 	if err != nil {
-		panic(err)
+		panic(err) // Need to double check if `panic` is a good idea here
 	}
 
 	raw := resp.Choices[0].Message.Content
 
+	// More AI slop (the chat output format part). Will need to check this as well when I have more Go knowledge
 	var result struct {
 		Queries []string `json:"queries"`
 	}
