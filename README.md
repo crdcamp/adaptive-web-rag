@@ -54,14 +54,14 @@ The following command starts the server in router mode. The server is set to onl
 * There's also the issue of whether or not to use a jinja template. Investigate that parameter later.
 
 ```bash
-llama-server --models-dir models/ --n-cpu-moe 12 -c 2048 --verbose --port 8001 --models-max 1 --models-autoload
+llama-server --models-dir models/ --n-cpu-moe 12 --mlock -c 2048 --verbose --models-max 1 --models-autoload --port 8001
 ```
 
 * `--n-cpu-moe`: Number of MoE layers N to keep on the CPU. This is used in hardware configs that cannot fit the models fully on the GPU. The specific value depends on your memory resources and finding the optimal value requires some experimentation
-
 * `-c`: Specify the context size to use. More context requires more memory. Both gpt-oss models have a maximum context of 128k tokens. Use -c 0 to set to the model's default
-
 * `--no-mmap`: Disables memory-mapping when loading the model file
+* * `--mlock`: Forces the system to keep model in RAM rather than swapping or compressing.
+
 
 To show a list of the models discovered by the Router:
 
