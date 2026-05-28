@@ -7,10 +7,10 @@ package main
 // PYTHON FILE
 
 import (
-	"bytes"
 	"context" // A Context carries a deadline, a cancellation signal, and other values across API boundaries.
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -22,43 +22,25 @@ import (
 //   "model": "ggml-org/gemma-3-4b-it-GGUF:Q4_K_M",
 // }
 
-// Unload the specified model by sending a post request to the `/models/unload` endpoint.
+// Unload a model from `llama-server`'s memory by sending a post request to the `/models/unload` endpoint.
 func UnloadModel(modelName string) {
 	const unloadURL = ServerBaseURL + "/models/unload"
-	fmt.Println("\nURL:", unloadURL)
 
-	data := url.Values{}
-	data.Add("model", modelName)
-	fmt.Println("\ndata:", data)
-	fmt.Printf("data type: %T", data)
-}
+	formData := url.Values{}
+	formData.Add("model", modelName)
+	fmt.Printf("data type: %T", formData)
 
-// This entire function is AI slop... will review when I have more understanding of Go
-// I have a feeling (I wonder why?) that this function could be further simplified
-func UnloadModelna(modelID string) error {
-	body, err := json.Marshal(map[string]string{"model": modelID})
+	resp, err := http.PostForm(unloadURL, formData)
 	if err != nil {
-		return fmt.Errorf("failed to marshal unload request: %w", err)
-	}
-
-	// Read the documentation and return to this especially. Find the "unload" endpoint in llama-server docs
-	// I think the above json code might be complete garbage too
-	resp, err := http.Post(
-		ServerBaseURL+"/models/unload",
-		"application/json",
-		bytes.NewReader(body),
-	)
-
-	// I also have a feeling this error handling is utter shit
-	if err != nil {
-		return fmt.Errorf("unload request failed: %w", err)
+		panic(err) // Need to double check this error handling
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unload returned status %d", resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
 	}
-	return nil
+	fmt.Println(string(body))
 }
 
 // This occasionally outputs Mandarin characters...Luckily there's a solution for that but not a huge priority at the moment
