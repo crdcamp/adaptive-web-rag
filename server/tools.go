@@ -24,6 +24,7 @@ func UnloadModel(modelName string) {
 }
 
 // Generate a search query to pass on to `crawl.py`
+// Need to adjust the system prompt to account for searches that require a time-relevancy to their answer (idk I can't think of a better way to phrase that rn)
 func GenerateSearchQuery(modelName string, userPrompt string) string {
 	ctx := context.Background()
 	client := openai.NewClient(
