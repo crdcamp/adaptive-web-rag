@@ -7,12 +7,11 @@ package main
 // PYTHON FILE
 
 import (
+	"bytes"
 	"context" // A Context carries a deadline, a cancellation signal, and other values across API boundaries.
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 
 	"github.com/openai/openai-go/v3" // imported as openai
 	"github.com/openai/openai-go/v3/option"
@@ -26,21 +25,13 @@ import (
 func UnloadModel(modelName string) {
 	const unloadURL = ServerBaseURL + "/models/unload"
 
-	formData := url.Values{}
-	formData.Add("model", modelName)
-	fmt.Printf("data type: %T", formData)
-
-	resp, err := http.PostForm(unloadURL, formData)
+	payload, _ := json.Marshal(map[string]string{"model": modelName})
+	resp, err := http.Post(unloadURL, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
-		panic(err) // Need to double check this error handling
+		panic(err) // Probably need a different way to handle this error
 	}
 	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(body))
+	fmt.Printf("Status: %s\n", resp.Status)
 }
 
 // This occasionally outputs Mandarin characters...Luckily there's a solution for that but not a huge priority at the moment

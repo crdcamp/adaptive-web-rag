@@ -19,6 +19,7 @@ brew install llama.cpp
 # Download source code
 git clone https://github.com/crdcamp/adaptive-web-rag.git
 cd adaptive-web-rag
+mkdir models
 
 # Setup Python environment and crawl4ai
 python3 -m venv

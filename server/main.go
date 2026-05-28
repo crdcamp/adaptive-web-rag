@@ -12,6 +12,6 @@ const APIKey string = "no-key" // Can probably just remove this one
 
 // Main function is completely useless other than for testing as of now
 func main() {
-	//GenerateSearchQueries("Tell me about vector databases")
+	GenerateSearchQueries("What are some of the best novels of the 21st century?")
 	UnloadModel(ChatModel)
 }
