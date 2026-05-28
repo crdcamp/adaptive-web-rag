@@ -12,8 +12,10 @@ import (
 )
 
 // Unload a model from `llama-server`'s memory by sending a post request to the `/models/unload` endpoint.
+// Might need to add a context to this to handle cancellations and stuff like that
 func UnloadModel(modelName string) {
 	const unloadURL = ServerBaseURL + "/models/unload"
+	// Need to research more into json encoding in Go. I have no idea how this works at the moment
 	payload, _ := json.Marshal(map[string]string{"model": modelName})
 	resp, err := http.Post(unloadURL, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
@@ -25,6 +27,7 @@ func UnloadModel(modelName string) {
 
 // Generate a search query to pass on to `crawl.py`
 // Need to adjust the system prompt to account for searches that require a time-relevancy to their answer (idk I can't think of a better way to phrase that rn)
+// Need to make sure that the context part is actually doing something here
 func GenerateSearchQuery(modelName string, userPrompt string) string {
 	ctx := context.Background()
 	client := openai.NewClient(
