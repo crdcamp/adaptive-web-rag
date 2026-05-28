@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // We'll store these elsewhere later (probably a .env file... or .env file mixed with a toml or json config file)
 // Just gotta get shit working for now so we're leaving it as is
 
@@ -12,6 +14,7 @@ const APIKey string = "no-key" // Can probably just remove this one
 
 // Main function is completely useless other than for testing as of now
 func main() {
-	GenerateSearchQueries("What are some of the best novels of the 21st century?")
+	result := GenerateSearchQueries("What are some of the best novels of the 21st century?")
+	fmt.Println(result)
 	UnloadModel(ChatModel)
 }

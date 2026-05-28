@@ -40,28 +40,27 @@ func UnloadModel(modelName string) {
 // Also, there's some AI slop in this function as well but much of it follows the openai Go documentation
 // But you know what that means... this needs some serious review
 // When reviewing, refer to this specifically: https://pkg.go.dev/github.com/openai/openai-go/v3#readme-chat-completions-api
-func GenerateSearchQueries(userPrompt string) {
+func GenerateSearchQueries(userPrompt string) string {
+	ctx := context.Background()
 	client := openai.NewClient(
 		option.WithBaseURL(ServerBaseURL),
 		option.WithAPIKey(APIKey), // Leaving this here just in case
 	)
-	systemMessage := `You are a search query generator. When given a question or topic, generate exactly five search engine queries a person could enter into a browser to research it.
-
-Respond ONLY with a JSON object in this exact format, no other text:
-{"queries": ["query1", "query2", "query3", "query4", "query5"]}`
+	systemMessage := "You are a search query generator. When given a question or topic, generate a search engine query that a person could enter into a browser to research it."
 
 	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(systemMessage),
 			openai.UserMessage(userPrompt),
 		},
-		Model: ChatModel
+		Model: ChatModel,
 	})
 	if err != nil {
 		panic(err) // Need a better error handling method here
 	}
 
-	res := chatCompletion.Choices[0].Message.Content
+	chatResponse := chatCompletion.Choices[0].Message.Content
+	return chatResponse
 }
 
 func GenerateSearchQueriesna(userPrompt string) {
