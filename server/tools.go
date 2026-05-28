@@ -37,14 +37,34 @@ func UnloadModel(modelName string) {
 // This occasionally outputs Mandarin characters...Luckily there's a solution for that but not a huge priority at the moment
 // In the end, I'll probably just start personally converting models to GGUF format
 
-// Also... alter this so it's just one search query for now. You can instead just pull more links from a single search instead of creating multiple searches
-// The added complexity of the current method is unecessary and completely overkill
-// In fact, you might consider making the vector database creation temporary (depending on how long embedding takes, that is)
-
 // Also, there's some AI slop in this function as well but much of it follows the openai Go documentation
 // But you know what that means... this needs some serious review
 // When reviewing, refer to this specifically: https://pkg.go.dev/github.com/openai/openai-go/v3#readme-chat-completions-api
 func GenerateSearchQueries(userPrompt string) {
+	client := openai.NewClient(
+		option.WithBaseURL(ServerBaseURL),
+		option.WithAPIKey(APIKey), // Leaving this here just in case
+	)
+	systemMessage := `You are a search query generator. When given a question or topic, generate exactly five search engine queries a person could enter into a browser to research it.
+
+Respond ONLY with a JSON object in this exact format, no other text:
+{"queries": ["query1", "query2", "query3", "query4", "query5"]}`
+
+	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage(systemMessage),
+			openai.UserMessage(userPrompt),
+		},
+		Model: ChatModel
+	})
+	if err != nil {
+		panic(err) // Need a better error handling method here
+	}
+
+	res := chatCompletion.Choices[0].Message.Content
+}
+
+func GenerateSearchQueriesna(userPrompt string) {
 	// Refer to this video for `context`: https://www.youtube.com/watch?v=BkzgYfygDy8
 	ctx := context.Background() // Background returns a non-nil, empty Context. It is never canceled, has no values, and has no deadline. In other words, double check how to properly use this
 	chatClient := openai.NewClient(
