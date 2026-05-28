@@ -56,3 +56,23 @@ So... **here's the plan**:
 * Then you can then start thinking about recreating the previous project in Go (as in, just have the model say "I have no idea" if the requested information isn't in the vector db)
 * FINALLY, it's time to start working on crawl.py. This will be a kinda "tool" that is called in the instance the model says "I don't know"
 * Then you can start doing the deep dive into managing the vector database, or as I'm referring to it: the model's "memory"
+
+# Choosing a Vector DB
+
+Seems like we have 2 good options: **Weaviate and Qdrant**.
+
+Weaviate is written in Go, which is a bonus for obvious reasons. However, Qdrant is written in Rust and offers the best raw query speed.
+
+Yet, Weaviate is better for modeling complex relationships. It's more flexible in general and "well-suited for knowledge graphs, content management systems, and applications where data relationships are as important as similarity search" [source](https://cipherprojects.com/blog/posts/weaviate-vs-qdrant-vector-database-comparison-2025/).
+
+Qdrant takes a more minimalist approach to data modeling and has an ecosystem more focused on performance and efficiency rather than breadth of integrations.
+
+A big plus for both is that they're open source, which for personal project purposes is a nice thing to have.
+
+## Vector DB Conclusions
+
+All in all, it seems like Weaviate is simpler to use and offers more capabilities out the box. I can't spend too much time learning how to use and adjust Qdrant to my purposes, as modeling a memory database (for the next project) will already be difficult enough as is.
+
+If I had more experience and time, Qdrant would be the ideal choice due to raw performance. Yet, given that Weaviate is already written in Go and provides more tools, the choice is pretty clear.
+
+Weavitate it is then.
