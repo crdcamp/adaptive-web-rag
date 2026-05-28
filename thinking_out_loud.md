@@ -76,3 +76,5 @@ All in all, it seems like Weaviate is simpler to use and offers more capabilitie
 If I had more experience and time, Qdrant would be the ideal choice due to raw performance. Yet, given that Weaviate is already written in Go and provides more tools, the choice is pretty clear.
 
 Weavitate it is then.
+
+I would outline the next steps here, but the project structure and approach is starting to fall into place. So, this document probably won't be touched from here on out.
