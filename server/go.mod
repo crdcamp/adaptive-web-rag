@@ -1,9 +1,10 @@
-module rag-project
+module github.com/crdcamp
 
 go 1.26.3
 
 require (
 	github.com/openai/openai-go/v3 v3.37.0
+	github.com/weaviate/weaviate v1.37.2
 	github.com/weaviate/weaviate-go-client/v5 v5.7.3
 )
 
@@ -44,7 +45,6 @@ require (
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	github.com/weaviate/weaviate v1.37.2 // indirect
 	go.mongodb.org/mongo-driver v1.17.6 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel v1.43.0 // indirect
