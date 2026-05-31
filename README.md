@@ -30,6 +30,7 @@ crawl4ai-setup
 # Install openai Go package
 cd server
 go get -u 'github.com/openai/openai-go/v3@v3.37.0'
+go get github.com/weaviate/weaviate-go-client/v5
 
 # Return to the project root
 cd ..
