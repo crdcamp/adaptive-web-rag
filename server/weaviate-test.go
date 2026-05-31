@@ -1,10 +1,13 @@
 package main
 
+// Reference: https://docs.weaviate.io/weaviate/manage-collections/collection-operations
+
 import (
 	"context"
 	"fmt"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
+	"github.com/weaviate/weaviate/entities/models"
 )
 
 func GetSchema() {
@@ -21,9 +24,21 @@ func GetSchema() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%v", schema)
+	fmt.Printf("\nSCHEMA: %v", schema)
 }
 
 func Test() {
 	GetSchema()
 }
+
+func CreateTestCollection(name string, client weaviate.Client) {
+	className := name
+
+	  emptyClass := &models.Class{
+	    Class: className,
+	  }
+
+	  // Create the collection (also called class)
+	  err := client.Schema().ClassCreator().
+	    WithClass(emptyClass).
+	    Do(ctx)

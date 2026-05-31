@@ -55,6 +55,9 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 	return chatResponse
 }
 
+
+// func EmbeddingModel() {}
+
 // func SomethingAboutVectorDB() {}
 
 //func CallCrawlScript() {}
