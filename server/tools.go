@@ -16,7 +16,10 @@ import (
 func UnloadModel(modelName string) {
 	const unloadURL = ServerBaseURL + "/models/unload"
 	// Need to research more into json encoding in Go. I have no idea how this works at the moment
-	payload, _ := json.Marshal(map[string]string{"model": modelName})
+	payload, err := json.Marshal(map[string]string{"model": modelName})
+	if err != nil {
+		panic(err)
+	}
 	resp, err := http.Post(unloadURL, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		panic(err) // Need a better error handling method here
