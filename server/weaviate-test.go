@@ -24,6 +24,6 @@ func GetSchema() {
 	fmt.Printf("%v", schema)
 }
 
-func test() {
+func Test() {
 	GetSchema()
 }
