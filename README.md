@@ -10,7 +10,7 @@ Keep in mind, this project is in its **very** early stages. Don't look at me!!!
 
 Here's the installation setup so far:
 
-# Installation
+# Installation (this is far from accurate)
 
 ```bash
 # Install llama.cpp
@@ -30,7 +30,8 @@ crawl4ai-setup
 # Install openai Go package
 cd server
 go get -u 'github.com/openai/openai-go/v3@v3.37.0'
-go get github.com/weaviate/weaviate-go-client/v5
+go mod init github.com/weaviate-go-client
+go mod tidy
 
 # Return to the project root
 cd ..
