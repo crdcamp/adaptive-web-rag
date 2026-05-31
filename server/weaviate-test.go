@@ -6,10 +6,28 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-openapi/runtime/client"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate/entities/models"
 	"github.com/weaviate/weaviate/entities/schema"
 )
+
+func Test() {
+	// We'll make this a struct later
+	cfg := weaviate.Config{
+		Host:   "localhost:8080",
+		Scheme: "http",
+	}
+
+	//GetSchema()
+	testClient, err := weaviate.NewClient(cfg)
+	if err != nil {
+		panic(err)
+
+		GetTestCollection()
+	}
+	//CreateTestCollection("WeavinItUp", "Let's hope this works first try", testClient)
+}
 
 func GetSchema() {
 	cfg := weaviate.Config{
@@ -28,17 +46,16 @@ func GetSchema() {
 	fmt.Printf("\nSCHEMA: %v", result)
 }
 
-func Test() {
-	GetSchema()
-}
-
-func CreateTestCollection(name string, description string, client weaviate.Client) {
-	ctx := context.Background()
+// Straight from the docs. No AI slop to be found
+// Need to add check for if the collection already exists (assuming that's not done by default somehow)
+func CreateTestCollection(name string, description string, client *weaviate.Client) {
+	ctx := context.Background() // Still need to fully figure out how to use this
 	className := name
 
 	emptyClass := &models.Class{
 		Class:           className,
 		Description:     description,
+		Vectorizer:      "text2vec-openai", // Double check this. Probably wrong one
 		VectorIndexType: "hnsw",
 		Properties: []*models.Property{
 			{
@@ -51,12 +68,22 @@ func CreateTestCollection(name string, description string, client weaviate.Clien
 			},
 		},
 	}
-	// Add error handling
-	err := client.Schema().ClassCreator().
-		WithClass(emptyClass).
-		Do(ctx)
-
+	// Add better error handling
+	// This could also be just done a lot more elegantly in general
+	exists, err := client.Schema().ClassExistenceChecker().WithClassName(name).Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
+	if exists != true {
+		err := client.Schema().ClassCreator().
+			WithClass(emptyClass).
+			Do(ctx)
+
+		if err != nil {
+			panic(err)
+	}
+}
+
+func GetTestCollection() {
+	response, err := client.GraphQL
 }
