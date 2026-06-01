@@ -36,8 +36,10 @@ func main() {
 	}
 	fmt.Printf("%v", live)
 
-	// Create test collection
+	// There's gotta be a way to not have to restate the client in every Weaviate related function I make dude
+	// Eh you'll figure something out later
 	CreateCollection(weaviateClient, "TestCollection", "A collection to see if I can at least create an empty collection")
+	GetCollectionByName(weaviateClient, "TestCollection")
 
 	//result := GenerateSearchQuery(ChatModel, "What are some of the best novels of the 21st century?")
 	//fmt.Println(result)
