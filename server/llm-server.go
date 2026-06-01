@@ -33,7 +33,10 @@ func UnloadModel(modelName string) {
 // Need to make sure that the context part is actually doing something here
 // This could probably be generalized into a chat/system prompt function, as it's looking like it's gonna be reused pretty often
 // Or just call a chat completion function within this function... idk
+
+// Need to add timer for this and return the value
 func GenerateSearchQuery(modelName string, userPrompt string) string {
+	fmt.Println("Generating search queries for prompt:", userPrompt)
 	ctx := context.Background()
 	client := openai.NewClient(
 		option.WithBaseURL(ServerBaseURL),

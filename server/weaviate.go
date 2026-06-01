@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
+	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate/entities/models"
 	"github.com/weaviate/weaviate/entities/schema"
 )
@@ -16,11 +18,13 @@ import (
 // YOU ALSO REALLY GOTTA FIGURE OUT PROPER ERROR HANDLING BEFORE YOU
 // HAVE MORE TO DO THAN YOU SHOULD LATER ON!
 
-const VectorizationMethod string = "text2vec-openai" // Not sure if this variable is necessary... given that you're probably not gonna need a different vectorization method you can probably get rid of it
+// Not sure if this variable is necessary... given that you're probably not gonna need a different vectorization method you can probably get rid of it
+// But.. what if you want to easily change the vectorization method?
+// const VectorizationMethod string = "text2vec-openai"
 
 func CreateCollection(client *weaviate.Client, className string, description string) { // You're probably gonna need more parameters for this later
 	ctx := context.Background()
-	fmt.Println("Checking existence for collection: ", className)
+	fmt.Println("Checking existence for collection:", className)
 	exists, err := client.Schema().ClassExistenceChecker().WithClassName(className).Do(ctx)
 
 	// There's probably a more elegant way to do these if statements (switch maybe?)
@@ -28,7 +32,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		panic(err)
 	}
 	if exists == true {
-		fmt.Println("Collection already exists: ", className)
+		fmt.Println("Collection already exists:", className)
 		return
 	}
 
@@ -77,7 +81,15 @@ func GetCollection(client *weaviate.Client, className string) []byte {
 	return b
 }
 
-//func DeleteCollection() {}
+// Delete a collection from your vector database
+func DeleteCollection(client *weaviate.Client, className string) {
+	if err := client.Schema().ClassDeleter().WithClassName(className).Do(context.Background()); err != nil {
+		// Weaviate will return a 400 if the class does not exist, so this is allowed, only return an error if it's not a 400
+		if status, ok := err.(*fault.WeaviateClientError); ok && status.StatusCode != http.StatusBadRequest {
+			panic(err)
+		}
+	}
+}
 
 // func EmbedText() {}
 

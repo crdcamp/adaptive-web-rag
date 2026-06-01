@@ -17,6 +17,7 @@ const APIKey string = "no-key"
 // Just gotta get shit working for now so we're leaving it as is
 
 // Might be better to directly pull these values from the `curl http://localhost:8001/v1/models | jq` results instead
+// What does this mean? ^
 
 // Need to address the error handling everywhere. We'll leave as is for now
 func main() {
@@ -38,11 +39,13 @@ func main() {
 
 	// There's gotta be a way to not have to restate the client in every Weaviate related function I make dude
 	// Eh you'll figure something out later, but this also might be the best way to do it
-	// Client could be a global variable... but I don't like those and what happens if you need to manage multiple clients?
-	// So yea... Probably leave it at that
+	// Client could be a global variable... but I don't like global variables and what happens if you need to manage multiple clients?
+	// So yea... Probably leave it as is
 	CreateCollection(weaviateClient, "TestCollection", "A collection to see if I can at least create an empty collection")
-	var testCollection []byte = GetCollection(weaviateClient, "TestCollection") // Don't forget to review this output to sort out the final issues with the collection config
-	fmt.Printf("testCollection type: %T", testCollection)
+
+	var searchQueries = GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of llama.cpp")
+	fmt.Println(searchQueries)
+	//CreateCollection(weaviateClient, "LlamaCppInfo", "A test collection for information on llama.cpp's benefits and drawbacks")
 
 	//result := GenerateSearchQuery(ChatModel, "What are some of the best novels of the 21st century?")
 	//fmt.Println(result)
