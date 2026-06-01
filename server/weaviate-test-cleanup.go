@@ -11,22 +11,9 @@ import (
 	"github.com/weaviate/weaviate/entities/schema"
 )
 
-func WeaviateTest() {
-	cfg := weaviate.Config{
-		Host:   "localhost:8080",
-		Scheme: "http",
-	}
-	fmt.Printf("cdf type: %T", cfg)
-
-	client, err := weaviate.NewClient(cfg)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("\nclient type: %T", client)
-}
-
-func CreateCollection(className string, description string, client *weaviate.Client) {
+func CreateCollection(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()
+	fmt.Println("Checking existence for collection: ", className)
 	exists, err := client.Schema().ClassExistenceChecker().WithClassName(className).Do(ctx)
 
 	// There's probably a more elegant way to do this error handling
@@ -38,6 +25,7 @@ func CreateCollection(className string, description string, client *weaviate.Cli
 		return
 	}
 
+	fmt.Println("Creating class:", className)
 	emptyClass := &models.Class{
 		Class:           className,
 		Description:     description,
