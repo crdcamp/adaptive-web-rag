@@ -59,14 +59,20 @@ func CreateCollection(client *weaviate.Client, className string, description str
 
 // MAKE SURE TO READ THE OUTPUT OF THIS
 // THERE'S A FEW CONFIGURATIONS YOU NEED TO ADDRESS
-func GetCollectionByName(client *weaviate.Client, className string) {
+func GetCollection(client *weaviate.Client, className string) []byte {
 	ctx := context.Background()
+
+	fmt.Println("Retrieving collection: ", className)
 	class, err := client.Schema().ClassGetter().
 		WithClassName(className).Do(ctx)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Collection retrieved:", className)
 
 	b, err := json.MarshalIndent(class, "", " ")
-	fmt.Println("Retrieved class name: ", string(b))
+
+	return b
 }
+
+//func DeleteCollection() {}
