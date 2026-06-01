@@ -44,6 +44,14 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 - [Qwen/Qwen3-Embedding-8B-GGUF-Q5_K_M](https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF?show_file_info=Qwen3-Embedding-8B-Q5_K_M.gguf)
 - [bartowski/Qwen2.5-7B-Instruct-Q4_K_M.gguf](https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/blob/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf)
 
+# Starting Docker
+
+Easy:
+
+```bash
+docker compose up
+```
+
 # Starting the Server
 
 * [Server troubleshooting guide](https://www.youtube.com/watch?v=1_L9cG-X2eY)

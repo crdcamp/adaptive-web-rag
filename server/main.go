@@ -11,10 +11,11 @@ func main() {
 	//fmt.Println(result)
 	//UnloadModel(ChatModel)
 
-	Test()
+	CleanTest()
 }
 
 const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
 const ServerBaseURL string = "http://127.0.0.1:8001"
 const APIKey string = "no-key" // Can probably just remove this one
+//const WeaviateClient

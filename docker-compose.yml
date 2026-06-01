@@ -13,12 +13,12 @@ services:
       - 8080:8080
       - 50051:50051
     volumes:
-      - weaviate_data:/var/lib/weaviate
+      - weaviate_data:/vector-db/weaviate-data
     restart: on-failure:0
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
-      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      PERSISTENCE_DATA_PATH: "/vector-db"
       ENABLE_MODULES: "generative-ollama,text2vec-ollama"
       CLUSTER_HOSTNAME: "node1"
 

@@ -31,6 +31,8 @@ func UnloadModel(modelName string) {
 // Generate a search query to pass on to `crawl.py`
 // Need to adjust the system prompt to account for searches that require a time-relevancy to their answer (idk I can't think of a better way to phrase that rn)
 // Need to make sure that the context part is actually doing something here
+// This could probably be generalized into a chat/system prompt function, as it's looking like it's gonna be reused pretty often
+// Or just call a chat completion function within this function... idk
 func GenerateSearchQuery(modelName string, userPrompt string) string {
 	ctx := context.Background()
 	client := openai.NewClient(
