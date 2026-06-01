@@ -37,9 +37,11 @@ func main() {
 	fmt.Printf("%v", live)
 
 	// There's gotta be a way to not have to restate the client in every Weaviate related function I make dude
-	// Eh you'll figure something out later
+	// Eh you'll figure something out later, but this also might be the best way to do it
+	// Client could be a global variable... but I don't like those and what happens if you need to manage multiple clients?
+	// So yea... Probably leave it at that
 	CreateCollection(weaviateClient, "TestCollection", "A collection to see if I can at least create an empty collection")
-	GetCollectionByName(weaviateClient, "TestCollection")
+	GetCollectionByName(weaviateClient, "TestCollection") // Don't forget to review this output to sort out the final issues with the collection config
 
 	//result := GenerateSearchQuery(ChatModel, "What are some of the best novels of the 21st century?")
 	//fmt.Println(result)

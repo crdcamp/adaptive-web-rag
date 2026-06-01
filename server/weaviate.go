@@ -16,7 +16,7 @@ import (
 // YOU ALSO REALLY GOTTA FIGURE OUT PROPER ERROR HANDLING BEFORE YOU
 // HAVE MORE TO DO THAN YOU SHOULD LATER ON!
 
-func CreateCollection(client *weaviate.Client, className string, description string) {
+func CreateCollection(client *weaviate.Client, className string, description string) { // You're prob gonna need more parameters for this later
 	ctx := context.Background()
 	fmt.Println("Checking existence for collection: ", className)
 	exists, err := client.Schema().ClassExistenceChecker().WithClassName(className).Do(ctx)
@@ -30,6 +30,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		return
 	}
 
+	// Class is missing a lot of parameters that show in the retrieval output
 	fmt.Println("Creating class:", className)
 	emptyClass := &models.Class{
 		Class:           className,
