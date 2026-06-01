@@ -16,14 +16,14 @@ import (
 // YOU ALSO REALLY GOTTA FIGURE OUT PROPER ERROR HANDLING BEFORE YOU
 // HAVE MORE TO DO THAN YOU SHOULD LATER ON!
 
-const VectorizationMethod string = "text2vec-openai"
+const VectorizationMethod string = "text2vec-openai" // Not sure if this variable is necessary... given that you're probably not gonna need a different vectorization method you can probably get rid of it
 
-func CreateCollection(client *weaviate.Client, className string, description string) { // You're prob gonna need more parameters for this later
+func CreateCollection(client *weaviate.Client, className string, description string) { // You're probably gonna need more parameters for this later
 	ctx := context.Background()
 	fmt.Println("Checking existence for collection: ", className)
 	exists, err := client.Schema().ClassExistenceChecker().WithClassName(className).Do(ctx)
 
-	// There's probably a more elegant way to do this error handling
+	// There's probably a more elegant way to do these if statements (switch maybe?)
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +37,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 	emptyClass := &models.Class{
 		Class:           className,
 		Description:     description,
-		Vectorizer:      "text2vec-openai", // Double check this. Might be the wrong vectorizer
+		Vectorizer:      "text2vec-openai",
 		VectorIndexType: "hnsw",
 		Properties: []*models.Property{
 			{
@@ -78,3 +78,7 @@ func GetCollection(client *weaviate.Client, className string) []byte {
 }
 
 //func DeleteCollection() {}
+
+// func EmbedText() {}
+
+// func UploadCollection() {}

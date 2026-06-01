@@ -41,7 +41,7 @@ func main() {
 	// Client could be a global variable... but I don't like those and what happens if you need to manage multiple clients?
 	// So yea... Probably leave it at that
 	CreateCollection(weaviateClient, "TestCollection", "A collection to see if I can at least create an empty collection")
-	var testCollection = GetCollection(weaviateClient, "TestCollection") // Don't forget to review this output to sort out the final issues with the collection config
+	var testCollection []byte = GetCollection(weaviateClient, "TestCollection") // Don't forget to review this output to sort out the final issues with the collection config
 	fmt.Printf("testCollection type: %T", testCollection)
 
 	//result := GenerateSearchQuery(ChatModel, "What are some of the best novels of the 21st century?")
