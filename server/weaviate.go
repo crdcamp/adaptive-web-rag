@@ -16,6 +16,8 @@ import (
 // YOU ALSO REALLY GOTTA FIGURE OUT PROPER ERROR HANDLING BEFORE YOU
 // HAVE MORE TO DO THAN YOU SHOULD LATER ON!
 
+const VectorizationMethod string = "text2vec-openai"
+
 func CreateCollection(client *weaviate.Client, className string, description string) { // You're prob gonna need more parameters for this later
 	ctx := context.Background()
 	fmt.Println("Checking existence for collection: ", className)
