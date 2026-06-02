@@ -121,6 +121,8 @@ async def main():
     if urls:
         print(f"Found {len(urls)} URLs to crawl")
         result = await crawl_parallel(urls, max_concurrent=10)
+
+        # Save as a file meant to be overwritten. Probably a more elegant way to do this
         with open(f"{crawl_data_path}/crawl_results.json", "w") as f:
             json.dump(result, f)
     else:
