@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/openai/openai-go/v3" // imported as openai
 	"github.com/openai/openai-go/v3/option"
@@ -62,9 +63,9 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 	UnloadModel(modelName)
 
 	fmt.Println("Saving prompt to `server/crawl_data/user_prompt.md`")
-	userPromptByte := []byte(userPrompt)
+	chatResponseByte := []byte(strings.Trim(chatResponse, `"`))
 	path := filepath.Join("crawl_data/user_prompt.md")
-	err = os.WriteFile(path, userPromptByte, 0644)
+	err = os.WriteFile(path, chatResponseByte, 0644)
 	if err != nil {
 		panic(err)
 	} else {

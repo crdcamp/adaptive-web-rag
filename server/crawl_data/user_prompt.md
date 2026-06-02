@@ -1,1 +1,1 @@
-Tell me about the benefits and drawbacks of llama.cpp
+benefits and drawbacks of llama.cpp model
