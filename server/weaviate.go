@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os/exec"
 
+	"github.com/crdcamp/charsplitter"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate/entities/models"
@@ -128,13 +129,18 @@ func ChunkEmbedAndUploadCrawlResults() {
 		log.Fatal("Error during Unmarshal(): ", err)
 	}
 
-	fmt.Println("Results for crawl_results.json:")
-	for href, markdown := range payload {
-		fmt.Println("URL:", href)
-		fmt.Println("Content (first 200 characters):\n", markdown[:200], "\n")
-	}
-
 	// Chunk results
+	splitter := charsplitter.New(
+		charsplitter.WithChunkSize(1024),
+		charsplitter.WithChunkOverlap(150),
+		charsplitter.WithKeepSeparator(False),
+	)
+	for url, pageContent := range payload {
+		chunks, err := splitter.SplitText(pageContent)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	// Embed results
 
