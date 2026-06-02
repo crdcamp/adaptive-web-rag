@@ -10,12 +10,18 @@ import requests
 from typing import List
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 
+import json
+
 __location__ = os.path.dirname(os.path.abspath(__file__))
 __output__ = os.path.join(__location__, "output")
 
 # Append parent directory to system path
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
+
+# Define save location for results
+crawl_data_path = "crawl_data"
+os.makedirs(crawl_data_path, exist_ok=True)
 
 # NEED TO ADD TIMER FOR BOTH OF THESE FUNCTIONS
 # In a later implementation, you should also consider using sessions
@@ -34,7 +40,7 @@ async def duckduckgo_search(search_query: str, max_results: int) -> list:
 
 # %% Crawler
 # Credit: https://github.com/coleam00/ottomator-agents/blob/main/crawl4AI-agent/crawl4AI-examples/3-crawl_docs_FAST.py
-async def crawl_parallel(urls: List[str], max_concurrent: int = 3):
+async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
     results_data = {}
     print("\n=== Parallel Crawling with Browser Reuse + Memory Check ===")
 
@@ -90,7 +96,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 3):
                     print(f"Error crawling {url}: {result}")
                     fail_count += 1
                 elif result.success:
-                    results_data[result.url] = result.markdown.raw_markdown
+                    results_data[result.url] = result.markdown
                     success_count += 1
                 else:
                     fail_count += 1
@@ -114,8 +120,9 @@ async def main():
     urls = await duckduckgo_search("benefits and drawbacks of llama.cpp library", 8)
     if urls:
         print(f"Found {len(urls)} URLs to crawl")
-        results = await crawl_parallel(urls, max_concurrent=10)
-        print(results)
+        result = await crawl_parallel(urls, max_concurrent=10)
+        with open(f"{crawl_data_path}/crawl_results.json", "w") as f:
+            json.dump(result, f)
     else:
         print("No URLs found to crawl")
 
