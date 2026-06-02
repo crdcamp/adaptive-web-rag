@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
@@ -18,7 +21,7 @@ const APIKey string = "no-key"
 
 // Need to address the error handling everywhere. We'll leave as is for now
 func main() {
-	// Client creation
+	// Weaviate client
 	cfg := weaviate.Config{
 		Host:   "localhost:8080",
 		Scheme: "http",
@@ -28,15 +31,16 @@ func main() {
 		panic(err)
 	}
 
-	// Weaviate status check. We'll worry about implementing this later
-	// live, err := weaviateClient.Misc().LiveChecker().Do(context.Background())
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("%v", live)
+	// Weaviate status check
+	live, err := weaviateClient.Misc().LiveChecker().Do(context.Background())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v", live)
 
 	CreateCollection(weaviateClient, "TestCollection", "A collection to see if I can at least create an empty collection")
 	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of llama.cpp")
+	CallCrawlScript()
 }
 
 // Can probably just remove this one

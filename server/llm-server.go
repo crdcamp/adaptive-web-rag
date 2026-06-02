@@ -5,7 +5,10 @@ import (
 	"context" // A Context carries a deadline, a cancellation signal, and other values across API boundaries.
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os/exec"
 
 	"github.com/openai/openai-go/v3" // imported as openai
 	"github.com/openai/openai-go/v3/option"
@@ -66,5 +69,34 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 // NEXT STEPS
 
 // Call crawl script
+func CallCrawlScript() {
+	// Run crawl.py
+	fmt.Println("Executing crawl.py")
+	cmd := exec.Command("python3", "crawl.py")
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal("Error when running command: ", err)
+	}
+
+	// Read `crawl_results.json`
+	type Data struct {
+		Href     string
+		Markdown string
+	}
+
+	fmt.Println("Reading crawl.py results")
+	content, err := ioutil.ReadFile("crawl_data/crawl_results.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
+
+	// Unmarshall the data into `payload`
+	var payload Data
+	err = json.Unmarshal(content, &payload)
+	if err != nil {
+		log.Fatal("Error during Unmarshal(): ", err)
+	}
+}
+
 // Chunk and embed crawl results
 // Upload crawl results to vector db

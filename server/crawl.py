@@ -34,6 +34,8 @@ async def duckduckgo_search(search_query: str, max_results: int) -> list:
     print(f"Gathering {max_results} URLs for DuckDuckGo search: {search_query}")
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, lambda: DDGS().text(search_query, max_results=max_results))
+
+    # Only extract the hrefs (urls)
     hrefs = [r["href"] for r in result]
     print(f"DuckDuckGo search complete for search: {search_query}")
     return hrefs
@@ -90,7 +92,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
             # Check memory usage after tasks complete
             log_memory(prefix=f"After batch {i//max_concurrent + 1}: ")
 
-            # Evaluate and return results
+            # Evaluate and return results as a dictionary
             for url, result in zip(batch, results):
                 if isinstance(result, Exception):
                     print(f"Error crawling {url}: {result}")
