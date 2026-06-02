@@ -5,10 +5,7 @@ import (
 	"context" // A Context carries a deadline, a cancellation signal, and other values across API boundaries.
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"os/exec"
 
 	"github.com/openai/openai-go/v3" // imported as openai
 	"github.com/openai/openai-go/v3/option"
@@ -64,39 +61,3 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 
 	return chatResponse
 }
-
-// NEXT STEPS
-
-// Calls crawl.py and returns the json
-func CallCrawlScript() {
-	// Run crawl.py
-	fmt.Println("Executing crawl.py")
-	cmd := exec.Command("python3", "crawl.py")
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal("Error when running command: ", err)
-	}
-}
-
-func ChunkAndEmbedCrawlResults() {
-	// Read `crawl_results.json`
-	content, err := ioutil.ReadFile("crawl_data/crawl_results.json")
-	if err != nil {
-		log.Fatal("Error when opening file: ", err)
-	}
-
-	var payload map[string]string
-	err = json.Unmarshal(content, &payload)
-	if err != nil {
-		log.Fatal("Error during Unmarshal(): ", err)
-	}
-
-	fmt.Println("Results for crawl_results.json:")
-	for href, markdown := range payload {
-		fmt.Println("URL:", href)
-		fmt.Println("Content (first 1000 characters):", markdown[:1000], "\n\n")
-	}
-}
-
-// Chunk and embed crawl results
-// Upload crawl results to vector db

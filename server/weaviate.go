@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os/exec"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
@@ -91,6 +94,34 @@ func DeleteCollection(client *weaviate.Client, className string) {
 	}
 }
 
-// func EmbedText() {}
+// Calls crawl.py. Results are saved to `server/crawl_data/crawl_results.json`
+func CallCrawlScript() {
+	// Run crawl.py
+	fmt.Println("Executing crawl.py")
+	cmd := exec.Command("python3", "crawl.py")
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal("Error when running command: ", err)
+	}
+}
 
-// func UploadCollection() {}
+// Read `crawl_results.json` and upload the results to the vector database
+func ChunkAndEmbedCrawlResults() {
+	// Read `crawl_results.json`
+	content, err := ioutil.ReadFile("crawl_data/crawl_results.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
+
+	var payload map[string]string
+	err = json.Unmarshal(content, &payload)
+	if err != nil {
+		log.Fatal("Error during Unmarshal(): ", err)
+	}
+
+	fmt.Println("Results for crawl_results.json:")
+	for href, markdown := range payload {
+		fmt.Println("URL:", href)
+		fmt.Println("Content (first 400 characters):\n", markdown[:400], "\n")
+	}
+}

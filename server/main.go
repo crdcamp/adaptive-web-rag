@@ -41,6 +41,7 @@ func main() {
 	CreateCollection(weaviateClient, "TestCollection", "A collection to see if I can at least create an empty collection")
 	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of llama.cpp")
 	CallCrawlScript()
+	ChunkAndEmbedCrawlResults()
 }
 
 // Can probably just remove this one
