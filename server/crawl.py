@@ -23,6 +23,10 @@ sys.path.append(parent_dir)
 crawl_data_path = "crawl_data"
 os.makedirs(crawl_data_path, exist_ok=True)
 
+# Read prompt output from `llm-server.go`
+with open (f"{crawl_data_path}/user_prompt.md") as f:
+    prompt = f.read()
+
 # NEED TO ADD TIMER FOR BOTH OF THESE FUNCTIONS
 # In a later implementation, you should also consider using sessions
 # that run in tandem with llama-server
@@ -119,7 +123,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
 
 
 async def main():
-    urls = await duckduckgo_search("benefits and drawbacks of llama.cpp library", 8)
+    urls = await duckduckgo_search(prompt, 8)
     if urls:
         print(f"Found {len(urls)} URLs to crawl")
         result = await crawl_parallel(urls, max_concurrent=10)

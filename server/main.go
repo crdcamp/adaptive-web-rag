@@ -39,9 +39,9 @@ func main() {
 	fmt.Printf("%v", live)
 
 	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
-	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of llama.cpp")
-	//CallCrawlScript()
-	//ChunkEmbedAndUploadCrawlResults()
+	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
+	CallCrawlScript()
+	ChunkEmbedAndUploadCrawlResults()
 }
 
 // Can probably just remove this one

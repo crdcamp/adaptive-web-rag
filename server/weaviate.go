@@ -109,6 +109,8 @@ func CallCrawlScript() {
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal("Error when running command: ", err)
+	} else {
+		fmt.Println("crawl.py successfully executed")
 	}
 }
 

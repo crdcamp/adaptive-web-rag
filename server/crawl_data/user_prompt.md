@@ -1,1 +1,1 @@
-benefits and drawbacks of llama.cpp model
+benefits and drawbacks of using llama.cpp library
