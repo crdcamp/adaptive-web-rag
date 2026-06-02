@@ -36,10 +36,9 @@ func UnloadModel(modelName string) {
 // Generate a search query to pass on to `crawl.py`
 // Need to adjust the system prompt to account for searches that require a time-relevancy to their answer (idk I can't think of a better way to phrase that rn)
 // Need to make sure that the context part is actually doing something here
-// This could probably be generalized into a chat/system prompt function, as it's looking like it's gonna be reused pretty often
-// Or just call a chat completion function within this function... idk
+// Also consider making chat/system prompt function, as it's looking like it's gonna be reused pretty often
 
-// Need to add timer for this and return the value
+// Need to add timer for this and return the time value
 func GenerateSearchQuery(modelName string, userPrompt string) string {
 	ctx := context.Background()
 	client := openai.NewClient(
@@ -68,7 +67,7 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 
 // NEXT STEPS
 
-// Call crawl script
+// Calls crawl.py and returns the json
 func CallCrawlScript() {
 	// Run crawl.py
 	fmt.Println("Executing crawl.py")
@@ -77,24 +76,25 @@ func CallCrawlScript() {
 	if err != nil {
 		log.Fatal("Error when running command: ", err)
 	}
+}
 
+func ChunkAndEmbedCrawlResults() {
 	// Read `crawl_results.json`
-	type Data struct {
-		Href     string
-		Markdown string
-	}
-
-	fmt.Println("Reading crawl.py results")
 	content, err := ioutil.ReadFile("crawl_data/crawl_results.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
 
-	// Unmarshall the data into `payload`
-	var payload Data
+	var payload map[string]string
 	err = json.Unmarshal(content, &payload)
 	if err != nil {
 		log.Fatal("Error during Unmarshal(): ", err)
+	}
+
+	fmt.Println("Results for crawl_results.json:")
+	for href, markdown := range payload {
+		fmt.Println("URL:", href)
+		fmt.Println("Content (first 1000 characters):", markdown[:1000], "\n\n")
 	}
 }
 
