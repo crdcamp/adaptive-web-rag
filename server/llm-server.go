@@ -63,8 +63,8 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 	return chatResponse
 }
 
-//func CallCrawlScript() {}
+// NEXT STEPS
 
-// func SomethingAboutVectorDB() {}
-
-// func EmbeddingModel() {}
+// Call crawl script
+// Chunk and embed crawl results
+// Upload crawl results to vector db
