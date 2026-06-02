@@ -20,12 +20,14 @@ func UnloadModel(modelName string) {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Unloading model:", modelName)
 	resp, err := http.Post(unloadURL, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		panic(err) // Need a better error handling method here
 	}
 	defer resp.Body.Close()
-	fmt.Printf("Status: %s\n", resp.Status)
+	//fmt.Printf("Status: %s\n", resp.Status)
+	fmt.Println("Model unloaded:", modelName)
 }
 
 // Generate a search query to pass on to `crawl.py`
@@ -36,7 +38,6 @@ func UnloadModel(modelName string) {
 
 // Need to add timer for this and return the value
 func GenerateSearchQuery(modelName string, userPrompt string) string {
-	fmt.Println("Generating search queries for prompt:", userPrompt)
 	ctx := context.Background()
 	client := openai.NewClient(
 		option.WithBaseURL(ServerBaseURL),
@@ -44,6 +45,7 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 	)
 	systemMessage := "You are a search query generator. When given a question or topic, generate a search engine query that a person could enter into a browser to research it."
 
+	fmt.Println("Loading model", modelName, "and generating search query for prompt:", userPrompt)
 	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(systemMessage),
@@ -55,13 +57,14 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 		panic(err) // Need a better error handling method here
 	}
 	chatResponse := chatCompletion.Choices[0].Message.Content
+	fmt.Println("Search query generation result:", chatResponse)
 	UnloadModel(modelName)
 
 	return chatResponse
 }
 
-// func EmbeddingModel() {}
+//func CallCrawlScript() {}
 
 // func SomethingAboutVectorDB() {}
 
-//func CallCrawlScript() {}
+// func EmbeddingModel() {}

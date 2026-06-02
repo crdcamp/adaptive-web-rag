@@ -1,9 +1,6 @@
 package main
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
@@ -31,25 +28,15 @@ func main() {
 		panic(err)
 	}
 
-	live, err := weaviateClient.Misc().LiveChecker().Do(context.Background()) // Not really sure what this line does or where it came from. We'll figure that out later
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%v", live)
+	// Weaviate status check. We'll worry about implementing this later
+	// live, err := weaviateClient.Misc().LiveChecker().Do(context.Background())
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Printf("%v", live)
 
-	// There's gotta be a way to not have to restate the client in every Weaviate related function I make dude
-	// Eh you'll figure something out later, but this also might be the best way to do it
-	// Client could be a global variable... but I don't like global variables and what happens if you need to manage multiple clients?
-	// So yea... Probably leave it as is
 	CreateCollection(weaviateClient, "TestCollection", "A collection to see if I can at least create an empty collection")
-
-	var searchQueries = GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of llama.cpp")
-	fmt.Println(searchQueries)
-	//CreateCollection(weaviateClient, "LlamaCppInfo", "A test collection for information on llama.cpp's benefits and drawbacks")
-
-	//result := GenerateSearchQuery(ChatModel, "What are some of the best novels of the 21st century?")
-	//fmt.Println(result)
-	//UnloadModel(ChatModel)
+	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of llama.cpp")
 }
 
 // Can probably just remove this one
