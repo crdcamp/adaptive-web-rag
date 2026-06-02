@@ -10,6 +10,7 @@ import (
 	"os/exec"
 
 	"github.com/crdcamp/charsplitter"
+
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate/entities/models"
@@ -105,18 +106,18 @@ func DeleteCollection(client *weaviate.Client, className string) {
 // Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
 func CallCrawlScript() {
 	// Run crawl.py
-	fmt.Println("Executing crawl.py")
+	fmt.Println("Executing: crawl.py")
 	cmd := exec.Command("python3", "crawl.py")
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal("Error when running command: ", err)
 	} else {
-		fmt.Println("crawl.py successfully executed")
+		fmt.Println("Successfully executed: crawl.py")
 	}
 }
 
 // Read `crawl_results.json` and upload results to your Weaviate vector database.
-func ChunkEmbedAndUploadCrawlResults() {
+func ChunkEmbedAndUploadCrawlResults(embeddingModel string) {
 	// Read `crawl_results.json`
 	content, err := ioutil.ReadFile("crawl_data/crawl_results.json")
 	if err != nil {
@@ -129,20 +130,22 @@ func ChunkEmbedAndUploadCrawlResults() {
 		log.Fatal("Error during Unmarshal(): ", err)
 	}
 
-	// Chunk results
+	// Chunk
 	splitter := charsplitter.New(
 		charsplitter.WithChunkSize(1024),
-		charsplitter.WithChunkOverlap(150),
-		charsplitter.WithKeepSeparator(False),
+		charsplitter.WithChunkOverlap(0),
+		charsplitter.WithKeepSeparator(false),
 	)
 	for url, pageContent := range payload {
 		chunks, err := splitter.SplitText(pageContent)
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println("URL:", url)
+		fmt.Println("Length of split Content:", len(chunks), "\n")
 	}
 
-	// Embed results
+	// Embed
 
 	// Upload to vector db with href as metadata
 }

@@ -41,7 +41,7 @@ func main() {
 	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
 	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
 	CallCrawlScript()
-	ChunkEmbedAndUploadCrawlResults()
+	ChunkEmbedAndUploadCrawlResults(EmbedModel)
 }
 
 // Can probably just remove this one
