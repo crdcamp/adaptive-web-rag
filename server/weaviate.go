@@ -45,6 +45,19 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		return
 	}
 
+	// "moduleConfig": {
+	//  "text2vec-openai": {
+	//   "baseURL": "https://api.openai.com",
+	//   "model": "text-embedding-3-small",
+	//   "vectorizeClassName": true
+	//  }
+
+	// "replicationConfig": {
+	//  "asyncEnabled": false,
+	//  "deletionStrategy": "TimeBasedResolution",
+	//  "factor": 1
+	// },
+
 	// Class is missing a lot of parameters that show in the retrieval output
 	fmt.Println("Creating class:", className)
 	emptyClass := &models.Class{
@@ -52,6 +65,13 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		Description:     description,
 		Vectorizer:      "text2vec-openai",
 		VectorIndexType: "hnsw",
+		ModuleConfig: map[string]interface{}{
+			"text2vec-openai": map[string]interface{}{
+				"baseURL":            ServerBaseURL,
+				"model":              EmbedModel,
+				"vectorizeClassName": true,
+			},
+		},
 		Properties: []*models.Property{
 			{
 				Name:     "title",
@@ -78,7 +98,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 func GetCollection(client *weaviate.Client, className string) []byte {
 	ctx := context.Background()
 
-	fmt.Println("Retrieving collection: ", className)
+	fmt.Println("Retrieving collection:", className)
 	class, err := client.Schema().ClassGetter().
 		WithClassName(className).Do(ctx)
 	if err != nil {
@@ -130,22 +150,32 @@ func ChunkEmbedAndUploadCrawlResults(embeddingModel string) {
 		log.Fatal("Error during Unmarshal(): ", err)
 	}
 
-	// Chunk
+	// Split text
+	fmt.Println("Splitting web search results")
 	splitter := charsplitter.New(
-		charsplitter.WithChunkSize(1024),
+		charsplitter.WithChunkSize(256),
 		charsplitter.WithChunkOverlap(0),
 		charsplitter.WithKeepSeparator(false),
 	)
-	for url, pageContent := range payload {
+
+	type Chunk struct {
+		Href    string
+		Content string
+	}
+
+	var allChunks []Chunk
+	for href, pageContent := range payload {
 		chunks, err := splitter.SplitText(pageContent)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("URL:", url)
-		fmt.Println("Length of split Content:", len(chunks), "\n")
+		for _, c := range chunks {
+			allChunks = append(allChunks, Chunk{Href: href, Content: c})
+		}
 	}
 
 	// Embed
+	fmt.Println("Embedding web search results")
 
 	// Upload to vector db with href as metadata
 }

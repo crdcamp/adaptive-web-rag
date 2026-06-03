@@ -38,11 +38,12 @@ func main() {
 	}
 	fmt.Printf("%v", live)
 
-	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
-	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
-	CallCrawlScript()
-	ChunkEmbedAndUploadCrawlResults(EmbedModel)
-}
+	collection := GetCollection(weaviateClient, "CrawlResults")
+	fmt.Println("Collection:\n", string(collection))
 
-// Can probably just remove this one
-//const WeaviateClient
+	// We'll turn this all into a function within the main function at some point
+	// CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	// GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
+	// CallCrawlScript()
+	// ChunkEmbedAndUploadCrawlResults(EmbedModel)
+}
