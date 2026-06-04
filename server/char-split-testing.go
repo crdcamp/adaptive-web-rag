@@ -19,13 +19,12 @@ func TestSplit() {
 		Content string `json:"content"`
 	}
 
-	var c CrawlData
-	err = json.Unmarshal(content, &c)
+	var c []CrawlData
+	err = json.Unmarshal([]byte(content), &c)
 	if err != nil {
 		log.Fatal("Error unmarshaling into CrawlData: ", err)
 	}
-	fmt.Println(c.Href)
-	fmt.Println(c.Content)
+	fmt.Printf("Content: %v", string(content))
 
 	// Text splitter
 	// textSplitter := charsplitter.New(

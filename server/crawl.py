@@ -47,7 +47,7 @@ async def duckduckgo_search(search_query: str, max_results: int) -> dict:
 # %% Crawler
 # Credit: https://github.com/coleam00/ottomator-agents/blob/main/crawl4AI-agent/crawl4AI-examples/3-crawl_docs_FAST.py
 async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
-    results_data = []
+    results_data = {}
     print("\n=== Parallel Crawling with Browser Reuse + Memory Check ===")
 
     # We'll keep track of peak memory usage across all tasks
@@ -102,7 +102,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
                     print(f"Error crawling {url}: {result}")
                     fail_count += 1
                 elif result.success:
-                    results_data.append({"href": url, "content": result.markdown})
+                    results_data[url] = {"href": url, "content": result.markdown}
                     success_count += 1
                 else:
                     fail_count += 1
