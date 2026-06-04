@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/crdcamp/charsplitter"
 )
 
 func TestSplit() {
@@ -27,21 +29,26 @@ func TestSplit() {
 		panic(err)
 	}
 
-	// Iterate
-	for urlKey, values := range m {
-		fmt.Printf("URL key: %s\n", urlKey)
-		fmt.Printf("Stuct Href value: %s\n", values.Href)
+	// Text splitter
+	splitter := charsplitter.New(
+		charsplitter.WithChunkSize(512),
+		charsplitter.WithChunkOverlap(100),
+		charsplitter.WithKeepSeparator(false),
+	)
+
+	// Iterate example
+	for urlKey, hrefContent := range m {
+		allSplitText := []string{}
+		splitText, err := splitter.SplitText(hrefContent.Content)
+		if err != nil {
+			panic(err)
+		}
+
+		allSplitText.append(splitText)
 	}
 
-	//fmt.Println(string(data))
 
-	//os.WriteFile("crawl_data/crawl_results_test.json", data, 0644)
+	// Split a single document
+	}
 
-	// Text splitter
-	// textSplitter := charsplitter.New(
-	// 	charsplitter.WithChunkSize(512),
-	// 	charsplitter.WithChunkOverlap(100),
-	// 	charsplitter.WithKeepSeparator(false),
-	// )
 }
-
