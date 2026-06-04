@@ -37,18 +37,17 @@ func TestSplit() {
 	)
 
 	// Iterate example
-	for urlKey, hrefContent := range m {
-		allSplitText := []string{}
-		splitText, err := splitter.SplitText(hrefContent.Content)
+	allSplitText := []string{}
+	for _, hrefAndContent := range m {
+		splitText, err := splitter.SplitText(hrefAndContent.Content)
 		if err != nil {
 			panic(err)
 		}
 
-		allSplitText.append(splitText)
+		allSplitText = append(allSplitText, splitText...)
+
+		fmt.Println("splitText length:", len(splitText))
+		// Temporary break for testing
 	}
-
-
-	// Split a single document
-	}
-
 }
+
