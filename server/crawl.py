@@ -34,7 +34,7 @@ with open (f"{crawl_data_path}/user_prompt.md") as f:
 # %% DuckDuckGo Search Tool
 # Find out if there's a chunk splitter designed for crawl4ai results
 # Also... there's probably a better way to do this function in Go (are we gonna rewrite this in go too?)
-async def duckduckgo_search(search_query: str, max_results: int) -> list:
+async def duckduckgo_search(search_query: str, max_results: int) -> dict:
     print(f"Gathering {max_results} URLs for DuckDuckGo search: {search_query}")
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, lambda: DDGS().text(search_query, max_results=max_results))
@@ -47,7 +47,7 @@ async def duckduckgo_search(search_query: str, max_results: int) -> list:
 # %% Crawler
 # Credit: https://github.com/coleam00/ottomator-agents/blob/main/crawl4AI-agent/crawl4AI-examples/3-crawl_docs_FAST.py
 async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
-    results_data = {}
+    results_data = []
     print("\n=== Parallel Crawling with Browser Reuse + Memory Check ===")
 
     # We'll keep track of peak memory usage across all tasks
@@ -102,7 +102,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
                     print(f"Error crawling {url}: {result}")
                     fail_count += 1
                 elif result.success:
-                    results_data[result.url] = result.markdown
+                    results_data.append({"href": url, "content": result.markdown})
                     success_count += 1
                 else:
                     fail_count += 1
@@ -119,6 +119,9 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 3) -> dict:
         log_memory(prefix="Final: ")
         print(f"\nPeak memory usage (MB): {peak_memory // (1024 * 1024)}")
 
+    # Convert to dictionary
+    #results_data = {index: value for index, value in enumerate(results_data)}
+
     return results_data
 
 
@@ -131,6 +134,7 @@ async def main():
         # Save as a file meant to be overwritten. Probably a more elegant way to do this
         with open(f"{crawl_data_path}/crawl_results.json", "w") as f:
             json.dump(result, f)
+        print(f"Results saved to: {crawl_data_path}/crawl_results.json")
     else:
         print("No URLs found to crawl")
 

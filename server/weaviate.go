@@ -157,18 +157,4 @@ func SplitEmbedAndUploadCrawlResults(embeddingModel string) {
 			allChunks = append(allChunks, Chunk{Href: href, Content: c})
 		}
 	}
-
-	//structTestPrint, _ := json.Marshal(allChunks)
-	//fmt.Println(string(structTestPrint))
-
-	// Embed
-	fmt.Println("Embedding web search results")
-	objects := []models.PropertySchema{}
-	for i := range allChunks {
-		"href": allChunks[i]["title"],
-		"chunk"
-	}
-
-
-	// Upload to vector db with href as metadata
 }
