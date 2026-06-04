@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// Credit: https://github.com/peterhellberg/llm/blob/main/splitters/charsplitter/charsplitter.go
+// Credit: https://github.com/peterhellberg/llm/tree/main
 
 // Splitter is a text splitter that will split texts recursively by different characters.
 type Splitter struct {

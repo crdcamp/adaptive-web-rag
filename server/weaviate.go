@@ -37,26 +37,11 @@ func CreateCollection(client *weaviate.Client, className string, description str
 	// Also gotta redo this to make the print statements a bit better
 	if err != nil {
 		panic(err)
-	} else {
-		fmt.Println("Collection found:", className)
 	}
 	if exists == true {
 		fmt.Println("Collection already exists:", className)
 		return
 	}
-
-	// "moduleConfig": {
-	//  "text2vec-openai": {
-	//   "baseURL": "https://api.openai.com",
-	//   "model": "text-embedding-3-small",
-	//   "vectorizeClassName": true
-	//  }
-
-	// "replicationConfig": {
-	//  "asyncEnabled": false,
-	//  "deletionStrategy": "TimeBasedResolution",
-	//  "factor": 1
-	// },
 
 	// Class is missing a lot of parameters that show in the retrieval output
 	fmt.Println("Creating class:", className)
@@ -65,13 +50,6 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		Description:     description,
 		Vectorizer:      "text2vec-openai",
 		VectorIndexType: "hnsw",
-		ModuleConfig: map[string]interface{}{
-			"text2vec-openai": map[string]interface{}{
-				"baseURL":            ServerBaseURL,
-				"model":              EmbedModel,
-				"vectorizeClassName": true,
-			},
-		},
 		Properties: []*models.Property{
 			{
 				Name:     "title",
@@ -82,8 +60,14 @@ func CreateCollection(client *weaviate.Client, className string, description str
 				DataType: schema.DataTypeText.PropString(),
 			},
 		},
+		ModuleConfig: map[string]interface{}{
+			"text2vec-openai": map[string]interface{}{
+				"baseURL":            ServerBaseURL,
+				"model":              EmbedModel,
+				"vectorizeClassName": true,
+			},
+		},
 	}
-
 	err = client.Schema().ClassCreator().WithClass(emptyClass).Do(ctx)
 	if err != nil {
 		panic(err)
@@ -137,7 +121,7 @@ func CallCrawlScript() {
 }
 
 // Read `crawl_results.json` and upload results to your Weaviate vector database.
-func ChunkEmbedAndUploadCrawlResults(embeddingModel string) {
+func SplitEmbedAndUploadCrawlResults(embeddingModel string) {
 	// Read `crawl_results.json`
 	content, err := ioutil.ReadFile("crawl_data/crawl_results.json")
 	if err != nil {
@@ -153,8 +137,8 @@ func ChunkEmbedAndUploadCrawlResults(embeddingModel string) {
 	// Split text
 	fmt.Println("Splitting web search results")
 	splitter := charsplitter.New(
-		charsplitter.WithChunkSize(256),
-		charsplitter.WithChunkOverlap(0),
+		charsplitter.WithChunkSize(512),
+		charsplitter.WithChunkOverlap(100),
 		charsplitter.WithKeepSeparator(false),
 	)
 
@@ -174,8 +158,17 @@ func ChunkEmbedAndUploadCrawlResults(embeddingModel string) {
 		}
 	}
 
+	//structTestPrint, _ := json.Marshal(allChunks)
+	//fmt.Println(string(structTestPrint))
+
 	// Embed
 	fmt.Println("Embedding web search results")
+	objects := []models.PropertySchema{}
+	for i := range allChunks {
+		"href": allChunks[i]["title"],
+		"chunk"
+	}
+
 
 	// Upload to vector db with href as metadata
 }

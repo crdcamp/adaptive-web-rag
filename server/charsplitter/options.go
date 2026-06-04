@@ -2,7 +2,7 @@ package charsplitter
 
 import "unicode/utf8"
 
-// Credit: https://github.com/peterhellberg/llm/blob/main/splitters/charsplitter/options.go
+// Credit: https://github.com/peterhellberg/llm/tree/main
 
 // Options is a struct that contains options for a charsplitter.
 type Options struct {
