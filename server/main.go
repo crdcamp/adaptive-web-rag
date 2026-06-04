@@ -40,8 +40,9 @@ func main() {
 
 	// We'll turn this all into a function within the main function at some point
 	//DeleteCollection(weaviateClient, "CrawlResults")
-	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
-	GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
-	CallCrawlScript()
-	SplitEmbedAndUploadCrawlResults(EmbedModel)
+	TestSplit()
+	// CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	// GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
+	// CallCrawlScript()
+	// SplitEmbedAndUploadCrawlResults(EmbedModel)
 }
