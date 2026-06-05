@@ -11,6 +11,7 @@ import (
 
 func TestSplit() {
 	// Read `crawl_results.json`
+	//ctx := context.Background()
 	content, err := os.ReadFile("crawl_data/crawl_results.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
@@ -23,8 +24,8 @@ func TestSplit() {
 	}
 
 	// Unmarshal the data into HrefContent
-	m := map[string]HrefContent{}
-	err = json.Unmarshal(content, &m)
+	jsonMap := map[string]HrefContent{}
+	err = json.Unmarshal(content, &jsonMap)
 	if err != nil {
 		panic(err)
 	}
@@ -36,18 +37,23 @@ func TestSplit() {
 		charsplitter.WithKeepSeparator(false),
 	)
 
-	// Iterate example
-	allSplitText := []string{}
-	for _, hrefAndContent := range m {
+	// Split text
+	type AllSplitText struct {
+		Href      string
+		SplitText string
+	}
+
+	for _, hrefAndContent := range jsonMap {
+		// Create href variable
+		href := hrefAndContent.Href
+		// Create split text variable
 		splitText, err := splitter.SplitText(hrefAndContent.Content)
+		fmt.Println("splitText len:\n", len(splitText))
 		if err != nil {
 			panic(err)
 		}
 
-		allSplitText = append(allSplitText, splitText...)
-
-		fmt.Println("splitText length:", len(splitText))
-		// Temporary break for testing
+		for text := range splitText {}
+		}
 	}
 }
-
