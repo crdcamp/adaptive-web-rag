@@ -127,6 +127,7 @@ func CallCrawlScript() {
 func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection string) {
 	ctx := context.Background()
 	// Read `crawl_results.json`
+	fmt.Println("Reading `crawl_results.json`")
 	content, err := os.ReadFile("crawl_data/crawl_results.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
@@ -139,6 +140,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 	}
 
 	// Unmarshal the data into HrefContent
+	fmt.Println("Mapping json for `crawl_results.json`")
 	jsonMap := map[string]HrefContent{}
 	err = json.Unmarshal(content, &jsonMap)
 	if err != nil {
@@ -153,6 +155,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 	)
 
 	// Create chunk object
+	fmt.Println("Creating WeaviateChunkObject")
 	type WeaviateChunkObject struct {
 		Href  string `json:"href"`
 		Chunk string `json:"chunk"`
@@ -160,6 +163,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 
 	// Split text
 	for _, hrefAndContent := range jsonMap {
+		fmt.Println("Splitting text for:", hrefAndContent.Href)
 		chunks, err := splitter.SplitText(hrefAndContent.Content)
 		if err != nil {
 			log.Printf("Failed to split text for %s, %v", hrefAndContent.Href, hrefAndContent.Content)
@@ -173,6 +177,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 			}
 
 			// Convert chunks into a slice of models.Object
+			fmt.Println("Converting chunks into slice of `models.Object` for href:", chunkPayload.Href)
 			objects := []models.PropertySchema{}
 			objects = append(objects, map[string]interface{}{
 				"source": chunkPayload.Href,
@@ -180,6 +185,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 			})
 
 			// Batch write items
+			fmt.Println("Batch writing items for href:", chunkPayload.Href)
 			batcher := client.Batch().ObjectsBatcher()
 			for _, dataObj := range objects {
 				batcher.WithObjects(&models.Object{
