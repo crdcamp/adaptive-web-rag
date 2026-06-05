@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"runtime"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
@@ -39,19 +38,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("WeaviateClient all good?", live)
+	fmt.Println("WeaviateClient live and well?", live)
 
 	// We'll turn this all into a function within the main function at some point
 	//TestSplit()
 	//UnloadModel(EmbedModel)
 	//fmt.Println(string(GetCollection(weaviateClient, "CrawlResults")))
-	NearTextSearch(weaviateClient, "CrawlResults", 1, "Tell me about the benefits and drawbacks of using llama.cpp")
-	runtime.GC()
+	//GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
+	//NearTextSearch(weaviateClient, "CrawlResults", 1, "What are the various ways llama.cpp can be used?")
+	//runtime.GC() // Frees memory... sorta
 	//debug.FreeOSMemory()
-	//DeleteCollection(weaviateClient, "CrawlResults")
-	//CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
-	//SplitEmbedAndUploadCrawlResults(weaviateClient, "CrawlResults")
-	// GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
+	DeleteCollection(weaviateClient, "CrawlResults")
+	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	SplitEmbedAndUploadCrawlResults(weaviateClient, "CrawlResults")
 	// CallCrawlScript()
 	// SplitEmbedAndUploadCrawlResults(EmbedModel)
 }

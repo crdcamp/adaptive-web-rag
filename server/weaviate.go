@@ -44,7 +44,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 	}
 
 	// Class is missing a lot of parameters that show in the retrieval output
-	fmt.Println("Creating class:", className)
+	fmt.Println("Creating collection:", className)
 	emptyClass := &models.Class{
 		Class:           className,
 		Description:     description,
@@ -123,12 +123,10 @@ func CallCrawlScript() {
 // Read `crawl_results.json` and upload results to your Weaviate vector database.
 // I'm probably creating way too many structs here.
 // Need to come back to this when I have more understanding of Go
-// Regardless, I think there's a lot of redundancy here
-// Need to add some print statements for progress
+// Regardless, I think there's a lot of redundancy here. This function is a mess cause idk anything about handling JSON in Go
 func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection string) {
 	ctx := context.Background()
 	// Read `crawl_results.json`
-	fmt.Println("Reading `crawl_results.json`")
 	content, err := os.ReadFile("crawl_data/crawl_results.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
@@ -141,7 +139,6 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 	}
 
 	// Unmarshal the data into HrefContent
-	fmt.Println("Mapping json for `crawl_results.json`")
 	jsonMap := map[string]HrefContent{}
 	err = json.Unmarshal(content, &jsonMap)
 	if err != nil {
@@ -156,20 +153,20 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 	)
 
 	// Create chunk object
-	fmt.Println("Creating WeaviateChunkObject")
 	type WeaviateChunkObject struct {
 		Href  string `json:"href"`
 		Chunk string `json:"chunk"`
 	}
 
+	var docSeq int = 1
+	var totalDocs int = len(jsonMap)
 	// Split text
 	for _, hrefAndContent := range jsonMap {
-		fmt.Println("Splitting text for:", hrefAndContent.Href)
+		fmt.Printf("Splitting and embedding text for href(%v/%v): %v", docSeq, totalDocs, hrefAndContent.Href)
 		chunks, err := splitter.SplitText(hrefAndContent.Content)
 		if err != nil {
 			log.Printf("Failed to split text for %s, %v", hrefAndContent.Href, hrefAndContent.Content)
 		}
-
 		// Loop through each individual chunk
 		for _, chunkText := range chunks {
 			chunkPayload := WeaviateChunkObject{
@@ -178,7 +175,6 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 			}
 
 			// Convert chunks into a slice of models.Object
-			fmt.Println("Converting chunks into slice of `models.Object` for href:", chunkPayload.Href)
 			objects := []models.PropertySchema{}
 			objects = append(objects, map[string]interface{}{
 				"source": chunkPayload.Href,
@@ -186,7 +182,6 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 			})
 
 			// Batch write items
-			fmt.Println("Batch writing items for href:", chunkPayload.Href)
 			batcher := client.Batch().ObjectsBatcher()
 			for _, dataObj := range objects {
 				batcher.WithObjects(&models.Object{
@@ -210,6 +205,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 			}
 		}
 	}
+	docSeq += 1
 	UnloadModel(EmbedModel)
 }
 
@@ -231,5 +227,7 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("NearTextSearch() complete")
+	UnloadModel(EmbedModel)
 	fmt.Println("NearTextSearch() result:\n", nearTextResponse)
 }
