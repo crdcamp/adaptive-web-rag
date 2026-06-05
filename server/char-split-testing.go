@@ -38,22 +38,33 @@ func TestSplit() {
 	)
 
 	// Split text
-	type AllSplitText struct {
-		Href      string
-		SplitText string
+	type WeaviateChunkObject struct {
+		Href     string `json:"href"`
+		Chunk    string `json:"chunk"`
+		Sequence int    `json:"sequence"`
 	}
 
 	for _, hrefAndContent := range jsonMap {
-		// Create href variable
-		href := hrefAndContent.Href
-		// Create split text variable
-		splitText, err := splitter.SplitText(hrefAndContent.Content)
-		fmt.Println("splitText len:\n", len(splitText))
+		chunks, err := splitter.SplitText(hrefAndContent.Content)
 		if err != nil {
-			panic(err)
+			log.Printf("Failed to split text for %s, %v", hrefAndContent.Href, hrefAndContent.Content)
 		}
 
-		for text := range splitText {}
+		// Loop through each individual chunk
+		for i, chunkText := range chunks {
+			chunkPayload := WeaviateChunkObject{
+				Href:     hrefAndContent.Href,
+				Chunk:    chunkText,
+				Sequence: i,
+			}
+			fmt.Printf("Ready for Weaviate -> Href: %s | Chunk %d/%d (Len: %d)\n",
+				chunkPayload.Href,
+				chunkPayload.Sequence+1,
+				len(chunks),
+				len(chunkPayload.Chunk),
+			)
 		}
+
 	}
+
 }
