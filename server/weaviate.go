@@ -12,6 +12,7 @@ import (
 	"github.com/crdcamp/charsplitter"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
+	"github.com/weaviate/weaviate-go-client/v5/weaviate/graphql"
 	"github.com/weaviate/weaviate/entities/models"
 	"github.com/weaviate/weaviate/entities/schema"
 )
@@ -210,4 +211,25 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 		}
 	}
 	UnloadModel(EmbedModel)
+}
+
+func NearTextSearch(client *weaviate.Client, className string, limit int, query string) {
+	ctx := context.Background()
+
+	fmt.Println("NearTextSearch() called for query:", query, "\nQuerying...")
+	nearTextResponse, err := client.GraphQL().Get().
+		WithClassName(className).
+		WithFields(
+			graphql.Field{Name: "source"},
+			graphql.Field{Name: "body"},
+		).
+		WithNearText(client.GraphQL().NearTextArgBuilder().
+			WithConcepts([]string{query})).
+		WithLimit(limit).
+		Do(ctx)
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("NearTextSearch() result:\n", nearTextResponse)
 }

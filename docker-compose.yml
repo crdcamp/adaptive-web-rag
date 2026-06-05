@@ -40,7 +40,6 @@ services:
         "/models",
         "--models-max",
         "1",
-        "--models-autoload",
         "-c",
         "2048",
         "--embeddings",

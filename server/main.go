@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"runtime"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
@@ -12,6 +13,7 @@ const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
 const ServerBaseURL string = "http://127.0.0.1:8001"
 const WeaviateEmbedURL string = "http://llama-server:8080"
+const WeaviateClientHost string = "localhost:8080"
 const APIKey string = "no-key"
 
 // We'll store these elsewhere later (probably a .env file... or .env file mixed with a toml or json config file)
@@ -24,7 +26,7 @@ const APIKey string = "no-key"
 func main() {
 	// Weaviate client
 	cfg := weaviate.Config{
-		Host:   "localhost:8080",
+		Host:   WeaviateClientHost,
 		Scheme: "http",
 	}
 	weaviateClient, err := weaviate.NewClient(cfg)
@@ -37,14 +39,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%v", live)
+	fmt.Println("WeaviateClient all good?", live)
 
 	// We'll turn this all into a function within the main function at some point
 	//TestSplit()
 	//UnloadModel(EmbedModel)
+	//fmt.Println(string(GetCollection(weaviateClient, "CrawlResults")))
+	NearTextSearch(weaviateClient, "CrawlResults", 1, "Tell me about the benefits and drawbacks of using llama.cpp")
+	runtime.GC()
+	//debug.FreeOSMemory()
 	//DeleteCollection(weaviateClient, "CrawlResults")
-	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
-	SplitEmbedAndUploadCrawlResults(weaviateClient, "CrawlResults")
+	//CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	//SplitEmbedAndUploadCrawlResults(weaviateClient, "CrawlResults")
 	// GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
 	// CallCrawlScript()
 	// SplitEmbedAndUploadCrawlResults(EmbedModel)
