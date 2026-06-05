@@ -42,6 +42,7 @@ func main() {
 	//DeleteCollection(weaviateClient, "CrawlResults")
 	//TestSplit()
 	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	SplitEmbedAndUploadCrawlResults(weaviateClient, "CrawlResults")
 	// GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
 	// CallCrawlScript()
 	// SplitEmbedAndUploadCrawlResults(EmbedModel)

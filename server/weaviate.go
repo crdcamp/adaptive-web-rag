@@ -120,7 +120,11 @@ func CallCrawlScript() {
 }
 
 // Read `crawl_results.json` and upload results to your Weaviate vector database.
-func SplitEmbedAndUploadCrawlResults() {
+// I'm probably creating way too many structs here.
+// Need to come back to this when I have more understanding of Go
+// Regardless, I think there's a lot of redundancy here
+// Need to add some print statements for progress
+func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection string) {
 	ctx := context.Background()
 	// Read `crawl_results.json`
 	content, err := os.ReadFile("crawl_data/crawl_results.json")
@@ -167,8 +171,36 @@ func SplitEmbedAndUploadCrawlResults() {
 				Href:  hrefAndContent.Href,
 				Chunk: chunkText,
 			}
+
+			// Convert chunks into a slice of models.Object
+			objects := []models.PropertySchema{}
+			objects = append(objects, map[string]interface{}{
+				"source": chunkPayload.Href,
+				"body":   chunkPayload.Chunk,
+			})
+
+			// Batch write items
+			batcher := client.Batch().ObjectsBatcher()
+			for _, dataObj := range objects {
+				batcher.WithObjects(&models.Object{
+					Class:      targetCollection,
+					Properties: dataObj,
+				})
+			}
+
+			batchRes, err := batcher.Do(ctx)
+
+			if err != nil {
+				panic(err)
+			}
+			for _, res := range batchRes {
+				if res.Result.Errors != nil {
+					for _, err := range res.Result.Errors.Error {
+						fmt.Printf("Error details: %v\n", *err)
+						panic(err.Message)
+					}
+				}
+			}
 		}
-
 	}
-
 }
