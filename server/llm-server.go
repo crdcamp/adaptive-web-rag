@@ -14,8 +14,25 @@ import (
 	"github.com/openai/openai-go/v3/option"
 )
 
+// LOADMODEL AND UNLOAD MODEL SHOULD BE ONE FUNCTION WITH AN ADDITIONAL PARAMETER
+
 // Unload a model from `llama-server`'s memory by sending a post request to the `/models/unload` endpoint.
 // Might need to add a context to this to handle cancellations and stuff like that
+func LoadModel(modelName string) {
+	const loadURL = ServerBaseURL + "/models/load"
+	payload, err := json.Marshal(map[string]string{"model": modelName})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Loading model:", modelName)
+	resp, err := http.Post(loadURL, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println("Model unloaded:", modelName)
+}
+
 func UnloadModel(modelName string) {
 	const unloadURL = ServerBaseURL + "/models/unload"
 	// Need to research more into json encoding in Go. I have no idea how this works at the moment

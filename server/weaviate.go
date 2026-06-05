@@ -61,7 +61,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		},
 		ModuleConfig: map[string]interface{}{
 			"text2vec-openai": map[string]interface{}{
-				"baseURL":            ServerBaseURL,
+				"baseURL":            WeaviateEmbedURL,
 				"model":              EmbedModel,
 				"vectorizeClassName": true,
 			},
@@ -209,4 +209,5 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 			}
 		}
 	}
+	UnloadModel(EmbedModel)
 }

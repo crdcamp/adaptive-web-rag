@@ -11,6 +11,7 @@ import (
 const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
 const ServerBaseURL string = "http://127.0.0.1:8001"
+const WeaviateEmbedURL string = "http://llama-server:8080"
 const APIKey string = "no-key"
 
 // We'll store these elsewhere later (probably a .env file... or .env file mixed with a toml or json config file)
@@ -39,8 +40,9 @@ func main() {
 	fmt.Printf("%v", live)
 
 	// We'll turn this all into a function within the main function at some point
-	//DeleteCollection(weaviateClient, "CrawlResults")
 	//TestSplit()
+	//UnloadModel(EmbedModel)
+	//DeleteCollection(weaviateClient, "CrawlResults")
 	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
 	SplitEmbedAndUploadCrawlResults(weaviateClient, "CrawlResults")
 	// GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")

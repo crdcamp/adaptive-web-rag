@@ -21,16 +21,31 @@ services:
       PERSISTENCE_DATA_PATH: "/vector-db"
       DEFAULT_VECTORIZER_MODULE: "text2vec-openai"
       ENABLE_MODULES: "text2vec-openai,generative-openai"
-      OPENAI_APIKEY: "not-needed" # llama-server doesn't auth, but Weaviate requires a non-empty value
-      OPENAI_BASEURL: "http://127.0.0.1:8001"
+      OPENAI_APIKEY: "not-needed"
+      OPENAI_BASEURL: "http://llama-server:8080" # Removed the trailing slash
       CLUSTER_HOSTNAME: "node1"
 
-  ollama:
-    image: ollama/ollama:latest
+  llama-server:
+    image: ghcr.io/ggml-org/llama.cpp:server
     ports:
-      - 11434:11434
+      - 8001:8080
     volumes:
-      - ollama_data:/root/.ollama
+      - ./models:/models
+    command: [
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8080", # <--- Changed from 8001 to 8080
+        "--models-dir",
+        "/models",
+        "--models-max",
+        "1",
+        "--models-autoload",
+        "-c",
+        "2048",
+        "--embeddings",
+      ]
+    restart: on-failure:0
 
 volumes:
   weaviate_data:
