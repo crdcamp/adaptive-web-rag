@@ -4,13 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 
 	"github.com/crdcamp/charsplitter"
-
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate/entities/models"
@@ -52,7 +51,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		VectorIndexType: "hnsw",
 		Properties: []*models.Property{
 			{
-				Name:     "title",
+				Name:     "source",
 				DataType: schema.DataTypeText.PropString(),
 			},
 			{
@@ -121,40 +120,55 @@ func CallCrawlScript() {
 }
 
 // Read `crawl_results.json` and upload results to your Weaviate vector database.
-func SplitEmbedAndUploadCrawlResults(embeddingModel string) {
+func SplitEmbedAndUploadCrawlResults() {
+	ctx := context.Background()
 	// Read `crawl_results.json`
-	content, err := ioutil.ReadFile("crawl_data/crawl_results.json")
+	content, err := os.ReadFile("crawl_data/crawl_results.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
 
-	var payload map[string]string
-	err = json.Unmarshal(content, &payload)
-	if err != nil {
-		log.Fatal("Error during Unmarshal(): ", err)
+	// Create a struct for each key's values
+	type HrefContent struct {
+		Href    string `json:"href"`
+		Content string `json:"content"`
 	}
 
-	// Split text
-	fmt.Println("Splitting web search results")
+	// Unmarshal the data into HrefContent
+	jsonMap := map[string]HrefContent{}
+	err = json.Unmarshal(content, &jsonMap)
+	if err != nil {
+		panic(err)
+	}
+
+	// Text splitter definition
 	splitter := charsplitter.New(
 		charsplitter.WithChunkSize(512),
 		charsplitter.WithChunkOverlap(100),
 		charsplitter.WithKeepSeparator(false),
 	)
 
-	type Chunk struct {
-		Href    string
-		Content string
+	// Create chunk object
+	type WeaviateChunkObject struct {
+		Href  string `json:"href"`
+		Chunk string `json:"chunk"`
 	}
 
-	var allChunks []Chunk
-	for href, pageContent := range payload {
-		chunks, err := splitter.SplitText(pageContent)
+	// Split text
+	for _, hrefAndContent := range jsonMap {
+		chunks, err := splitter.SplitText(hrefAndContent.Content)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Failed to split text for %s, %v", hrefAndContent.Href, hrefAndContent.Content)
 		}
-		for _, c := range chunks {
-			allChunks = append(allChunks, Chunk{Href: href, Content: c})
+
+		// Loop through each individual chunk
+		for _, chunkText := range chunks {
+			chunkPayload := WeaviateChunkObject{
+				Href:  hrefAndContent.Href,
+				Chunk: chunkText,
+			}
 		}
+
 	}
+
 }
