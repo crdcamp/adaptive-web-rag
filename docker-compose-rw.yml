@@ -1,46 +1,41 @@
 services:
   llama-server:
     image: ghcr.io/ggml-org/llama.cpp:server
-    ports: -8081:8081
+    ports: -8080:8080
     volumes:
       - ./models:/models
-
     command:
       - "--host"
       - "0.0.0.0"
       - "--port"
-      - "8081"
+      - "8080"
       - "--embeddings"
-      - "--models-dir"
+      - "--models-dir" # Enables multiple models on one server
       - "/models"
       - "--models-max"
       - "1"
       - "-c"
       - "2048"
-      - "--n-cpu-moe"
+      - "--n-cpu-moe" # Offloads model processing to CPU
       - "12"
       - "--mlock" # Forces the system to keep model in RAM rather than swapping or compressing
       - "--verbose"
+
   weaviate:
     image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
-
     command:
       - --host
       - 0.0.0.0
       - --port
-      - "8080"
+      - "8081"
       - --scheme
       - http
-
     ports:
-      - 8080:8080
+      - 8081:8081
       - 50051:50051
-
     volumes:
       - weaviate_data:/vectordb
-
     restart: on-failure:0
-
     environment:
       QUERY_DEFAULTS_LIMIT: 8
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
