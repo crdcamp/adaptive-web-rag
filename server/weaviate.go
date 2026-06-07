@@ -120,6 +120,7 @@ func CallCrawlScript() {
 	}
 }
 
+// HORRENDOUS FUNCTION! BREAK THIS DOWN AND GET IT TOGETHER MAN!
 // Read `crawl_results.json` and upload results to your Weaviate vector database.
 // I'm probably creating way too many structs here.
 // Need to come back to this when I have more understanding of Go

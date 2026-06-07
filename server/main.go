@@ -43,7 +43,7 @@ func main() {
 	// We'll turn this all into a function within the main function at some point
 	//TestSplit()
 	//UnloadModel(EmbedModel)
-	//fmt.Println(string(GetCollection(weaviateClient, "CrawlResults")))
+	//fmt.Println(string(GetCollection(weaviateClient,  "CrawlResults")))
 	//GenerateSearchQuery(ChatModel, "Tell me about the benefits and drawbacks of using llama.cpp")
 	//NearTextSearch(weaviateClient, "CrawlResults", 1, "What are the various ways llama.cpp can be used?")
 	//runtime.GC() // Frees memory... sorta
