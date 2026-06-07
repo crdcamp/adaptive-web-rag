@@ -162,7 +162,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 	var totalDocs int = len(jsonMap)
 	// Split text
 	for _, hrefAndContent := range jsonMap {
-		fmt.Printf("Splitting and embedding text for href(%v/%v): %v", docSeq, totalDocs, hrefAndContent.Href)
+		fmt.Printf("Splitting and embedding text for href(%v/%v): %v\n", docSeq, totalDocs, hrefAndContent.Href)
 		chunks, err := splitter.SplitText(hrefAndContent.Content)
 		if err != nil {
 			log.Printf("Failed to split text for %s, %v", hrefAndContent.Href, hrefAndContent.Content)
@@ -205,7 +205,7 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 			}
 		}
 	}
-	docSeq += 1
+	docSeq = docSeq + 1
 	UnloadModel(EmbedModel)
 }
 
