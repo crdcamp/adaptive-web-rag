@@ -1,5 +1,7 @@
 # Adaptive Web Search Rag for Local LLMs
 
+**This entire doc is irrelevant at the moment**
+
 In this project, I learn a new coding language (Golang), start hosting My LLMs locally with HTTP endpoints (rather than running them within a Python script), and build off of the [llama-cpp-llm-embedding](https://github.com/crdcamp/llama-cpp-llm-embedding) repository by adding a new web search fallback capability to the embedding project.
 
 This is ultimately meant to run on a Macbook base M4 chip, but running these models using `llama-server` instead of `llama-cpp-python` is showing to be a bit more involved than I initially thought.
