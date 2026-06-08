@@ -12,7 +12,7 @@ const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
 const ServerBaseURL string = "http://127.0.0.1:8001"
 const WeaviateEmbedURL string = "http://llama-server:8080"
-const WeaviateClientHost string = "localhost:8080"
+const WeaviateClientHost string = "localhost:8081"
 const APIKey string = "no-key"
 
 // We'll store these elsewhere later (probably a .env file... or .env file mixed with a toml or json config file)
