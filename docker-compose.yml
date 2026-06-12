@@ -25,7 +25,7 @@ services:
   weaviate:
     image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
     volumes:
-      - vector-db:/vector-db
+      - ./vector-db:/vector-db
     command:
       - --host
       - 0.0.0.0
@@ -43,7 +43,7 @@ services:
       PERSISTENCE_DATA_PATH: "/vector-db" # Must match the value after `:` in `volumes` above
       ENABLE_MODULES: "text2vec-openai,generative-openai"
       OPENAI_APIKEY: "not-needed"
-      OPENAI_BASEURL: "http://localhost:8080/"
+      OPENAI_BASEURL: "http://llama-server:8080/"
       CLUSTER_HOSTNAME: "node1" # Can be set to any name
       LOG_LEVEL: "debug"
 
