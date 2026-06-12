@@ -28,23 +28,19 @@ import (
 // const VectorizationMethod string = "text2vec-openai"
 
 // Create a Weaviate vector database collection. Note: `className` must be camelcase.
-func CreateCollection(client *weaviate.Client, className string, description string) { // You're probably gonna need more parameters for this later
+func CreateCollection(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()
-	fmt.Println("Checking existence for collection:", className)
-	exists, err := client.Schema().ClassExistenceChecker().WithClassName(className).Do(ctx)
 
-	// There's probably a more elegant way to do these if statements (switch maybe?)
-	// Also gotta redo this to make the print statements a bit better
+	fmt.Printf("Checking if collection %q exists\n", className)
+	exists, err := client.Schema().ClassExistenceChecker().WithClassName(className).Do(ctx)
 	if err != nil {
 		panic(err)
 	}
-	if exists == true {
-		fmt.Println("Collection already exists:", className)
+	if exists {
+		fmt.Printf("Collection %q already exists\n", className)
 		return
 	}
-
-	// Class is missing a lot of parameters that show in the retrieval output
-	fmt.Println("Creating collection:", className)
+	fmt.Printf("Collection %q does not exist. Creating collection %q\n", className, className)
 	emptyClass := &models.Class{
 		Class:           className,
 		Description:     description,
@@ -56,13 +52,13 @@ func CreateCollection(client *weaviate.Client, className string, description str
 				DataType: schema.DataTypeText.PropString(),
 			},
 			{
-				Name:     "body",
+				Name:     "content",
 				DataType: schema.DataTypeText.PropString(),
 			},
 		},
 		ModuleConfig: map[string]interface{}{
 			"text2vec-openai": map[string]interface{}{
-				"baseURL":            WeaviateEmbedURL,
+				"baseURL":            LlamaBaseUrl,
 				"model":              EmbedModel,
 				"vectorizeClassName": true,
 			},
@@ -73,7 +69,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		panic(err)
 	}
 
-	fmt.Println("Class created:", className)
+	fmt.Printf("Class %q created", className)
 }
 
 // MAKE SURE TO READ THE OUTPUT OF THIS
