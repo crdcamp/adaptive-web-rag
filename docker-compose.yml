@@ -1,10 +1,10 @@
 services:
   llama-server:
+    volumes:
+      - ./models:/models
     image: ghcr.io/ggml-org/llama.cpp:server
     ports:
       - 8080:8080
-    volumes:
-      - ./models:/models
     command:
       - "--host"
       - "0.0.0.0"
@@ -23,7 +23,8 @@ services:
       - "--verbose"
 
   weaviate:
-    image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
+    volumes:
+      - vector-db:/vector-db
     command:
       - --host
       - 0.0.0.0
@@ -31,17 +32,19 @@ services:
       - "8081"
       - --scheme
       - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
     ports:
       - 8081:8081
       - 50051:50051
-    volumes:
-      - /vector-db
     restart: on-failure:0
     environment:
       QUERY_DEFAULTS_LIMIT: 8
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
-      PERSISTENCE_DATA_PATH: "/vectordb"
+      PERSISTENCE_DATA_PATH: "/vector-db"
       ENABLE_MODULES: "text2vec-openai,generative-openai"
       OPENAI_APIKEY: "not-needed"
-      OPENAI_BASEURL: "http://llama-server:8080" # Removed the trailing slash
+      OPENAI_BASEURL: "http://localhost:8080/"
       CLUSTER_HOSTNAME: "node1"
+
+volumes:
+  vector-db:
