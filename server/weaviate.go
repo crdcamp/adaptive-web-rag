@@ -27,7 +27,7 @@ import (
 // But.. what if you want to easily change the vectorization method?
 // const VectorizationMethod string = "text2vec-openai"
 
-// Create a Weaviate vector database collection. Note: `className` must be camelcase.
+// Create a Weaviate vector database collection using a specified Weaviate client, a name for the collection, and a description. Note that `className` must be camelcase.
 func CreateCollection(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()
 
@@ -90,6 +90,8 @@ func GetCollection(client *weaviate.Client, className string) []byte {
 
 	return b
 }
+
+// func ListCollections() {}
 
 // Delete a collection from your vector database
 func DeleteCollection(client *weaviate.Client, className string) {

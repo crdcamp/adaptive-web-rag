@@ -8,13 +8,15 @@ import (
 )
 
 // Dummy values for testing
-const WeaviateEmbedURL string = "wahahahaha"
-const ServerBaseURL string = "wahahahaha"
+const WeaviateEmbedURL string = "WEAVIATE-INCORRECT"
+const ServerBaseURL string = "LLAMA-INCORRECT"
 
 // These values need to be stored in a .env file I think (problem for later)
 // Model Names
 const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
+
+const GeminiModel string= "gemma-4-12B-it-Q8_0-MTP"
 
 // URLs
 const LlamaBaseUrl string = "http://127.0.0.1:8080"
@@ -31,7 +33,9 @@ const APIKey string = "no-key"
 // Need to address the error handling everywhere. We'll leave as is for now
 func main() {
 	weaviateClient := CreateWeaviateClient("localhost:8081")
-	//CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	//DeleteCollection(weaviateClient, "CrawlResults")
+	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	GenerateSearchQuery(ChatModel, "Tell me what it means to truly live")
 }
 
 func CreateWeaviateClient(host string) *weaviate.Client {

@@ -19,7 +19,7 @@ import (
 // Unload a model from `llama-server`'s memory by sending a post request to the `/models/unload` endpoint.
 // Might need to add a context to this to handle cancellations and stuff like that
 func LoadModel(modelName string) {
-	const loadURL = ServerBaseURL + "/models/load"
+	const loadURL = LlamaBaseUrl + "/models/load"
 	payload, err := json.Marshal(map[string]string{"model": modelName})
 	if err != nil {
 		panic(err)
@@ -34,7 +34,7 @@ func LoadModel(modelName string) {
 }
 
 func UnloadModel(modelName string) {
-	const unloadURL = ServerBaseURL + "/models/unload"
+	const unloadURL = LlamaBaseUrl + "/models/unload"
 	// Need to research more into json encoding in Go. I have no idea how this works at the moment
 	payload, err := json.Marshal(map[string]string{"model": modelName})
 	if err != nil {
@@ -56,10 +56,12 @@ func UnloadModel(modelName string) {
 // Also consider making chat/system prompt function, as it's looking like it's gonna be reused pretty often
 
 // Need to add timer for this and return the time value
+
+// Specify a model and prompt to output internet search queries for the given prompt.
 func GenerateSearchQuery(modelName string, userPrompt string) string {
 	ctx := context.Background()
 	client := openai.NewClient(
-		option.WithBaseURL(ServerBaseURL),
+		option.WithBaseURL(LlamaBaseUrl),
 		option.WithAPIKey(APIKey), // No API in use currently, but leaving this here just in case
 	)
 	systemMessage := "You are a search query generator. When given a question or topic, generate a search engine query that a person could enter into a browser to research it."
