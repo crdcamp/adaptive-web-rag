@@ -22,7 +22,7 @@ const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
 const GeminiModel string= "gemma-4-12B-it-Q8_0-MTP"
 
 // URLs
-const LlamaBaseUrl string = "http://127.0.0.1:8080"
+const LlamaBaseUrl string = "http://127.0.0.1:8080/v1"
 const WeaviateBaseUrl string = "http://127.0.0.1:8081"
 
 const APIKey string = "no-key"
@@ -35,16 +35,16 @@ const APIKey string = "no-key"
 
 // Need to address the error handling everywhere. We'll leave as is for now
 func main() {
-
-	//llamaClient :=
-	llamaClient := CreateLlamaClient(LlamaBaseUrl, APIKey)
+	//llamaClient := CreateLlamaClient(LlamaBaseUrl, APIKey)
 	weaviateClient := CreateWeaviateClient("localhost:8081")
 
 	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
-	GenerateSearchQueryRw(ChatModel, "Tell me about some philosophies involving existential dread")
+	GenerateSearchQuery(ChatModel, "Tell me about some philosophies involving existential dread")
+
+	// Feeding it to Python
 }
 
-func CreateLlamaClient(baseURL string, ßapiKey string) openai.Client {
+func CreateLlamaClient(baseURL string, apiKey string) openai.Client {
 	//ctx := context.Background()
 	client := openai.NewClient(
 		option.WithBaseURL(baseURL),
@@ -64,7 +64,7 @@ func CreateWeaviateClient(host string) *weaviate.Client {
 	}
 	client, err := weaviate.NewClient(cfg)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	// Check the connection

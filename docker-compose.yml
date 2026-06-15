@@ -10,10 +10,11 @@ services:
       - "0.0.0.0"
       - "--port"
       - "8080"
-      - "--embeddings"
       - "--models-dir" # Enables multiple models on one server
       - "/models"
+      - "--models-autoload"
       - "--models-max"
+      #- "--embeddings"
       - "1"
       - "-c"
       - "2048"

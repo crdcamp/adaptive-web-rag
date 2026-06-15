@@ -66,7 +66,7 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 	)
 	systemMessage := "You are a search query generator. When given a question or topic, generate a search engine query that a person could enter into a browser to research it."
 
-	fmt.Println("Loading model", modelName, "and generating search query for prompt:", userPrompt)
+	fmt.Printf("Loading model %q and generating search query for prompt: %q\n", modelName, userPrompt)
 	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(systemMessage),
