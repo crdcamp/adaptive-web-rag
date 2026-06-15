@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/option"
+
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
-// Dummy values for testing
+// Dummy values that we'll get rid of
 const WeaviateEmbedURL string = "WEAVIATE-INCORRECT"
 const ServerBaseURL string = "LLAMA-INCORRECT"
 
@@ -32,10 +35,24 @@ const APIKey string = "no-key"
 
 // Need to address the error handling everywhere. We'll leave as is for now
 func main() {
+
+	//llamaClient :=
+	llamaClient := CreateLlamaClient(LlamaBaseUrl, APIKey)
 	weaviateClient := CreateWeaviateClient("localhost:8081")
-	//DeleteCollection(weaviateClient, "CrawlResults")
+
 	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
-	GenerateSearchQuery(ChatModel, "Tell me what it means to truly live")
+	GenerateSearchQueryRw(ChatModel, "Tell me about some philosophies involving existential dread")
+}
+
+func CreateLlamaClient(baseURL string, ßapiKey string) openai.Client {
+	//ctx := context.Background()
+	client := openai.NewClient(
+		option.WithBaseURL(baseURL),
+		// API Key is not required, or even really necessary
+		option.WithAPIKey(apiKey),
+	)
+
+	return client
 }
 
 func CreateWeaviateClient(host string) *weaviate.Client {

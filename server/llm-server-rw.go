@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -22,4 +23,9 @@ func UnloadModelRw(modelName string) {
 	defer resp.Body.Close()
 	//fmt.Printf("Status: %s\n", resp.Status)
 	fmt.Println("Model unloaded:", modelName)
+}
+
+func GenerateSearchQueryRw(client, modelName string, userPrompt string) {
+	ctx := context.Background()
+	fmt.Println(ctx)
 }
