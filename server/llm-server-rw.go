@@ -11,7 +11,7 @@ import (
 )
 
 func UnloadModelRw(modelName string) {
-	const unloadURL = LlamaBaseUrl + "/models/unload"
+	const unloadURL = LlamaBaseUrl + "/v1/models/unload"
 	// Need to research more into json encoding in Go. I have no idea how this works at the moment
 	payload, err := json.Marshal(map[string]string{"model": modelName})
 	if err != nil {
