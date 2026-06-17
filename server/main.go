@@ -38,11 +38,13 @@ func main() {
 	llamaClient := CreateLlamaClient("http://localhost:8080/v1", APIKey)
 	weaviateClient := CreateWeaviateClient("localhost:8081")
 
-	// THE ISSUE COULD BE WITH THE APPLE HARDWARE
-	// MAYBE YOU NEED THE DOCKER COMPOSE FILE TO SPECIFY
-	// SOMETHING INVOLVING APPLE SILICONE
-
 	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+
+	// I don't think the UnloadModel() func in this is working
+	// There's also some sort of issue converting the error messages from bytes to readable text
+	// Or something like that
+
+	// Also you need to make a separate server for the embedding model
 	GenerateSearchQueryRw(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
 
 	// Feeding it to Python
