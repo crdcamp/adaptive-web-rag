@@ -1,7 +1,7 @@
 services:
   llama-server:
     image: ghcr.io/ggml-org/llama.cpp:server
-    platform: linux/arm64 # Specify arm64 for mac
+    #platform: linux/arm64 # Specify arm64 for mac
     ports:
       - 8080:8080
     volumes:
