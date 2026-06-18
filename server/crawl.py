@@ -9,6 +9,8 @@ import requests
 
 from typing import List
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
+from crawl4ai import DefaultMarkdownGenerator
+from crawl4ai.content_filter_strategy import PruningContentFilter
 
 import json
 
@@ -27,13 +29,7 @@ os.makedirs(crawl_data_path, exist_ok=True)
 with open (f"{crawl_data_path}/user_prompt.md") as f:
     prompt = f.read()
 
-# NEED TO ADD TIMER FOR BOTH OF THESE FUNCTIONS
-# In a later implementation, you should also consider using sessions
-# that run in tandem with llama-server
-
 # %% DuckDuckGo Search Tool
-# Find out if there's a chunk splitter designed for crawl4ai results
-# Also... there's probably a better way to do this function in Go (are we gonna rewrite this in go too?)
 async def duckduckgo_search(search_query: str, max_results: int) -> dict:
     print(f"Gathering {max_results} URLs for DuckDuckGo search: {search_query}")
     loop = asyncio.get_event_loop()
@@ -45,8 +41,22 @@ async def duckduckgo_search(search_query: str, max_results: int) -> dict:
     return hrefs
 
 # %% Crawler
-# Credit: https://github.com/coleam00/ottomator-agents/blob/main/crawl4AI-agent/crawl4AI-examples/3-crawl_docs_FAST.py
 async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
+    # === CLEAN SEMANTIC CONFIG (no links + pruning) ===
+    prune_filter = PruningContentFilter(threshold=0.2, min_word_threshold=0)
+
+    md_generator = DefaultMarkdownGenerator(
+        content_filter=prune_filter,
+        options={"ignore_links": True, "ignore_images": True}
+    )
+
+    crawl_config = CrawlerRunConfig(
+        cache_mode=CacheMode.BYPASS,
+        markdown_generator=md_generator,
+        excluded_tags=["nav", "footer", "header", "script", "style"],
+        word_count_threshold=50,
+    )
+
     results_data = {}
     print("\n=== Parallel Crawling with Browser Reuse + Memory Check ===")
 
@@ -64,10 +74,9 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
     # Minimal browser config
     browser_config = BrowserConfig(
         headless=True,
-        verbose=False,   # corrected from 'verbos=False'
+        verbose=False,
         extra_args=["--disable-gpu", "--disable-dev-shm-usage", "--no-sandbox"],
     )
-    crawl_config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS)
 
     # Create the crawler instance
     crawler = AsyncWebCrawler(config=browser_config)
@@ -102,7 +111,10 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
                     print(f"Error crawling {url}: {result}")
                     fail_count += 1
                 elif result.success:
-                    results_data[url] = {"href": url, "content": result.markdown}
+                    results_data[url] = {
+                        "href": url,
+                        "content": getattr(result.markdown, 'fit_markdown', result.markdown)
+                    }
                     success_count += 1
                 else:
                     fail_count += 1
@@ -118,9 +130,6 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
         log_memory(prefix="Final: ")
         print(f"\nPeak memory usage (MB): {peak_memory // (1024 * 1024)}")
 
-    # Convert to dictionary
-    #results_data = {index: value for index, value in enumerate(results_data)}
-
     return results_data
 
 async def main():
@@ -129,7 +138,7 @@ async def main():
         print(f"Found {len(urls)} URLs to crawl")
         result = await crawl_parallel(urls, max_concurrent=10)
 
-        # Save as a file meant to be overwritten. Probably a more elegant way to do this
+        # Save as a file meant to be overwritten.
         with open(f"{crawl_data_path}/crawl_results.json", "w") as f:
             json.dump(result, f)
         print(f"Results saved to: {crawl_data_path}/crawl_results.json")
