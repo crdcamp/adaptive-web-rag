@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"context" // A Context carries a deadline, a cancellation signal, and other values across API boundaries.
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,16 +10,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/openai/openai-go/v3" // imported as openai
-	"github.com/openai/openai-go/v3/option"
+	"github.com/openai/openai-go/v3"
 )
 
-// LOADMODEL AND UNLOAD MODEL SHOULD BE ONE FUNCTION WITH AN ADDITIONAL PARAMETER
-
-// Unload a model from `llama-server`'s memory by sending a post request to the `/models/unload` endpoint.
-// Might need to add a context to this to handle cancellations and stuff like that
+// Load a model into memory using the `/models/load` HTTP endpoint.
+// Available models and their status can be displayed using `curl http://localhost:8080/v1/models | jq`
 func LoadModel(modelName string) {
-	const loadURL = LlamaBaseUrl + "/models/load"
+	var loadURL = LlamaBaseUrl + "/models/load"
 	payload, err := json.Marshal(map[string]string{"model": modelName})
 	if err != nil {
 		panic(err)
@@ -33,8 +30,10 @@ func LoadModel(modelName string) {
 	fmt.Println("Model unloaded:", modelName)
 }
 
+// Unload a model from memory using the `/models/unload` HTTP endpoint.
+// Available models and their status can be displayed using `curl http://localhost:8080/v1/models | jq`
 func UnloadModel(modelName string) {
-	const unloadURL = LlamaBaseUrl + "/models/unload"
+	var unloadURL = LlamaBaseUrl + "/v1/models/unload"
 	// Need to research more into json encoding in Go. I have no idea how this works at the moment
 	payload, err := json.Marshal(map[string]string{"model": modelName})
 	if err != nil {
@@ -50,36 +49,24 @@ func UnloadModel(modelName string) {
 	fmt.Println("Model unloaded:", modelName)
 }
 
-// Generate a search query to pass on to `crawl.py`
-// Need to adjust the system prompt to account for searches that require a time-relevancy to their answer (idk I can't think of a better way to phrase that rn)
-// Need to make sure that the context part is actually doing something here
-// Also consider making chat/system prompt function, as it's looking like it's gonna be reused pretty often
-
-// Need to add timer for this and return the time value
-
-// Specify a model and prompt to output internet search queries for the given prompt.
-func GenerateSearchQuery(modelName string, userPrompt string) string {
+// Generate one internet search query and save the result to `server/crawl_data/user_prompt.md`.
+// The resulting query may be used by `crawl.py`.
+func GenerateSearchQuery(client openai.Client, modelName string, userPrompt string) {
 	ctx := context.Background()
-	client := openai.NewClient(
-		option.WithBaseURL(LlamaBaseUrl),
-		option.WithAPIKey(APIKey), // No API in use currently, but leaving this here just in case
-	)
-	systemMessage := "You are a search query generator. When given a question or topic, generate a search engine query that a person could enter into a browser to research it."
 
-	fmt.Printf("Loading model %q and generating search query for prompt: %q\n", modelName, userPrompt)
+	fmt.Println("Generating search query for user prompt:", userPrompt)
 	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
-			openai.SystemMessage(systemMessage),
+			openai.SystemMessage("You are a search query generator. When given a question or topic, generate ONE search engine query that a person could enter into a browser to research it."),
 			openai.UserMessage(userPrompt),
 		},
 		Model: modelName,
 	})
 	if err != nil {
-		panic(err) // Need a better error handling method here
+		panic(err)
 	}
 	chatResponse := chatCompletion.Choices[0].Message.Content
-	fmt.Println("Search query generation result:", chatResponse)
-	UnloadModel(modelName)
+	fmt.Println("Search query generated:", chatResponse)
 
 	fmt.Println("Saving prompt to `server/crawl_data/user_prompt.md`")
 	chatResponseByte := []byte(strings.Trim(chatResponse, `"`))
@@ -87,9 +74,6 @@ func GenerateSearchQuery(modelName string, userPrompt string) string {
 	err = os.WriteFile(path, chatResponseByte, 0644)
 	if err != nil {
 		panic(err)
-	} else {
-		fmt.Println("Prompt saved to `server/crawl_data/user_prompt.md`")
 	}
-
-	return chatResponse
+	fmt.Println("Prompt saved to `server/crawl_data/user_prompt.md`")
 }
