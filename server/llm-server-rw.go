@@ -30,7 +30,7 @@ func UnloadModelRw(modelName string) {
 func GenerateSearchQueryRw(client openai.Client, modelName string, userPrompt string) {
 	ctx := context.Background()
 
-	fmt.Printf("Generating search query for user prompt: %q\n", userPrompt)
+	fmt.Println("Generating search query for user prompt:", userPrompt)
 	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage("You are a search query generator. When given a question or topic, generate a search engine query that a person could enter into a browser to research it."),
@@ -42,6 +42,6 @@ func GenerateSearchQueryRw(client openai.Client, modelName string, userPrompt st
 		panic(err)
 	}
 	chatResponse := chatCompletion.Choices[0].Message.Content
-	fmt.Printf("Search query generated: %q", chatResponse)
+	fmt.Println("Search query generated:", chatResponse)
 	UnloadModelRw(ChatModel)
 }
