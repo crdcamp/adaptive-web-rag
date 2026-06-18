@@ -66,6 +66,24 @@ The following command starts the server in router mode. The server is set to onl
 * You also might wanna change the `--models-autoload` parameter to `--no-models-autoload` later.
 * There's also the issue of whether or not to use a jinja template. Investigate that parameter later.
 
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+      - "--models-preset"
+      - "./models.ini"
+      - "--metrics"
+      - "--verbose"
+      - "--models-dir" # Enables multiple models on one server 
+      - "models"
+      - "--models-autoload"
+      - "--models-max"
+      - "1"
+
+```bash
+llama-server --host 0.0.0.0 --port 8080 --models-preset ./models.ini --metrics --verbose --models-dir models --models-autoload --models-max 1
+```
+
 ```bash
 llama-server --models-dir models/ --n-cpu-moe 12 --mlock -c 2048 --verbose --models-max 1 --models-autoload --port 8001
 ```
@@ -79,5 +97,5 @@ llama-server --models-dir models/ --n-cpu-moe 12 --mlock -c 2048 --verbose --mod
 To show a list of the models discovered by the Router:
 
 ```bash
-curl http://localhost:8001/v1/models | jq
+curl http://localhost:8080/v1/models | jq
 ```

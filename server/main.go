@@ -19,7 +19,7 @@ const ServerBaseURL string = "LLAMA-INCORRECT"
 const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
 
-const GeminiModel string= "gemma-4-12B-it-Q8_0-MTP"
+const GeminiModel string = "gemma-4-12B-it-Q8_0-MTP"
 
 // URLs
 const LlamaBaseUrl string = "http://127.0.0.1:8080/v1"
