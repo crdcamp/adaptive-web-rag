@@ -43,7 +43,7 @@ async def duckduckgo_search(search_query: str, max_results: int) -> dict:
 # %% Crawler
 async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
     # === CLEAN SEMANTIC CONFIG (no links + pruning) ===
-    prune_filter = PruningContentFilter(threshold=0.2, min_word_threshold=0)
+    prune_filter = PruningContentFilter(threshold=0.27, min_word_threshold=15)
 
     md_generator = DefaultMarkdownGenerator(
         content_filter=prune_filter,
