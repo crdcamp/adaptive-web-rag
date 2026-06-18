@@ -11,17 +11,15 @@ services:
       - "0.0.0.0"
       - "--port"
       - "8080"
+      - "--models-preset"
+      - "./models.ini"
+      - "--metrics"
+      - "--verbose"
       - "--models-dir" # Enables multiple models on one server
-      - "/models"
+      - "models"
       - "--models-autoload"
       - "--models-max"
-      #- "--embeddings" Causes errors. Need a separate server for embedding model
       - "1"
-      - "-c"
-      - "2048"
-      - "--n-cpu-moe" # Offloads model processing to CPU
-      - "12"
-      - "--verbose"
 
   weaviate:
     image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
