@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -26,9 +29,14 @@ func main() {
 	llamaClient := CreateLlamaClient("http://localhost:8080/v1", APIKey)
 	weaviateClient := CreateWeaviateClient("localhost:8081")
 
-	CreateCollection(weaviateClient, "CrawlResults", "A collection for storing internet results from web scraping")
+	// Check if this stuff works
+	CreateCollectionRw(weaviateClient, "testCollection", "A collection for storing internet results from web scraping")
 	GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
 	UnloadModel(ChatModel)
+	DeleteCollectionRw(weaviateClient, "testCollection")
+
+	// Check if crawl script works
+	CallCrawlScriptRw()
 }
 
 // Create and return an OpenAI API compatible client for llama-server.
@@ -42,7 +50,7 @@ func CreateLlamaClient(baseURL string, apiKey string) openai.Client {
 	return client
 }
 
-// Create and return a Weaviate client for your vector database.
+// Create and return a Weaviate client for your Weaviate vector database.
 func CreateWeaviateClient(host string) *weaviate.Client {
 	cfg := weaviate.Config{
 		Host:    host,
@@ -62,4 +70,22 @@ func CreateWeaviateClient(host string) *weaviate.Client {
 	fmt.Printf("Weaviate client live? %v\n", live)
 
 	return client
+}
+
+// Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
+func CallCrawlScriptRw() {
+	// Run crawl.py
+	fmt.Println("Executing: crawl.py")
+	cmd := exec.Command("python3", "crawl.py")
+
+	// Output to terminal
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal("Error when running command: ", err)
+	} else {
+		fmt.Println("Successfully executed: crawl.py")
+	}
 }

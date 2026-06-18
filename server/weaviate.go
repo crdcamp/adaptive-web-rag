@@ -17,12 +17,6 @@ import (
 	"github.com/weaviate/weaviate/entities/schema"
 )
 
-// YA REALLY GOTTA FIGURE OUT WHAT THE HELL THE `context` PACKAGE IS FOR!
-// IT'S NOT GONNA STOP APPEARING ANY TIME SOON!
-
-// YOU ALSO REALLY GOTTA FIGURE OUT PROPER ERROR HANDLING BEFORE YOU
-// HAVE MORE TO DO THAN YOU SHOULD LATER ON!
-
 // Not sure if this variable is necessary... given that you're probably not gonna need a different vectorization method you can probably get rid of it
 // But.. what if you want to easily change the vectorization method?
 // const VectorizationMethod string = "text2vec-openai"

@@ -2,24 +2,26 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
+	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate/entities/models"
 	"github.com/weaviate/weaviate/entities/schema"
 )
 
 func CreateCollectionRw(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()
-
 	// Does ClassCreator() overwrite new classes with the same name?
-	fmt.Printf("Checking for existence of collection %q", className)
+	fmt.Printf("Checking for existence of collection %q\n", className)
 	exists, err := client.Schema().ClassExistenceChecker().WithClassName(className).Do(ctx)
 	if err != nil {
 		panic(err)
 	}
 	if exists {
-		fmt.Printf("Collection %q already exists", className)
+		fmt.Printf("Collection %q already exists\n", className)
 		return
 	}
 
@@ -52,6 +54,33 @@ func CreateCollectionRw(client *weaviate.Client, className string, description s
 		panic(err)
 	}
 
-	fmt.Printf("Class %q created", className)
+	fmt.Printf("Created class %q", className)
+}
 
+func GetCollectionRw(client *weaviate.Client, className string) []byte {
+	ctx := context.Background()
+
+	fmt.Println("Retrieving collection:", className)
+	class, err := client.Schema().ClassGetter().
+		WithClassName(className).Do(ctx)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Collection retrieved:", className)
+
+	b, err := json.MarshalIndent(class, "", " ")
+
+	return b
+}
+
+// Delete a collection from your vector database.
+func DeleteCollectionRw(client *weaviate.Client, className string) {
+	fmt.Println("Deleting collection:", className)
+	if err := client.Schema().ClassDeleter().WithClassName(className).Do(context.Background()); err != nil {
+		// Weaviate will return a 400 if the class does not exist, so this is allowed, only return an error if it's not a 400
+		if status, ok := err.(*fault.WeaviateClientError); ok && status.StatusCode != http.StatusBadRequest {
+			panic(err)
+		}
+	}
+	fmt.Println("Collection deleted:", className)
 }
