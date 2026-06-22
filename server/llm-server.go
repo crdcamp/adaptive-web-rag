@@ -69,14 +69,13 @@ func GenerateSearchQuery(client openai.Client, modelName string, userPrompt stri
 	chatResponse := chatCompletion.Choices[0].Message.Content
 	fmt.Println("Search query generated:", chatResponse)
 
-	fmt.Println("Saving prompt to `server/crawl_data/user_prompt.md`")
 	chatResponseByte := []byte(strings.Trim(chatResponse, `"`))
 	path := filepath.Join("crawl_data/user_prompt.md")
 	err = os.WriteFile(path, chatResponseByte, 0644)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Prompt saved to `server/crawl_data/user_prompt.md`")
+	fmt.Println("Search query saved to `server/crawl_data/user_prompt.md`")
 }
 
 // Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.

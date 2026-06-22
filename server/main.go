@@ -29,9 +29,9 @@ func main() {
 	llamaClient := CreateLlamaClient("http://localhost:8080/v1", APIKey)
 	weaviateClient := CreateWeaviateClient("localhost:8081")
 
-	// Check if this stuff works
-	//DeleteCollection(weaviateClient, "testCollection")
-	CreateCollectionRw(weaviateClient, "testCollection", "A collection for storing internet results from web scraping")
+	// Function testing
+	DeleteCollection(weaviateClient, "testCollection")
+	CreateCollectionRw(weaviateClient, "philosophyCollection", "A collection for storing internet results from web scraping relating to philosophies on existential dread")
 	GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
 	CallCrawlScript()
 	SplitCrawlResults("crawl_data/crawl_results.json")

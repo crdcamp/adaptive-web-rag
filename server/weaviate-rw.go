@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/crdcamp/charsplitter"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate/entities/models"
@@ -97,6 +98,7 @@ func DeleteCollectionRw(client *weaviate.Client, className string) {
 }
 
 func SplitCrawlResults(fileName string) {
+	fmt.Println("Reading file %v and splitting text content", fileName)
 	contentBytes, err := os.ReadFile(fileName)
 	if err != nil {
 		panic(err)
@@ -105,10 +107,20 @@ func SplitCrawlResults(fileName string) {
 	var embedJSON []CrawlResults
 	json.Unmarshal([]byte(contentBytes), &embedJSON)
 
-	// splitter := charsplitter.New(
-	// 	charsplitter.WithChunkSize(512),
-	// 	charsplitter.WithChunkOverlap(100),
-	// 	charsplitter.WithKeepSeparator(false),
-	// )
+	splitter := charsplitter.New(
+		charsplitter.WithChunkSize(512),
+		charsplitter.WithChunkOverlap(100),
+		charsplitter.WithKeepSeparator(false),
+	)
 
+	index := 0
+	for index := range embedJSON {
+		chunks, err := splitter.SplitText(embedJSON[index].Content)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("CHUNKS:", chunks)
+		index += 1
+	}
 }

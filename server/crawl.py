@@ -144,7 +144,7 @@ async def main():
         # Save as a file meant to be overwritten.
         with open(f"{crawl_data_path}/crawl_results.json", "w") as f:
             json.dump(result, f)
-        print(f"Results saved to: {crawl_data_path}/crawl_results.json")
+        print(f"Web crawl results saved to: {crawl_data_path}/crawl_results.json")
     else:
         print("No URLs found to crawl")
 
