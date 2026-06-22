@@ -40,10 +40,11 @@ async def duckduckgo_search(search_query: str, max_results: int) -> dict:
     print(f"DuckDuckGo search complete for search: {search_query}")
     return hrefs
 
+# Will need to eventually log the search URLs with a time stamp
 # %% Crawler
 async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
     # === CLEAN SEMANTIC CONFIG (no links + pruning) ===
-    prune_filter = PruningContentFilter(threshold=0.27, min_word_threshold=15)
+    prune_filter = PruningContentFilter(threshold=0.26, min_word_threshold=10)
 
     md_generator = DefaultMarkdownGenerator(
         content_filter=prune_filter,
@@ -118,6 +119,8 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
                     success_count += 1
                 else:
                     fail_count += 1
+
+        results_data = list(results_data.values())
 
         print(f"\nSummary:")
         print(f"  - Successfully crawled: {success_count}")

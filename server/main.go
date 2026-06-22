@@ -3,15 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-	"os/exec"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
+
+// LOOK INTO PPROF FOR ANALYZING MEMORY USAGE. Refer to this video: https://www.youtube.com/watch?v=SKenR18NM04&t=280s
 
 // Dummy values that we'll get rid of when rewrite branch is complete
 const WeaviateEmbedURL string = "WEAVIATE-INCORRECT"
@@ -26,17 +25,15 @@ const WeaviateBaseUrl string = "http://127.0.0.1:8081"
 const APIKey string = "not-needed"
 
 func main() {
+	// Could add a function to convert the const vars into this string format
 	llamaClient := CreateLlamaClient("http://localhost:8080/v1", APIKey)
 	weaviateClient := CreateWeaviateClient("localhost:8081")
 
 	// Check if this stuff works
 	CreateCollectionRw(weaviateClient, "testCollection", "A collection for storing internet results from web scraping")
 	GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
-	UnloadModel(ChatModel)
-	DeleteCollectionRw(weaviateClient, "testCollection")
-
-	// Check if crawl script works
 	CallCrawlScriptRw()
+	SplitCrawlResults("crawl_data/crawl_results.json")
 }
 
 // Create and return an OpenAI API compatible client for llama-server.
@@ -70,22 +67,4 @@ func CreateWeaviateClient(host string) *weaviate.Client {
 	fmt.Printf("Weaviate client live? %v\n", live)
 
 	return client
-}
-
-// Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
-func CallCrawlScriptRw() {
-	// Run crawl.py
-	fmt.Println("Executing: crawl.py")
-	cmd := exec.Command("python3", "crawl.py")
-
-	// Output to terminal
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal("Error when running command: ", err)
-	} else {
-		fmt.Println("Successfully executed: crawl.py")
-	}
 }
