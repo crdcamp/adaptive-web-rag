@@ -112,13 +112,15 @@ type EmbedStruct struct {
 }
 
 func SplitCrawlResults(fileName string) {
-	//ctx := context.Background()
 	contentBytes, err := os.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
 
 	var embedJSON []EmbedStruct
-	json.Unmarshal(contentBytes, &embedJSON)
-	fmt.Printf("DATA FROM JSON:\n%+v", embedJSON)
+	json.Unmarshal([]byte(contentBytes), &embedJSON)
+
+	// Need to access by index, so we'll iterate through all indices
+	// In order to chunk all the results
+	fmt.Printf("RESULT:\n%+v", embedJSON[0].Content)
 }
