@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -54,7 +55,7 @@ func UnloadModel(modelName string) {
 func GenerateSearchQuery(client openai.Client, modelName string, userPrompt string) {
 	ctx := context.Background()
 
-	fmt.Println("Generating search query for user prompt:", userPrompt)
+	fmt.Printf("Generating search query for user prompt: %q\n", userPrompt)
 	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage("You are a search query generator. When given a question or topic, generate ONE search engine query that a person could enter into a browser to research it."),
@@ -76,4 +77,18 @@ func GenerateSearchQuery(client openai.Client, modelName string, userPrompt stri
 		panic(err)
 	}
 	fmt.Println("Prompt saved to `server/crawl_data/user_prompt.md`")
+}
+
+// Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
+func CallCrawlScript() {
+	cmd := exec.Command("python3", "crawl.py")
+
+	// Output to terminal
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		panic(err)
+	}
 }

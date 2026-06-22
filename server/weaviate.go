@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 
 	"github.com/crdcamp/charsplitter"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
@@ -42,7 +41,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		VectorIndexType: "hnsw",
 		Properties: []*models.Property{
 			{
-				Name:     "source",
+				Name:     "href",
 				DataType: schema.DataTypeText.PropString(),
 			},
 			{
@@ -97,19 +96,6 @@ func DeleteCollection(client *weaviate.Client, className string) {
 		}
 	}
 	fmt.Println("Collection deleted:", className)
-}
-
-// Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
-func CallCrawlScript() {
-	// Run crawl.py
-	fmt.Println("Executing: crawl.py")
-	cmd := exec.Command("python3", "crawl.py")
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal("Error when running command: ", err)
-	} else {
-		fmt.Println("Successfully executed: crawl.py")
-	}
 }
 
 // HORRENDOUS FUNCTION! BREAK THIS DOWN AND GET IT TOGETHER MAN!

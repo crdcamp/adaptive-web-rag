@@ -4,16 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
-	"os/exec"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate/entities/models"
 	"github.com/weaviate/weaviate/entities/schema"
 )
+
+type CrawlResults struct {
+	Href    string `json:"href"`
+	Content string `json:"content"`
+}
+
+type ChunkResults struct {
+	Href    string `json:"href"`
+	Content string `json:"content"`
+}
 
 func CreateCollectionRw(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()
@@ -88,39 +96,19 @@ func DeleteCollectionRw(client *weaviate.Client, className string) {
 	fmt.Println("Collection deleted:", className)
 }
 
-// Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
-func CallCrawlScriptRw() {
-	// Run crawl.py
-	fmt.Println("Executing: crawl.py")
-	cmd := exec.Command("python3", "crawl.py")
-
-	// Output to terminal
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal("Error when running command: ", err)
-	} else {
-		fmt.Println("Successfully executed: crawl.py")
-	}
-}
-
-type EmbedStruct struct {
-	Href    string `json:"href"`
-	Content string `json:"content"`
-}
-
 func SplitCrawlResults(fileName string) {
 	contentBytes, err := os.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
 
-	var embedJSON []EmbedStruct
+	var embedJSON []CrawlResults
 	json.Unmarshal([]byte(contentBytes), &embedJSON)
 
-	// Need to access by index, so we'll iterate through all indices
-	// In order to chunk all the results
-	fmt.Printf("RESULT:\n%+v", embedJSON[0].Content)
+	// splitter := charsplitter.New(
+	// 	charsplitter.WithChunkSize(512),
+	// 	charsplitter.WithChunkOverlap(100),
+	// 	charsplitter.WithKeepSeparator(false),
+	// )
+
 }

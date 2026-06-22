@@ -30,9 +30,10 @@ func main() {
 	weaviateClient := CreateWeaviateClient("localhost:8081")
 
 	// Check if this stuff works
+	//DeleteCollection(weaviateClient, "testCollection")
 	CreateCollectionRw(weaviateClient, "testCollection", "A collection for storing internet results from web scraping")
 	GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
-	CallCrawlScriptRw()
+	CallCrawlScript()
 	SplitCrawlResults("crawl_data/crawl_results.json")
 }
 
