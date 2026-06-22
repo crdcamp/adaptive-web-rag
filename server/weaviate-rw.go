@@ -118,7 +118,7 @@ func SplitCrawlResults(fileName string) {
 		panic(err)
 	}
 
-	embedJSON := EmbedStruct{}
-	json.Unmarshal(contentBytes, embedJSON)
+	var embedJSON []EmbedStruct
+	json.Unmarshal(contentBytes, &embedJSON)
 	fmt.Printf("DATA FROM JSON:\n%+v", embedJSON)
 }

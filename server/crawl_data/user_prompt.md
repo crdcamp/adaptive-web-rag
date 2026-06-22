@@ -1,1 +1,1 @@
-existentialism dread philosophies
+philosophies on existential dread and anxiety
