@@ -113,14 +113,13 @@ func SplitCrawlResults(fileName string) {
 		charsplitter.WithKeepSeparator(false),
 	)
 
-	index := 0
-	for index := range embedJSON {
-		chunks, err := splitter.SplitText(embedJSON[index].Content)
+	for i := range embedJSON {
+		content := embedJSON[i].Content
+		chunks, err := splitter.SplitText(content)
 		if err != nil {
 			panic(err)
 		}
 
 		fmt.Println("CHUNKS:", chunks)
-		index += 1
 	}
 }
