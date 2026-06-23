@@ -24,7 +24,7 @@ const APIKey string = "not-needed"
 
 func main() {
 	// Could add a function to convert the const vars into this string format
-	llamaClient := CreateLlamaClient("http://localhost:8080/v1", APIKey)
+	llamaClient := CreateLlamaClient(LlamaBaseUrl+"/v1", APIKey)
 	//weaviateClient := CreateWeaviateClient("localhost:8081")
 
 	// Function testing
