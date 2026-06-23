@@ -51,8 +51,8 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		},
 		ModuleConfig: map[string]interface{}{
 			"text2vec-openai": map[string]interface{}{
-				"baseURL":            LlamaBaseURL,
-				"model":              EmbedModel,
+				"baseURL":            AppConfig.LlamaBaseURL,
+				"model":              AppConfig.EmbedModel,
 				"vectorizeClassName": true,
 			},
 		},
@@ -185,7 +185,6 @@ func SplitEmbedAndUploadCrawlResults(client *weaviate.Client, targetCollection s
 		}
 	}
 	docSeq = docSeq + 1
-	UnloadModel(EmbedModel)
 }
 
 func NearTextSearch(client *weaviate.Client, className string, limit int, query string) {
@@ -207,6 +206,5 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 		panic(err)
 	}
 	fmt.Println("NearTextSearch() complete")
-	UnloadModel(EmbedModel)
 	fmt.Println("NearTextSearch() result:\n", nearTextResponse)
 }

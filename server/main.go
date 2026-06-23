@@ -11,22 +11,16 @@ import (
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
-const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
-const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
-const LlamaBaseURL string = "http://127.0.0.1:8080"
-const WeaviateBaseUrl string = "http://127.0.0.1:8081"
-const APIKey string = "not-needed"
+var AppConfig, _ = LoadConfig()
 
 func main() {
-	LoadConfig()
-	llamaClient := CreateLlamaClient(LlamaBaseURL+"/v1", APIKey)
+	fmt.Println("APP CONFIG:", AppConfig.LlamaBaseURL)
+	llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
 	//weaviateClient := CreateWeaviateClient("localhost:8081")
-
-	// Function testing
 	//DeleteCollection(weaviateClient, "testCollection")
 	//CreateCollectionRw(weaviateClient, "philosophyCollection", "A collection for storing internet results from web scraping relating to philosophies on existential dread")
-	GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
-	UnloadModel(ChatModel)
+	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
+	UnloadModel(AppConfig.ChatModel)
 	//CallCrawlScript()
 	SplitCrawlResults("crawl_data/crawl_results.json")
 }

@@ -50,8 +50,8 @@ func CreateCollectionRw(client *weaviate.Client, className string, description s
 		},
 		ModuleConfig: map[string]interface{}{
 			"text2vec-openai": map[string]interface{}{
-				"baseURL":            LlamaBaseURL,
-				"model":              EmbedModel,
+				"baseURL":            AppConfig.LlamaBaseURL,
+				"model":              AppConfig.EmbedModel,
 				"vectorizeClassName": true,
 			},
 		},

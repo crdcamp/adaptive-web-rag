@@ -18,7 +18,7 @@ import (
 // Unload a model from memory using the `/models/unload` HTTP endpoint.
 // Available models and their status can be displayed using `curl http://localhost:8080/v1/models | jq`
 func UnloadModel(modelName string) {
-	var unloadURL = LlamaBaseURL + "/models/unload"
+	var unloadURL = AppConfig.LlamaBaseURL + "/models/unload"
 	// Need to research more into json encoding in Go. I have no idea how this works at the moment
 	payload, err := json.Marshal(map[string]string{"model": modelName})
 	if err != nil {
