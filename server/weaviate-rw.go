@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/crdcamp/charsplitter"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
@@ -15,12 +14,7 @@ import (
 	"github.com/weaviate/weaviate/entities/schema"
 )
 
-type CrawlResults struct {
-	Href    string `json:"href"`
-	Content string `json:"content"`
-}
-
-type ChunkResults struct {
+type HrefAndContent struct {
 	Href    string `json:"href"`
 	Content string `json:"content"`
 }
@@ -105,7 +99,7 @@ func SplitCrawlResults(fileName string) {
 		panic(err)
 	}
 
-	var embedJSON []CrawlResults
+	var embedJSON []HrefAndContent
 	json.Unmarshal([]byte(contentBytes), &embedJSON)
 
 	splitter := charsplitter.New(
@@ -114,14 +108,27 @@ func SplitCrawlResults(fileName string) {
 		charsplitter.WithKeepSeparator(false),
 	)
 
+	var results []HrefAndContent
+
 	for i := range embedJSON {
 		content := embedJSON[i].Content
 		chunks, err := splitter.SplitText(content)
 		if err != nil {
 			panic(err)
 		}
-		for j, chunk := range chunks {
-		fmt.Printf("CHUNK WORD LEN: %v\nCHUNK: %v\n\n", len(strings.Fields(chunk)), chunks[j])
+		for _, chunk := range chunks {
+			results = append(results, HrefAndContent{
+				Href:    embedJSON[i].Href,
+				Content: chunk,
+			})
+			outputBytes, err := json.MarshalIndent(results, "", "  ")
+			if err != nil {
+				panic(err)
+			}
+			err = os.WriteFile("output.json", outputBytes, 0644)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }
