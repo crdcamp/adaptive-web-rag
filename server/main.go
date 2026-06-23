@@ -3,25 +3,39 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
-
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
-var AppConfig, _ = LoadConfig()
+// 1. Declare the variable globally, but DO NOT initialize it here.
+var AppConfig *Config
 
 func main() {
+	// 2. Load the .env file.
+	// If you run 'go run main.go' from INSIDE the server folder, use "../.env"
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file from root directory")
+	}
+
+	// 3. Initialize the configuration NOW that the environment variables exist!
+	AppConfig, err = LoadConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+
 	fmt.Println("APP CONFIG:", AppConfig.LlamaBaseURL)
 	llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
-	//weaviateClient := CreateWeaviateClient("localhost:8081")
-	//DeleteCollection(weaviateClient, "testCollection")
-	//CreateCollectionRw(weaviateClient, "philosophyCollection", "A collection for storing internet results from web scraping relating to philosophies on existential dread")
+	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+
+	GetCollection(weaviateClient, "philosophyCollection")
 	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
 	UnloadModel(AppConfig.ChatModel)
-	//CallCrawlScript()
 	SplitCrawlResults("crawl_data/crawl_results.json")
 }
 
