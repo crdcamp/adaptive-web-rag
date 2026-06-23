@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -12,12 +13,13 @@ import (
 
 const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
-const LlamaBaseUrl string = "http://127.0.0.1:8080"
+const LlamaBaseURL string = "http://127.0.0.1:8080"
 const WeaviateBaseUrl string = "http://127.0.0.1:8081"
 const APIKey string = "not-needed"
 
 func main() {
-	llamaClient := CreateLlamaClient(LlamaBaseUrl+"/v1", APIKey)
+	LoadConfig()
+	llamaClient := CreateLlamaClient(LlamaBaseURL+"/v1", APIKey)
 	//weaviateClient := CreateWeaviateClient("localhost:8081")
 
 	// Function testing
@@ -27,6 +29,26 @@ func main() {
 	UnloadModel(ChatModel)
 	//CallCrawlScript()
 	SplitCrawlResults("crawl_data/crawl_results.json")
+}
+
+type Config struct {
+	ChatModel       string
+	EmbedModel      string
+	LlamaBaseURL    string
+	WeaviateBaseURL string
+	LlamaAPIKey     string
+}
+
+func LoadConfig() (*Config, error) {
+	cfg := &Config{
+		ChatModel:       os.Getenv("CHAT_MODEL"),
+		EmbedModel:      os.Getenv("EMBED_MODEL"),
+		LlamaBaseURL:    os.Getenv("LLAMA_BASE_URL"),
+		WeaviateBaseURL: os.Getenv("WEAVIATE_BASE_URL"),
+		LlamaAPIKey:     os.Getenv("LLAMA_API_KEY"),
+	}
+
+	return cfg, nil
 }
 
 // Create and return an OpenAI API compatible client for llama-server.
