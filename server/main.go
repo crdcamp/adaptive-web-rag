@@ -10,12 +10,6 @@ import (
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
-// LOOK INTO PPROF FOR ANALYZING MEMORY USAGE. Refer to this video: https://www.youtube.com/watch?v=SKenR18NM04&t=280s
-
-// Dummy values that we'll get rid of when rewrite branch is complete
-
-// We'll store these elsewhere later (probably a .env file... or .env file mixed with a toml or json config file)
-// Just gotta get shit working for now so we're leaving it as is
 const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
 const LlamaBaseUrl string = "http://127.0.0.1:8080"
@@ -23,7 +17,6 @@ const WeaviateBaseUrl string = "http://127.0.0.1:8081"
 const APIKey string = "not-needed"
 
 func main() {
-	// Could add a function to convert the const vars into this string format
 	llamaClient := CreateLlamaClient(LlamaBaseUrl+"/v1", APIKey)
 	//weaviateClient := CreateWeaviateClient("localhost:8081")
 
