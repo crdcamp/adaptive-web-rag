@@ -92,7 +92,7 @@ func DeleteCollectionRw(client *weaviate.Client, className string) {
 	fmt.Println("Collection deleted:", className)
 }
 
-func SplitCrawlResults(fileName string) {
+func SplitCrawlResults(fileName string) struct {
 	fmt.Printf("Reading file %v and splitting text content\n", fileName)
 	contentBytes, err := os.ReadFile(fileName)
 	if err != nil {
@@ -121,14 +121,9 @@ func SplitCrawlResults(fileName string) {
 				Href:    embedJSON[i].Href,
 				Content: chunk,
 			})
-			outputBytes, err := json.MarshalIndent(results, "", "  ")
-			if err != nil {
-				panic(err)
-			}
-			err = os.WriteFile("output.json", outputBytes, 0644)
-			if err != nil {
-				panic(err)
-			}
+
 		}
 	}
+
+	return results
 }
