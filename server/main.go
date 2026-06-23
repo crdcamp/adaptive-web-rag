@@ -13,8 +13,6 @@ import (
 // LOOK INTO PPROF FOR ANALYZING MEMORY USAGE. Refer to this video: https://www.youtube.com/watch?v=SKenR18NM04&t=280s
 
 // Dummy values that we'll get rid of when rewrite branch is complete
-const WeaviateEmbedURL string = "WEAVIATE-INCORRECT"
-const ServerBaseURL string = "LLAMA-INCORRECT"
 
 // We'll store these elsewhere later (probably a .env file... or .env file mixed with a toml or json config file)
 // Just gotta get shit working for now so we're leaving it as is
@@ -30,7 +28,7 @@ func main() {
 	weaviateClient := CreateWeaviateClient("localhost:8081")
 
 	// Function testing
-	DeleteCollection(weaviateClient, "testCollection")
+	//DeleteCollection(weaviateClient, "testCollection")
 	CreateCollectionRw(weaviateClient, "philosophyCollection", "A collection for storing internet results from web scraping relating to philosophies on existential dread")
 	GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
 	CallCrawlScript()
