@@ -18,19 +18,20 @@ import (
 // Just gotta get shit working for now so we're leaving it as is
 const ChatModel string = "Qwen2.5-7B-Instruct-Q4_K_M"
 const EmbedModel string = "Qwen3-Embedding-8B-Q5_K_M"
-const LlamaBaseUrl string = "http://127.0.0.1:8080/v1"
+const LlamaBaseUrl string = "http://127.0.0.1:8080"
 const WeaviateBaseUrl string = "http://127.0.0.1:8081"
 const APIKey string = "not-needed"
 
 func main() {
 	// Could add a function to convert the const vars into this string format
-	//llamaClient := CreateLlamaClient("http://localhost:8080/v1", APIKey)
+	llamaClient := CreateLlamaClient("http://localhost:8080/v1", APIKey)
 	//weaviateClient := CreateWeaviateClient("localhost:8081")
 
 	// Function testing
 	//DeleteCollection(weaviateClient, "testCollection")
 	//CreateCollectionRw(weaviateClient, "philosophyCollection", "A collection for storing internet results from web scraping relating to philosophies on existential dread")
-	//GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
+	GenerateSearchQuery(llamaClient, ChatModel, "Tell me about some philosophies involving existential dread")
+	UnloadModel(ChatModel)
 	//CallCrawlScript()
 	SplitCrawlResults("crawl_data/crawl_results.json")
 }

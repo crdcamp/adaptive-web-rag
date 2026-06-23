@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -14,27 +15,10 @@ import (
 	"github.com/openai/openai-go/v3"
 )
 
-// Load a model into memory using the `/models/load` HTTP endpoint.
-// Available models and their status can be displayed using `curl http://localhost:8080/v1/models | jq`
-func LoadModel(modelName string) {
-	var loadURL = LlamaBaseUrl + "/models/load"
-	payload, err := json.Marshal(map[string]string{"model": modelName})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Loading model:", modelName)
-	resp, err := http.Post(loadURL, "application/json", bytes.NewBuffer(payload))
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-	fmt.Println("Model unloaded:", modelName)
-}
-
 // Unload a model from memory using the `/models/unload` HTTP endpoint.
 // Available models and their status can be displayed using `curl http://localhost:8080/v1/models | jq`
 func UnloadModel(modelName string) {
-	var unloadURL = LlamaBaseUrl + "/v1/models/unload"
+	var unloadURL = LlamaBaseUrl + "/models/unload"
 	// Need to research more into json encoding in Go. I have no idea how this works at the moment
 	payload, err := json.Marshal(map[string]string{"model": modelName})
 	if err != nil {
@@ -44,6 +28,11 @@ func UnloadModel(modelName string) {
 	resp, err := http.Post(unloadURL, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		panic(err) // Need a better error handling method here
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Printf("Unload failed: %s - %s\n", resp.Status, string(body))
+		return
 	}
 	defer resp.Body.Close()
 	//fmt.Printf("Status: %s\n", resp.Status)

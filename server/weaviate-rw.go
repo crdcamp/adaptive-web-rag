@@ -92,7 +92,7 @@ func DeleteCollectionRw(client *weaviate.Client, className string) {
 	fmt.Println("Collection deleted:", className)
 }
 
-func SplitCrawlResults(fileName string) struct {
+func SplitCrawlResults(fileName string) []HrefAndContent {
 	fmt.Printf("Reading file %v and splitting text content\n", fileName)
 	contentBytes, err := os.ReadFile(fileName)
 	if err != nil {
