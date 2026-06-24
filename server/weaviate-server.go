@@ -16,10 +16,6 @@ import (
 	"github.com/weaviate/weaviate/entities/schema"
 )
 
-// Not sure if this variable is necessary... given that you're probably not gonna need a different vectorization method you can probably get rid of it
-// But.. what if you want to easily change the vectorization method?
-// const VectorizationMethod string = "text2vec-openai"
-
 // Create a Weaviate vector database collection using a specified Weaviate client, a name for the collection, and a description. Note that `className` must be camelcase.
 func CreateCollection(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()

@@ -34,9 +34,9 @@ func main() {
 	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
 	UnloadModel(AppConfig.ChatModel)
 
-	//CallCrawlScript()
-	//func SplitEmbedAndUploadText(){}
+	CallCrawlScript()
 	SplitCrawlResults("crawl_data/crawl_results.json")
+	//func SplitEmbedAndUploadText(){}
 }
 
 type Config struct {
