@@ -92,7 +92,7 @@ func DeleteCollectionRw(client *weaviate.Client, className string) {
 	fmt.Println("Collection deleted:", className)
 }
 
-func SplitCrawlResults(fileName string) []HrefAndContent {
+func SplitCrawlResults(fileName string) []models.PropertySchema {
 	fmt.Printf("Reading file %v and splitting text content\n", fileName)
 	contentBytes, err := os.ReadFile(fileName)
 	if err != nil {
@@ -100,15 +100,15 @@ func SplitCrawlResults(fileName string) []HrefAndContent {
 	}
 
 	var embedJSON []HrefAndContent
-	json.Unmarshal([]byte(contentBytes), &embedJSON)
+	json.Unmarshal(contentBytes, &embedJSON)
 
 	splitter := charsplitter.New(
-		charsplitter.WithChunkSize(2000), // Character length, not word
+		charsplitter.WithChunkSize(2000),
 		charsplitter.WithChunkOverlap(400),
 		charsplitter.WithKeepSeparator(false),
 	)
 
-	var results []HrefAndContent
+	var results []models.PropertySchema
 
 	for i := range embedJSON {
 		content := embedJSON[i].Content
@@ -117,28 +117,32 @@ func SplitCrawlResults(fileName string) []HrefAndContent {
 			panic(err)
 		}
 		for _, chunk := range chunks {
-			results = append(results, HrefAndContent{
-				Href:    embedJSON[i].Href,
-				Content: chunk,
-			})
-
+			// Construct the Weaviate property schema map directly
+			props := map[string]interface{}{
+				"source":  embedJSON[i].Href,
+				"content": chunk,
+			}
+			results = append(results, props)
 		}
 	}
 
 	return results
 }
 
-func count[T any](slice []T, f func(T) bool) int {
-	count := 0
-	for _, s := range slice {
-		if f(s) {
-			count++
-		}
-	}
-	return count
-}
+func EmbedText(client *weaviate.Client, className string, splitText []models.PropertySchema) {
+	ctx := context.Background()
+	iterationCount := 1
+	totalIterations := len(splitText) // Could be wrong. We'll see
 
-func EmbedText(splitText []HrefAndContent) {
-	numOfStuff := len(splitText) // Could be wrong. We'll see
-	fmt.Println("splitText count:", numOfStuff)
+	batcher := client.Batch().ObjectsBatcher()
+	for _, splitText := range splitText {
+		fmt.Printf("Embedding split content (%v/%v)\n", iterationCount, totalIterations)
+		iterationCount++
+		batcher.WithObjects(&models.Object{
+			Class:      className,
+			Properties: splitText,
+		})
+	}
+
+	batcher.Do(ctx)
 }

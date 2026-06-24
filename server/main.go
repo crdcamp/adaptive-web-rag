@@ -26,7 +26,7 @@ func main() {
 	}
 
 	//llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
-	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	// GetCollection(weaviateClient, "philosophyCollection")
 
@@ -36,7 +36,7 @@ func main() {
 
 	// CallCrawlScript()
 	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
-	EmbedText(splitCrawlResults)
+	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
 	//func SplitEmbedAndUploadText(){}
 }
 
