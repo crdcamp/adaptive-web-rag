@@ -22,7 +22,7 @@ services:
       - "--metrics"
       - "--verbose"
 
-  weaviate:
+  weaviate-server:
     image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
     volumes:
       - ./vector-db:/vector-db
