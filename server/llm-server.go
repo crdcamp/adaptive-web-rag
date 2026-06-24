@@ -61,7 +61,7 @@ func GenerateSearchQuery(client openai.Client, modelName string, userPrompt stri
 	chatResponseByte := []byte(strings.Trim(chatResponse, `"`))
 	path := filepath.Join("crawl_data/user_prompt.md")
 
-	// This needs a check for if the file exists
+	// This needs a check for if the file exists: https://golangtutorial.dev/tips/check-if-a-file-exists-or-not-in-go/
 	err = os.WriteFile(path, chatResponseByte, 0644)
 	if err != nil {
 		panic(err)

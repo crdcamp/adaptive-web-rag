@@ -25,17 +25,18 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
-	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	//llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
+	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
-	GetCollection(weaviateClient, "philosophyCollection")
+	// GetCollection(weaviateClient, "philosophyCollection")
 
-	// Need to add a parameter for a custom output location
-	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
-	UnloadModel(AppConfig.ChatModel)
+	// // Might add a parameter for a custom output location
+	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
+	// UnloadModel(AppConfig.ChatModel)
 
-	CallCrawlScript()
-	SplitCrawlResults("crawl_data/crawl_results.json")
+	// CallCrawlScript()
+	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
+	EmbedText(splitCrawlResults)
 	//func SplitEmbedAndUploadText(){}
 }
 
