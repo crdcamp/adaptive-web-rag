@@ -135,14 +135,24 @@ func EmbedText(client *weaviate.Client, className string, splitText []models.Pro
 	totalIterations := len(splitText) // Could be wrong. We'll see
 
 	batcher := client.Batch().ObjectsBatcher()
-	for _, splitText := range splitText {
+	for _, text := range splitText {
 		fmt.Printf("Embedding split content (%v/%v)\n", iterationCount, totalIterations)
 		iterationCount++
 		batcher.WithObjects(&models.Object{
 			Class:      className,
-			Properties: splitText,
+			Properties: text,
 		})
 	}
 
-	batcher.Do(ctx)
+	resp, err := batcher.Do(ctx)
+	if err != nil {
+		panic(err)
+	}
+	for _, r := range resp {
+		if r.Result != nil && r.Result.Errors != nil {
+			for _, e := range r.Result.Errors.Error {
+				fmt.Printf("Object error: %s\n", e.Message)
+			}
+		}
+	}
 }
