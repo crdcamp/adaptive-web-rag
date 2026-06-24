@@ -12,30 +12,30 @@ import (
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
-// 1. Declare the variable globally, but DO NOT initialize it here.
 var AppConfig *Config
 
 func main() {
-	// 2. Load the .env file.
-	// If you run 'go run main.go' from INSIDE the server folder, use "../.env"
 	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file from root directory")
 	}
 
-	// 3. Initialize the configuration NOW that the environment variables exist!
 	AppConfig, err = LoadConfig()
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	fmt.Println("APP CONFIG:", AppConfig.LlamaBaseURL)
 	llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
 	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	GetCollection(weaviateClient, "philosophyCollection")
+
+	// Need to add a parameter for a custom output location
 	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
 	UnloadModel(AppConfig.ChatModel)
+
+	//CallCrawlScript()
+	//func SplitEmbedAndUploadText(){}
 	SplitCrawlResults("crawl_data/crawl_results.json")
 }
 
