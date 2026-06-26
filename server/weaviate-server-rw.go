@@ -50,7 +50,7 @@ func CreateCollectionRw(client *weaviate.Client, className string, description s
 		},
 		ModuleConfig: map[string]interface{}{
 			"text2vec-openai": map[string]interface{}{
-				"baseURL":            AppConfig.LlamaBaseURL,
+				"baseURL":            AppConfig.WeaviateBaseURLAlt,
 				"model":              AppConfig.EmbedModel,
 				"vectorizeClassName": true,
 			},
@@ -82,8 +82,9 @@ func GetCollectionRw(client *weaviate.Client, className string) []byte {
 
 // Delete a collection from your vector database.
 func DeleteCollectionRw(client *weaviate.Client, className string) {
+	ctx := context.Background()
 	fmt.Println("Deleting collection:", className)
-	if err := client.Schema().ClassDeleter().WithClassName(className).Do(context.Background()); err != nil {
+	if err := client.Schema().ClassDeleter().WithClassName(className).Do(ctx); err != nil {
 		// Weaviate will return a 400 if the class does not exist, so this is allowed, only return an error if it's not a 400
 		if status, ok := err.(*fault.WeaviateClientError); ok && status.StatusCode != http.StatusBadRequest {
 			panic(err)

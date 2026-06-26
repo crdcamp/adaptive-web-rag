@@ -25,6 +25,10 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
+	fmt.Printf("DEBUG LlamaBaseURL:       %q\n", AppConfig.LlamaBaseURL)
+	fmt.Printf("DEBUG WeaviateBaseURL:    %q\n", AppConfig.WeaviateBaseURL)
+	fmt.Printf("DEBUG WeaviateBaseURLAlt: %q\n", AppConfig.WeaviateBaseURLAlt)
+
 	//llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
 	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
@@ -33,7 +37,8 @@ func main() {
 	// // Might add a parameter for a custom output location
 	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
 	// UnloadModel(AppConfig.ChatModel)
-
+	DeleteCollection(weaviateClient, "philosophyCollection")
+	CreateCollection(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
 	// CallCrawlScript()
 	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
 	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
@@ -41,20 +46,22 @@ func main() {
 }
 
 type Config struct {
-	ChatModel       string
-	EmbedModel      string
-	LlamaBaseURL    string
-	WeaviateBaseURL string
-	LlamaAPIKey     string
+	ChatModel          string
+	EmbedModel         string
+	LlamaBaseURL       string
+	LlamaAPIKey        string
+	WeaviateBaseURL    string
+	WeaviateBaseURLAlt string
 }
 
 func LoadConfig() (*Config, error) {
 	cfg := &Config{
-		ChatModel:       os.Getenv("CHAT_MODEL"),
-		EmbedModel:      os.Getenv("EMBED_MODEL"),
-		LlamaBaseURL:    os.Getenv("LLAMA_BASE_URL"),
-		WeaviateBaseURL: os.Getenv("WEAVIATE_BASE_URL"),
-		LlamaAPIKey:     os.Getenv("LLAMA_API_KEY"),
+		ChatModel:          os.Getenv("CHAT_MODEL"),
+		EmbedModel:         os.Getenv("EMBED_MODEL"),
+		LlamaBaseURL:       os.Getenv("LLAMA_BASE_URL"),
+		LlamaAPIKey:        os.Getenv("LLAMA_API_KEY"),
+		WeaviateBaseURL:    os.Getenv("WEAVIATE_BASE_URL"),
+		WeaviateBaseURLAlt: os.Getenv("WEAVIATE_BASE_URL_ALT"),
 	}
 
 	return cfg, nil
