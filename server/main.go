@@ -33,7 +33,7 @@ func main() {
 	// // Might add a parameter for a custom output location
 	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
 	// UnloadModel(AppConfig.ChatModel)
-	DeleteCollectionRw(weaviateClient, "philosophyCollection")
+	//DeleteCollectionRw(weaviateClient, "philosophyCollection")
 	CreateCollectionRw(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
 	// CallCrawlScript()
 	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")

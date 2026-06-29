@@ -134,29 +134,16 @@ func SplitCrawlResults(fileName string) []models.PropertySchema {
 func EmbedText(client *weaviate.Client, className string, splitText []models.PropertySchema) {
 	fmt.Println("Beginning text embeddings...")
 	ctx := context.Background()
-	iterationCount := 1
-	totalIterations := len(splitText) // Could be wrong. We'll see
-
-	batcher := client.Batch().ObjectsBatcher()
-	for _, text := range splitText {
-		fmt.Printf("Embedding content (%v/%v)\n", iterationCount, totalIterations)
-		batcher.WithObjects(&models.Object{
+	totalIterations := len(splitText)
+	for i, text := range splitText {
+		fmt.Printf("Embedding split content (%v/%v)\n", i+1, totalIterations)
+		_, err := client.Batch().ObjectsBatcher().WithObjects(&models.Object{
 			Class:      className,
 			Properties: text,
-		})
-	}
-
-	resp, err := batcher.Do(ctx)
-	iterationCount++
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Successfully embedded content (%v/%v)\n", iterationCount, totalIterations)
-	for _, r := range resp {
-		if r.Result != nil && r.Result.Errors != nil {
-			for _, e := range r.Result.Errors.Error {
-				fmt.Printf("Object error: %s\n", e.Message)
-			}
+		}).Do(ctx)
+		if err != nil {
+			panic(err)
 		}
 	}
+	fmt.Println("Done embedding text.")
 }
