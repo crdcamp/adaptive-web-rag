@@ -25,10 +25,6 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	fmt.Printf("DEBUG LlamaBaseURL:       %q\n", AppConfig.LlamaBaseURL)
-	fmt.Printf("DEBUG WeaviateBaseURL:    %q\n", AppConfig.WeaviateBaseURL)
-	fmt.Printf("DEBUG WeaviateBaseURLAlt: %q\n", AppConfig.WeaviateBaseURLAlt)
-
 	//llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
 	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
@@ -42,6 +38,7 @@ func main() {
 	// CallCrawlScript()
 	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
 	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
+	UnloadModel(AppConfig.EmbedModel)
 	//func SplitEmbedAndUploadText(){}
 }
 
