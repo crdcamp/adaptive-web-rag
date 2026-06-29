@@ -33,8 +33,6 @@ services:
       - "8081"
       - --scheme
       - http
-      - --write-timeout
-      - "0s"
     ports:
       - 8081:8081
       - 50051:50051
