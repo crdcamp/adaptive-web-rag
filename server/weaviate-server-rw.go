@@ -126,7 +126,7 @@ func SplitCrawlResults(fileName string) []models.PropertySchema {
 			results = append(results, props)
 		}
 	}
-	fmt.Printf("Text content split for file %q\n", fileName)
+	fmt.Printf("Done splitting text for file %v\n", fileName)
 
 	return results
 }

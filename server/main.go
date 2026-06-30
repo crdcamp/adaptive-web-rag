@@ -25,21 +25,29 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
+	// Might be better to just have these in every function
 	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
-	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
-	// GetCollection(weaviateClient, "philosophyCollection")
+	CreateCollection(weaviateClient, "humanDiscoveries", "A collection for testing the RAG pipeline containing information on human discoveries")
 
-	// // Might add a parameter for a custom output location
-	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
+	internetSearch(llamaClient, weaviateClient, "What are some of the greatest discoveries humanity has made?")
+	splitEmbedAndUploadText(weaviateClient, "humandDiscovervies", "crawl_data/crawl_results.json")
+}
+
+// GetCollection(weaviateClient, "philosophyCollection")
+// DeleteCollectionRw(weaviateClient, "philosophyCollection")
+// CreateCollectionRw(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
+func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, question string) {
+	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, question)
 	UnloadModel(AppConfig.ChatModel)
-	//DeleteCollectionRw(weaviateClient, "philosophyCollection")
-	//CreateCollectionRw(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
-	// CallCrawlScript()
-	// splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
-	// EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
-	// UnloadModel(AppConfig.EmbedModel)
-	//func SplitEmbedAndUploadText(){}
+	// Should probably add an output location for this
+	CallCrawlScript()
+}
+
+func splitEmbedAndUploadText(weaviateClient *weaviate.Client, className string, crawlResultsPath string) {
+	splitCrawlResults := SplitCrawlResults(crawlResultsPath)
+	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
 }
 
 type Config struct {
@@ -54,6 +62,7 @@ type Config struct {
 
 // Load the .env file variables.
 func LoadConfig() (*Config, error) {
+	// This maybe could be a loop?
 	cfg := &Config{
 		ChatModel:          os.Getenv("CHAT_MODEL"),
 		EmbedModel:         os.Getenv("EMBED_MODEL"),
