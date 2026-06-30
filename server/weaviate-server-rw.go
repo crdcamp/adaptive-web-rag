@@ -132,11 +132,11 @@ func SplitCrawlResults(fileName string) []models.PropertySchema {
 }
 
 func EmbedText(client *weaviate.Client, className string, splitText []models.PropertySchema) {
-	fmt.Println("Beginning text embeddings...")
+	fmt.Println("Beginning text embeddings")
 	ctx := context.Background()
 	totalIterations := len(splitText)
 	for i, text := range splitText {
-		fmt.Printf("Embedding split content (%v/%v)\n", i+1, totalIterations)
+		fmt.Printf("Embedding text (%v/%v)\n", i+1, totalIterations)
 		_, err := client.Batch().ObjectsBatcher().WithObjects(&models.Object{
 			Class:      className,
 			Properties: text,
@@ -145,5 +145,5 @@ func EmbedText(client *weaviate.Client, className string, splitText []models.Pro
 			panic(err)
 		}
 	}
-	fmt.Println("Done embedding text.")
+	fmt.Println("Text embeddings complete")
 }

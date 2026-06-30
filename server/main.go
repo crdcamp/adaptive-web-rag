@@ -25,20 +25,20 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	//llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL+"/v1", AppConfig.LlamaAPIKey)
-	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
+	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	// GetCollection(weaviateClient, "philosophyCollection")
 
 	// // Might add a parameter for a custom output location
-	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
-	// UnloadModel(AppConfig.ChatModel)
+	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about some philosophies involving existential dread")
+	UnloadModel(AppConfig.ChatModel)
 	//DeleteCollectionRw(weaviateClient, "philosophyCollection")
-	CreateCollectionRw(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
+	//CreateCollectionRw(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
 	// CallCrawlScript()
-	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
-	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
-	UnloadModel(AppConfig.EmbedModel)
+	// splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
+	// EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
+	// UnloadModel(AppConfig.EmbedModel)
 	//func SplitEmbedAndUploadText(){}
 }
 
@@ -46,19 +46,22 @@ type Config struct {
 	ChatModel          string
 	EmbedModel         string
 	LlamaBaseURL       string
+	LlamaServer        string
 	LlamaAPIKey        string
 	WeaviateBaseURL    string
 	WeaviateBaseURLAlt string
 }
 
+// Load the .env file variables.
 func LoadConfig() (*Config, error) {
 	cfg := &Config{
 		ChatModel:          os.Getenv("CHAT_MODEL"),
 		EmbedModel:         os.Getenv("EMBED_MODEL"),
 		LlamaBaseURL:       os.Getenv("LLAMA_BASE_URL"),
+		LlamaServer:        os.Getenv("LLAMA_SERVER"),
 		LlamaAPIKey:        os.Getenv("LLAMA_API_KEY"),
 		WeaviateBaseURL:    os.Getenv("WEAVIATE_BASE_URL"),
-		WeaviateBaseURLAlt: os.Getenv("WEAVIATE_BASE_URL_ALT"),
+		WeaviateBaseURLAlt: os.Getenv("WEAVIATE_BASE_URL_ALT"), // Will delete eventually
 	}
 
 	return cfg, nil
