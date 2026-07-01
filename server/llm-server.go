@@ -101,6 +101,11 @@ func RefineVectorSearchQuery(client openai.Client, prompt string) string {
 	return CreateChatCompletion(client, AppConfig.ChatModel, systemPrompt, prompt)
 }
 
-// Synonym expansion
-// Acronym expansion
-// Related term expansion
+// func EvaluateVectorResponse(client openai.Client, vectorResponse string) {
+// 	systemPrompt := `You are a relevance judge for vector database search results. Given a user query and a retrieved chunk, determine whether the chunk directly addresses the query's specific intent — not just whether it's topically adjacent.
+
+// A chunk that shares subject matter with the query but misses its specific angle, scope, or intent is NOT relevant. Do not be lenient with keyword/embedding overlap.
+
+// Output only valid JSON: {"relevant": true | false, "reason": "<one sentence>"}`
+// 	chatCompletion := CreateChatCompletion(client, AppConfig.ChatModel)
+// }
