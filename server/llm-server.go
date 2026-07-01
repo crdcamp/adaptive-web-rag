@@ -39,6 +39,24 @@ func UnloadModel(modelName string) {
 	fmt.Println("Model unloaded:", modelName)
 }
 
+func CreateChatCompletion(client openai.Client, modelName, userPrompt string, systemPrompt string) {
+	ctx := context.Background()
+
+	fmt.Printf("Creating chat completion\nUser prompt: %q\nSystem prompt: %q\n", userPrompt, systemPrompt)
+	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage(systemPrompt),
+			openai.UserMessage(userPrompt),
+		},
+		Model: modelName,
+	})
+	if err != nil {
+		panic(err)
+	}
+	chatResponse := chatCompletion.Choices[0].Message.Content
+	fmt.Printf("Chat completion response: %q\n", chatResponse)
+}
+
 // Generate one internet search query and save the result to `server/crawl_data/user_prompt.md`.
 // The resulting query may be used by `crawl.py`.
 func GenerateSearchQuery(client openai.Client, modelName string, userPrompt string) {
@@ -82,3 +100,5 @@ func CallCrawlScript() {
 		panic(err)
 	}
 }
+
+//func RefineVectorDBSearch() {}
