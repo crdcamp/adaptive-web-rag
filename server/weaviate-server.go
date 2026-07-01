@@ -198,3 +198,6 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 	}
 	fmt.Printf("Vector DB query: %q\nVector DB Response:\n%v", query, response)
 }
+
+//func KeyWordSearch() {}
+//func CheckResultValidity() {}
