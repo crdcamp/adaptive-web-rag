@@ -10,6 +10,7 @@ import (
 	"github.com/crdcamp/charsplitter"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
+	"github.com/weaviate/weaviate-go-client/v5/weaviate/graphql"
 	"github.com/weaviate/weaviate/entities/models"
 	"github.com/weaviate/weaviate/entities/schema"
 )
@@ -112,6 +113,7 @@ func ReadAllCollectionDefinitions(client *weaviate.Client) []byte {
 }
 
 func ReadAllCollectionNames(client *weaviate.Client) CollectionNames {
+	// Needs error handling
 	str := string(ReadAllCollectionDefinitions(client))
 	res := CollectionNames{}
 	_ = json.Unmarshal([]byte(str), &res)
@@ -172,4 +174,27 @@ func EmbedText(client *weaviate.Client, className string, splitText []models.Pro
 		}
 	}
 	fmt.Println("Text embeddings complete")
+}
+
+// Needs a class existence check
+func NearTextSearch(client *weaviate.Client, className string, limit int, query string) {
+	ctx := context.Background()
+
+	nearText := client.GraphQL().NearTextArgBuilder().
+		WithConcepts([]string{query})
+
+	response, err := client.GraphQL().Get().
+		WithClassName(className).
+		WithFields(
+			graphql.Field{Name: "source"},
+			graphql.Field{Name: "content"},
+		).
+		WithNearText(nearText).
+		WithLimit(limit).
+		Do(ctx)
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(response)
 }
