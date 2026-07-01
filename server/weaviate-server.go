@@ -196,5 +196,5 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(response)
+	fmt.Printf("Vector DB query: %q\nVector DB Response:\n%v", query, response)
 }

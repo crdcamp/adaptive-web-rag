@@ -1,1 +1,1 @@
-greatest discoveries in human history
+philosophies involving existential dread and anxiety

@@ -26,17 +26,16 @@ func main() {
 	}
 
 	// Might be better to just have these in every function
-	//llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
-	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
+	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	// Testing
-	collectionNames := ReadAllCollectionNames(weaviateClient)
-	fmt.Println(collectionNames)
+	// fmt.Println(ReadAllCollectionNames(weaviateClient))
+	// NearTextSearch(weaviateClient, "PhilosophyCollection", 4, "If nothing I do matters in a million years, does it matter now?")
+	//CreateChatCompletion(llamaClient, AppConfig.ChatModel, "Answer the question to the best of your abilities", "What are the best use cases for a vector database?")
+	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about philosophies involving existential dread")
 }
 
-// GetCollection(weaviateClient, "philosophyCollection")
-// DeleteCollectionRw(weaviateClient, "philosophyCollection")
-// CreateCollectionRw(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
 func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, prompt string) {
 	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
 	UnloadModel(AppConfig.ChatModel)
