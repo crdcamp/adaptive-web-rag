@@ -19,6 +19,12 @@ type HrefAndContent struct {
 	Content string `json:"content"`
 }
 
+type CollectionNames struct {
+	Classes []struct {
+		Class string `json:"class"`
+	}
+}
+
 func CreateCollection(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()
 	// Does ClassCreator() overwrite new classes with the same name?
@@ -93,7 +99,7 @@ func DeleteCollection(client *weaviate.Client, className string) {
 	fmt.Println("Collection deleted:", className)
 }
 
-func ReadAllCollectionDefinitions(client *weaviate.Client) {
+func ReadAllCollectionDefinitions(client *weaviate.Client) []byte {
 	ctx := context.Background()
 	schema, err := client.Schema().Getter().
 		Do(ctx)
@@ -102,7 +108,15 @@ func ReadAllCollectionDefinitions(client *weaviate.Client) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(b))
+	return b
+}
+
+func ReadAllCollectionNames(client *weaviate.Client) CollectionNames {
+	str := string(ReadAllCollectionDefinitions(client))
+	res := CollectionNames{}
+	_ = json.Unmarshal([]byte(str), &res)
+
+	return res
 }
 
 func SplitCrawlResults(fileName string) []models.PropertySchema {

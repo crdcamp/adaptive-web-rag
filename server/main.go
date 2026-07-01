@@ -26,14 +26,12 @@ func main() {
 	}
 
 	// Might be better to just have these in every function
-	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
+	//llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
 	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	// Testing
-	CreateCollection(weaviateClient, "humanDiscoveries", "A collection for testing the RAG pipeline containing information on human discoveries")
-	internetSearch(llamaClient, weaviateClient, "What are some of the greatest discoveries humanity has made?")
-	splitEmbedAndUploadText(weaviateClient, "humandDiscovervies", "crawl_data/crawl_results.json")
-	ReadAllCollectionDefinitions(weaviateClient)
+	collectionNames := ReadAllCollectionNames(weaviateClient)
+	fmt.Println(collectionNames)
 }
 
 // GetCollection(weaviateClient, "philosophyCollection")
