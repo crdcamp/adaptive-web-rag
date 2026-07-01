@@ -10,6 +10,7 @@ import (
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
+	"github.com/weaviate/weaviate/entities/models"
 )
 
 var AppConfig *Config
@@ -27,13 +28,14 @@ func main() {
 
 	// Might be better to just have these in every function
 	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
-	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	// Testing
 	// fmt.Println(ReadAllCollectionNames(weaviateClient))
 	// NearTextSearch(weaviateClient, "PhilosophyCollection", 4, "If nothing I do matters in a million years, does it matter now?")
 	//CreateChatCompletion(llamaClient, AppConfig.ChatModel, "Answer the question to the best of your abilities", "What are the best use cases for a vector database?")
-	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about philosophies involving existential dread")
+	//GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about philosophies involving existential dread")
+	fmt.Println(vectorSearch(*weaviateClient, llamaClient, "PhilosophyCollection", "I spend all day building systems to help other people find answers faster, and I still can't find a single reason any of this matters once I'm gone."))
 }
 
 func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, prompt string) {
@@ -46,6 +48,13 @@ func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, 
 func splitEmbedAndUploadText(weaviateClient *weaviate.Client, className string, crawlResultsPath string) {
 	splitCrawlResults := SplitCrawlResults(crawlResultsPath)
 	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
+}
+
+func vectorSearch(weaviateClient weaviate.Client, llamaClient openai.Client, className string, prompt string) *models.GraphQLResponse {
+	query := RefineVectorSearchQuery(llamaClient, prompt)
+	UnloadModel(AppConfig.ChatModel)
+
+	return NearTextSearch(&weaviateClient, className, 4, query)
 }
 
 type Config struct {

@@ -86,4 +86,21 @@ func CallCrawlScript() {
 	}
 }
 
-//func RefineVectorDBSearch() {}
+// Takes in a user's prompt and improves it for a vector database search
+func RefineVectorSearchQuery(client openai.Client, prompt string) string {
+	systemPrompt := `Rewrite the user's question into an optimized vector database search query.
+
+- Resolve pronouns/references using conversation context
+- Anchor the query to the specific subject/domain from context, even if the user didn't name it
+- Strip filler words ("can you", "I was wondering")
+- Preserve technical terms and proper nouns exactly
+- Split multi-part questions into separate queries
+- Output as noun phrases, not questions
+- Do not answer the question. Output only the rewritten query, no explanation.`
+
+	return CreateChatCompletion(client, AppConfig.ChatModel, systemPrompt, prompt)
+}
+
+// Synonym expansion
+// Acronym expansion
+// Related term expansion

@@ -177,7 +177,8 @@ func EmbedText(client *weaviate.Client, className string, splitText []models.Pro
 }
 
 // Needs a class existence check
-func NearTextSearch(client *weaviate.Client, className string, limit int, query string) {
+func NearTextSearch(client *weaviate.Client, className string, limit int, query string) *models.GraphQLResponse {
+	fmt.Printf("Conducting near text search for query: %q\n", query)
 	ctx := context.Background()
 
 	nearText := client.GraphQL().NearTextArgBuilder().
@@ -197,6 +198,8 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 		panic(err)
 	}
 	fmt.Printf("Vector DB query: %q\nVector DB Response:\n%v", query, response)
+
+	return response
 }
 
 //func KeyWordSearch() {}
