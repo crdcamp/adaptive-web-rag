@@ -29,8 +29,8 @@ func main() {
 	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
 	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
+	// Testing
 	CreateCollection(weaviateClient, "humanDiscoveries", "A collection for testing the RAG pipeline containing information on human discoveries")
-
 	internetSearch(llamaClient, weaviateClient, "What are some of the greatest discoveries humanity has made?")
 	splitEmbedAndUploadText(weaviateClient, "humandDiscovervies", "crawl_data/crawl_results.json")
 }
@@ -38,8 +38,8 @@ func main() {
 // GetCollection(weaviateClient, "philosophyCollection")
 // DeleteCollectionRw(weaviateClient, "philosophyCollection")
 // CreateCollectionRw(weaviateClient, "philosophyCollection", "A test collection containing information on existential dread.")
-func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, question string) {
-	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, question)
+func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, prompt string) {
+	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
 	UnloadModel(AppConfig.ChatModel)
 	// Should probably add an output location for this
 	CallCrawlScript()
