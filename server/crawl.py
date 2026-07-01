@@ -136,7 +136,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 4) -> dict:
     return results_data
 
 async def main():
-    urls = await duckduckgo_search(prompt, 8)
+    urls = await duckduckgo_search(prompt, 4)
     if urls:
         print(f"Found {len(urls)} URLs to crawl")
         result = await crawl_parallel(urls, max_concurrent=10)

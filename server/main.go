@@ -33,6 +33,7 @@ func main() {
 	CreateCollection(weaviateClient, "humanDiscoveries", "A collection for testing the RAG pipeline containing information on human discoveries")
 	internetSearch(llamaClient, weaviateClient, "What are some of the greatest discoveries humanity has made?")
 	splitEmbedAndUploadText(weaviateClient, "humandDiscovervies", "crawl_data/crawl_results.json")
+	ReadAllCollectionDefinitions(weaviateClient)
 }
 
 // GetCollection(weaviateClient, "philosophyCollection")

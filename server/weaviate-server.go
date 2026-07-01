@@ -93,6 +93,18 @@ func DeleteCollection(client *weaviate.Client, className string) {
 	fmt.Println("Collection deleted:", className)
 }
 
+func ReadAllCollectionDefinitions(client *weaviate.Client) {
+	ctx := context.Background()
+	schema, err := client.Schema().Getter().
+		Do(ctx)
+
+	b, err := json.MarshalIndent(schema, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(b))
+}
+
 func SplitCrawlResults(fileName string) []models.PropertySchema {
 	fmt.Printf("Reading file %v and splitting text content\n", fileName)
 	contentBytes, err := os.ReadFile(fileName)
