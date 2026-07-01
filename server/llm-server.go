@@ -42,7 +42,7 @@ func UnloadModel(modelName string) {
 func CreateChatCompletion(client openai.Client, modelName, systemPrompt string, userPrompt string) string {
 	ctx := context.Background()
 
-	fmt.Printf("Creating chat completion with\nUser prompt: %q\nSystem prompt: %q\n", userPrompt, systemPrompt)
+	fmt.Printf("Creating chat completion...\nUser prompt:\n%q\nSystem prompt:\n%q\n", userPrompt, systemPrompt)
 	chatCompletion, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(systemPrompt),
@@ -54,15 +54,13 @@ func CreateChatCompletion(client openai.Client, modelName, systemPrompt string, 
 		panic(err)
 	}
 	chatResponse := chatCompletion.Choices[0].Message.Content
-	fmt.Printf("Chat completion response: %q\n", chatResponse)
+	fmt.Printf("Chat completion response:\n%q\n", chatResponse)
 
 	return chatResponse
 }
 
 func GenerateSearchQuery(client openai.Client, modelName string, prompt string) {
 	chatResponse := CreateChatCompletion(client, modelName, "You are a search query generator. When given a question or topic, generate ONE search engine query that a person could enter into a browser to research it.", prompt)
-	fmt.Println("Search query generated:", chatResponse)
-
 	chatResponseByte := []byte(strings.Trim(chatResponse, `"`))
 	path := filepath.Join("crawl_data/user_prompt.md")
 
@@ -71,7 +69,7 @@ func GenerateSearchQuery(client openai.Client, modelName string, prompt string) 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Search query saved to `server/crawl_data/user_prompt.md`")
+	fmt.Println("Chat completion saved to `server/crawl_data/user_prompt.md`")
 }
 
 // Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
