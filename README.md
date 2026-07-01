@@ -19,6 +19,9 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 # Issues
 
 * Doesn't check whether site had been visited when embedding.
+* Needs to check if question requires a search result in the first place.
+* Needs a way to adjust desired search results from Go scripts.
+* Web search data quality isn't exactly what we need (could be solved with chain-of-thought web search)
 
 # Starting Docker
 
