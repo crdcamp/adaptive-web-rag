@@ -68,7 +68,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		panic(err)
 	}
 
-	fmt.Printf("Created class %q\n", className)
+	fmt.Printf("Created collection %q\n", className)
 }
 
 func GetCollection(client *weaviate.Client, className string) []byte {

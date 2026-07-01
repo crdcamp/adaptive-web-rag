@@ -1,1 +1,1 @@
-philosophies of existential dread and anxiety
+projected API costs for large language models (LLMs) over the next decade

@@ -31,11 +31,20 @@ func main() {
 	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	// Testing
+	var className string = "webSearch"
+	var prompt string = "Find resources on the projected API costs for LLMs in the next decade"
+
+	CreateCollection(weaviateClient, className, "A collection of various web searches produced by the model.")
+	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
+	CallCrawlScript()
+	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
+	EmbedText(weaviateClient, className, splitCrawlResults)
+
 	// fmt.Println(ReadAllCollectionNames(weaviateClient))
 	// NearTextSearch(weaviateClient, "PhilosophyCollection", 4, "If nothing I do matters in a million years, does it matter now?")
 	//CreateChatCompletion(llamaClient, AppConfig.ChatModel, "Answer the question to the best of your abilities", "What are the best use cases for a vector database?")
 	//GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about philosophies involving existential dread")
-	fmt.Println(vectorSearch(*weaviateClient, llamaClient, "PhilosophyCollection", "I spend all day building systems to help other people find answers faster, and I still can't find a single reason any of this matters once I'm gone."))
+	//fmt.Println(vectorSearch(*weaviateClient, llamaClient, "PhilosophyCollection", "I spend all day building systems to help other people find answers faster, and I still can't find a single reason any of this matters once I'm gone."))
 }
 
 func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, prompt string) {
