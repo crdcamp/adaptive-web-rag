@@ -197,7 +197,20 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Vector DB query: %q\nVector DB Response:\n%v", query, response)
+
+	if len(response.Errors) > 0 {
+		fmt.Printf("Vector DB query %q returned GraphQL errors:\n", query)
+		for _, e := range response.Errors {
+			fmt.Printf("  - %s\n", e.Message)
+		}
+		return response
+	}
+
+	b, err := json.MarshalIndent(response.Data, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Vector DB query: %q\nVector DB Response:\n%s\n", query, b)
 
 	return response
 }

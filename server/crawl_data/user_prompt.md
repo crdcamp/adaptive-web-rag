@@ -1,1 +1,1 @@
-projected API costs for large language models (LLMs) over the next decade
+projected API costs for LLMs in the next decade resources

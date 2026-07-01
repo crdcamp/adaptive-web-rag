@@ -16,6 +16,10 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 - [Qwen/Qwen3-Embedding-8B-GGUF-Q5_K_M](https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF?show_file_info=Qwen3-Embedding-8B-Q5_K_M.gguf)
 - [Qwen/Qwen2.5-7B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF?show_file_info=qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf)
 
+# Issues
+
+* Doesn't check whether site had been visited when embedding.
+
 # Starting Docker
 
 Easy:
