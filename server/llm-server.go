@@ -109,3 +109,7 @@ func RefineVectorSearchQuery(client openai.Client, prompt string) string {
 // Output only valid JSON: {"relevant": true | false, "reason": "<one sentence>"}`
 // 	chatCompletion := CreateChatCompletion(client, AppConfig.ChatModel)
 // }
+
+func AnswerWithVectorDBResults(client openai.Client, LLMContext string) {
+	CreateChatCompletion(client, AppConfig.ChatModel, "Based on the following context, answer the question to the best of your abilities.:\n", LLMContext)
+}

@@ -1,1 +1,1 @@
-projected API costs for LLMs in the next decade resources
+projected API costs for LLMs in the next decade

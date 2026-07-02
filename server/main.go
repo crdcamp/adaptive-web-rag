@@ -32,11 +32,11 @@ func main() {
 
 	// Testing
 	var webSearchCollection string = "WebSearchCollection"
-	var webSearchCollectionDescription string = "A collection of various web searches produced by the model."
-	var prompt string = "Find resources on the projected API costs for LLMs in the next decade"
+	// var webSearchCollectionDescription string = "A collection of various web searches produced by the model."
+	var prompt string = "What are the projected API costs for LLMs in the next decade"
 
 	// THIS WILL BE A FUNCTION
-	// CreateCollection(weaviateClient, webSearchCollection, "A collection of various web searches produced by the model.")
+	//CreateCollection(weaviateClient, webSearchCollection, "A collection of various web searches produced by the model.")
 	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
 	// CallCrawlScript()
 	// splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
@@ -46,31 +46,25 @@ func main() {
 	// NearTextSearch(weaviateClient, "PhilosophyCollection", 4, "If nothing I do matters in a million years, does it matter now?")
 	//CreateChatCompletion(llamaClient, AppConfig.ChatModel, "Answer the question to the best of your abilities", "What are the best use cases for a vector database?")
 	//GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about philosophies involving existential dread")
-	CreateCollection(weaviateClient, webSearchCollection, webSearchCollectionDescription)
-	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
-	CallCrawlScript()
-	splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
-	EmbedText(weaviateClient, webSearchCollection, splitCrawlResults)
-	fmt.Println(vectorSearch(*weaviateClient, llamaClient, webSearchCollection, prompt))
+	// CreateCollection(weaviateClient, webSearchCollection, webSearchCollectionDescription)
+	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
+	// CallCrawlScript()
+	// splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
+	// EmbedText(weaviateClient, webSearchCollection, splitCrawlResults)
+
+	// This is a mess
+	vectorSearchResult := vectorSearch(*weaviateClient, llamaClient, webSearchCollection, prompt)
+	vectorContent := vectorSearchResult.Data
+	fmt.Println(vectorContent)
+	//AnswerWithVectorDBResults(llamaClient, string(vectorSearchResult))
 }
 
+// I feel like there's a better way to do this than with nested functions
 func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, prompt string) {
 	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
 	UnloadModel(AppConfig.ChatModel)
 	// Should probably add an output location for this
 	CallCrawlScript()
-}
-
-func splitEmbedAndUploadText(weaviateClient *weaviate.Client, className string, crawlResultsPath string) {
-	splitCrawlResults := SplitCrawlResults(crawlResultsPath)
-	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
-}
-
-func vectorSearch(weaviateClient weaviate.Client, llamaClient openai.Client, className string, prompt string) *models.GraphQLResponse {
-	query := RefineVectorSearchQuery(llamaClient, prompt)
-	UnloadModel(AppConfig.ChatModel)
-
-	return NearTextSearch(&weaviateClient, className, 4, query)
 }
 
 type Config struct {
@@ -81,11 +75,25 @@ type Config struct {
 	LlamaAPIKey        string
 	WeaviateBaseURL    string
 	WeaviateBaseURLAlt string
+	// LlamaClient        *openai.Client
+	// WeaviateClient     *weaviate.Client
+}
+
+func splitEmbedAndUploadText(weaviateClient *weaviate.Client, className string, crawlResultsPath string) {
+	splitCrawlResults := SplitCrawlResults(crawlResultsPath)
+	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
+}
+
+func vectorSearch(weaviateClient weaviate.Client, llamaClient openai.Client, className string, prompt string) *models.GraphQLResponse {
+	fmt.Printf("Searching vector database for prompt: %q\n", prompt)
+	query := RefineVectorSearchQuery(llamaClient, prompt)
+	UnloadModel(AppConfig.ChatModel)
+
+	return NearTextSearch(&weaviateClient, className, 3, query)
 }
 
 // Load the .env file variables.
 func LoadConfig() (*Config, error) {
-	// This maybe could be a loop?
 	cfg := &Config{
 		ChatModel:          os.Getenv("CHAT_MODEL"),
 		EmbedModel:         os.Getenv("EMBED_MODEL"),

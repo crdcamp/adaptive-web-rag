@@ -26,6 +26,16 @@ type CollectionNames struct {
 	}
 }
 
+// This could maybe be merged with the HrefAndContent struct somehow
+type HrefAndContentDBResponse struct {
+	Get []struct {
+		Collection []struct {
+			Source  string `json:"source"`
+			Content string `json:"content"`
+		}
+	}
+}
+
 func CreateCollection(client *weaviate.Client, className string, description string) {
 	ctx := context.Background()
 	// Does ClassCreator() overwrite new classes with the same name?
@@ -194,6 +204,7 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 		WithLimit(limit).
 		Do(ctx)
 
+	// Some AI error handling
 	if err != nil {
 		panic(err)
 	}
