@@ -7,7 +7,7 @@ Anyway, welcome to my favorite project I've done to date where I create a "proof
 
 I'm essentially rewriting the entire [previous repository](https://github.com/crdcamp/llama-cpp-llm-embedding) in a new language (Golang) I know nothing about (other than that it scales very well). So, this one's a bit rough around the edges (I'm mostly referring Golang to error handling here).
 
-This project is designed to run on a Macbook base M4 chip, since I'm a firm believer that when AI companies need to start making profit the current token cost structure is going to be f****d and unaffordable. Oh how I despise technical debt even with 0 professional experience!
+This project is designed to run on a Macbook base M4 chip at least... decently.
 
 ## The Models I'm Using
 
