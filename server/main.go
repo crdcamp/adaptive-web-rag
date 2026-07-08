@@ -26,7 +26,9 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	// Might be better to just have these in every function
+	// These should be centralized with the other Config struct but unraveling
+	// this shit rat nest would be such an unbelievable waste of time
+	// SOLUTION: Put each client in their respective files (might not work but we'll see)
 	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
 	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
