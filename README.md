@@ -18,6 +18,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 
 ## Issues to address in future projects
 
+* Embedding and Instruct model are not compatible (got in too far to address this).
 * Doesn't check whether site had been visited when embedding.
 * Needs to check if question requires a search result in the first place.
 * Needs a way to adjust desired search results from Go scripts.
