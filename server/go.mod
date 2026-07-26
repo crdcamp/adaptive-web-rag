@@ -1,4 +1,4 @@
-module github.com/crdcamp
+module server
 
 go 1.26.3
 

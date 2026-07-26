@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
-	"github.com/weaviate/weaviate/entities/models"
 )
 
 var AppConfig *Config
@@ -29,44 +30,43 @@ func main() {
 	// These should be centralized with the other Config struct but unraveling
 	// this shit rat nest would be such an unbelievable waste of time
 	// SOLUTION: Put each client in their respective files (might not work but we'll see)
-	llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
-	weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	//llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
+	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
 	// Testing
-	var webSearchCollection string = "WebSearchCollection"
+	//var webSearchCollection string = "WebSearchCollection"
 	// var webSearchCollectionDescription string = "A collection of various web searches produced by the model."
-	var prompt string = "What are the projected API costs for LLMs in the next decade"
+	//var prompt string = "What are the projected API costs for LLMs in the next decade"
 
-	// THIS WILL BE A FUNCTION
-	//CreateCollection(weaviateClient, webSearchCollection, "A collection of various web searches produced by the model.")
-	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
-	// CallCrawlScript()
-	// splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
-	// EmbedText(weaviateClient, webSearchCollection, splitCrawlResults)
+	e := echo.New()
 
-	// fmt.Println(ReadAllCollectionNames(weaviateClient))
-	// NearTextSearch(weaviateClient, "PhilosophyCollection", 4, "If nothing I do matters in a million years, does it matter now?")
-	//CreateChatCompletion(llamaClient, AppConfig.ChatModel, "Answer the question to the best of your abilities", "What are the best use cases for a vector database?")
-	//GenerateSearchQuery(llamaClient, AppConfig.ChatModel, "Tell me about philosophies involving existential dread")
-	// CreateCollection(weaviateClient, webSearchCollection, webSearchCollectionDescription)
-	// GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
-	// CallCrawlScript()
-	// splitCrawlResults := SplitCrawlResults("crawl_data/crawl_results.json")
-	// EmbedText(weaviateClient, webSearchCollection, splitCrawlResults)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
-	// This is a mess
-	vectorSearchResult := vectorSearch(*weaviateClient, llamaClient, webSearchCollection, prompt)
-	vectorContent := vectorSearchResult.Data
-	fmt.Println(vectorContent)
-	//AnswerWithVectorDBResults(llamaClient, string(vectorSearchResult))
+	e.GET("/", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, "Hello, Docker! <3")
+	})
+
+	e.GET("/health", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, struct{ Status string }{Status: "OK"})
+	})
+
+	httpPort := os.Getenv("PORT")
+	if httpPort == "" {
+		httpPort = "8082"
+	}
+
+	e.Logger.Fatal(e.Start(":" + httpPort))
 }
 
-// I feel like there's a better way to do this than with nested functions
-func internetSearch(llamaClient openai.Client, weaviateClient *weaviate.Client, prompt string) {
-	GenerateSearchQuery(llamaClient, AppConfig.ChatModel, prompt)
-	UnloadModel(AppConfig.ChatModel)
-	// Should probably add an output location for this
-	CallCrawlScript()
+func handleRoot(w http.ResponseWriter, _ *http.Request) {
+	_, err := w.Write([]byte("Welcome to our homepage!\n"))
+	if err != nil {
+		slog.Error("error writing response", "err", err)
+		return
+	}
+
+	return
 }
 
 type Config struct {
@@ -79,19 +79,6 @@ type Config struct {
 	WeaviateBaseURLAlt string
 	// LlamaClient        *openai.Client
 	// WeaviateClient     *weaviate.Client
-}
-
-func splitEmbedAndUploadText(weaviateClient *weaviate.Client, className string, crawlResultsPath string) {
-	splitCrawlResults := SplitCrawlResults(crawlResultsPath)
-	EmbedText(weaviateClient, "philosophyCollection", splitCrawlResults)
-}
-
-func vectorSearch(weaviateClient weaviate.Client, llamaClient openai.Client, className string, prompt string) *models.GraphQLResponse {
-	fmt.Printf("Searching vector database for prompt: %q\n", prompt)
-	query := RefineVectorSearchQuery(llamaClient, prompt)
-	UnloadModel(AppConfig.ChatModel)
-
-	return NearTextSearch(&weaviateClient, className, 3, query)
 }
 
 // Load the .env file variables.

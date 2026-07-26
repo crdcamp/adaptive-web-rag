@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/crdcamp/charsplitter"
+	"server/charsplitter"
+
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/fault"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/graphql"
