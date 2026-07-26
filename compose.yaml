@@ -47,12 +47,16 @@ services:
       CLUSTER_HOSTNAME: "node1" # Can be set to any name
       LOG_LEVEL: "debug"
 
-  chat-service:
-    build: .
+  goservice:
+    build: "."
     ports:
-      - "8082:8082"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "8082"
+  nginx:
+    build: "./nginx"
+    ports:
+      - "82:82"
+    depends_on:
+      - "goservice"
 
 volumes:
   vector-db:

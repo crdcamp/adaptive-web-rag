@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"log/slog"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
 
 	"github.com/joho/godotenv"
 	"github.com/openai/openai-go/v3"
@@ -17,7 +18,7 @@ import (
 var AppConfig *Config
 
 func main() {
-	err := godotenv.Load("../.env")
+	err := godotenv.Load("/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file from root directory")
 	}
@@ -27,46 +28,15 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	// These should be centralized with the other Config struct but unraveling
-	// this shit rat nest would be such an unbelievable waste of time
-	// SOLUTION: Put each client in their respective files (might not work but we'll see)
-	//llamaClient := CreateLlamaClient(AppConfig.LlamaServer+"/v1", AppConfig.LlamaAPIKey)
-	//weaviateClient := CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	router := mux.NewRouter()
+	router.HandleFunc("/", DoHealthCheck).Methods("GET")
+	log.Fatal(http.ListenAndServe(":8082", router))
 
-	// Testing
-	//var webSearchCollection string = "WebSearchCollection"
-	// var webSearchCollectionDescription string = "A collection of various web searches produced by the model."
-	//var prompt string = "What are the projected API costs for LLMs in the next decade"
-
-	e := echo.New()
-
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	e.GET("/", func(c echo.Context) error {
-		return c.HTML(http.StatusOK, "Hello, Docker! <3")
-	})
-
-	e.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, struct{ Status string }{Status: "OK"})
-	})
-
-	httpPort := os.Getenv("PORT")
-	if httpPort == "" {
-		httpPort = "8082"
-	}
-
-	e.Logger.Fatal(e.Start(":" + httpPort))
 }
 
-func handleRoot(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("Welcome to our homepage!\n"))
-	if err != nil {
-		slog.Error("error writing response", "err", err)
-		return
-	}
-
-	return
+func DoHealthCheck(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, i'm a golang microservice")
+	w.WriteHeader(http.StatusAccepted) //RETURN HTTP CODE 202
 }
 
 type Config struct {

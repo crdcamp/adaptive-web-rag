@@ -1,27 +1,13 @@
-# syntax=docker/dockerfile:1
+FROM golang:1.22-alpine AS build
+RUN apk --no-cache add gcc g++ make
+RUN apk add git
+WORKDIR /go/src/app
+COPY . .
+RUN GOOS=linux go build -ldflags="-s -w" -o ./bin/test ./server/main.go
 
-FROM golang:1.26
-
-# Set destination for COPY
-WORKDIR /app
-
-# Download Go modules
-COPY server/go.mod server/go.sum ./
-RUN go mod download
-
-# Copy the source code. Note the slash at the end, as explained in
-# https://docs.docker.com/reference/dockerfile/#copy
-COPY server/*.go ./
-COPY server/charsplitter/*.go ./charsplitter/
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
-
-# Optional:
-# To bind to a TCP port, runtime parameters must be supplied to the docker command.
-# But we can document in the Dockerfile what ports
-# the application is going to listen on by default.
-# https://docs.docker.com/reference/dockerfile/#expose
-EXPOSE 8082
-
-# Run
-CMD ["/docker-gs-ping"]
+FROM alpine:3.19
+RUN apk --no-cache add ca-certificates
+WORKDIR /usr/bin
+COPY --from=build /go/src/app/bin /go/bin
+EXPOSE 8080
+ENTRYPOINT /go/bin/test --port 8082
