@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -18,7 +19,7 @@ import (
 var AppConfig *Config
 
 func main() {
-	err := godotenv.Load("/.env")
+	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file from root directory")
 	}
@@ -28,15 +29,26 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/", DoHealthCheck).Methods("GET")
-	log.Fatal(http.ListenAndServe(":8082", router))
+	llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL, AppConfig.LlamaAPIKey)
 
+	mux := mux.NewRouter()
+	mux.HandleFunc("/", handleRoot)
+	mux.HandleFunc("/chat/", handleChat)
+	log.Fatal(http.ListenAndServe(":8082", mux))
 }
 
-func DoHealthCheck(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, i'm a golang microservice")
-	w.WriteHeader(http.StatusAccepted) //RETURN HTTP CODE 202
+func handleRoot(w http.ResponseWriter, _ *http.Request, llamaClient ) {
+	_, err := w.Write([]byte("Welcome to the root page. Hit the chat endpoint instead please.\n"))
+	if err != nil {
+		slog.Error("error writing response", "err", err)
+		return
+	}
+}
+
+func handleChat(w http.ResponseWriter, res *http.Request, llamaClient openai.Client) {
+	ctx := context.Background()
+
+	chatCompletion, err := CreateChatCompletion(llamaClient, AppConfig.ChatModel, )
 }
 
 type Config struct {

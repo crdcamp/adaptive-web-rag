@@ -18,7 +18,7 @@ func TestHandleRoot(t *testing.T) {
 			desiredCode, w.Code, w.Body.String())
 	}
 
-	expectedMessage := []byte("Welcome to ze chat homepage.\n")
+	expectedMessage := []byte("Welcome to the root page. Hit the chat endpoint instead please.\n")
 	if !bytes.Equal(expectedMessage, w.Body.Bytes()) {
 		t.Errorf("bad return, got: %q, expected: %q", w.Body.String(), expectedMessage)
 	}
