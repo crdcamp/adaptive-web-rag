@@ -18,13 +18,15 @@ import (
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
+// Configurations (they're a mess)
 var AppConfig *Config
 var LlamaClient openai.Client
+var WeaviateClient *weaviate.Client
 
 func main() {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		slog.Warn("no .env file found, relying on environment variables", "err", err)
+		slog.Warn("no .env file found, relying on environment variables in `compose.yaml`", "err", err)
 	}
 
 	AppConfig, err = LoadConfig()
@@ -32,14 +34,18 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
+	// Clients for the models (LlamaClient) and the vector database (WeaviateClient)
 	LlamaClient = CreateLlamaClient(AppConfig.LlamaBaseURL, AppConfig.LlamaAPIKey)
+	WeaviateClient = CreateWeaviateClient(AppConfig.WeaviateBaseURL)
 
+	// Endpoint for the actual chat
 	mux := mux.NewRouter()
 	mux.HandleFunc("/", handleRoot)
 	mux.HandleFunc("/chat", handleChat)
 	log.Fatal(http.ListenAndServe(":8082", mux))
 }
 
+// Will expand to include time of request and maybe some other things
 type ChatPost struct {
 	UserPrompt string
 }
