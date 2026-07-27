@@ -45,7 +45,7 @@ type ChatPost struct {
 }
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("Welcome to the root page. Hit the chat endpoint instead please.\n"))
+	_, err := w.Write([]byte("Welcome to the root page. Hit the `/chat` endpoint instead please.\n"))
 	if err != nil {
 		slog.Error("error writing response", "err", err)
 		return
@@ -53,7 +53,7 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("Your input has been recieved. Processing...\n"))
+	// Need to figure out how to send updates to the terminal (probably a POST)
 	byteData, err := io.ReadAll(r.Body)
 	if err != nil {
 		slog.Error("error reading request body", "err", err)
@@ -62,18 +62,30 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var chatPrompt ChatPost
-	if err := json.Unmarshal(byteData, &chatPrompt); err != nil {
+	err = json.Unmarshal(byteData, &chatPrompt)
+	if err != nil {
 		slog.Error("error unmarshalling chat request body", "err", err)
 		http.Error(w, "error parsing request JSON", http.StatusBadRequest)
 		return
 	}
 
 	if chatPrompt.UserPrompt == "" {
-		http.Error(w, "no input provided", http.StatusBadRequest)
+		http.Error(w, "No prompt was provided. Please try again", http.StatusBadRequest)
 		return
 	}
 
-	systemPrompt := "You are a helpful assistant. Answer the question to the best of your ability"
+	// First we want to tell the user that we're checking the "memory" to see if
+	// their question can be answered with internet results
+
+	// Then, if the answer is in memory, answer using that.
+
+	// If not, conduct an internet search
+
+	// If the results are relevant to the question, then answer using those
+	// If they aren't, inform the user you do not have extended search capability yet
+	// or something like that.
+
+	systemPrompt := ""
 	chatResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModel, systemPrompt, chatPrompt.UserPrompt)
 
 	if _, err := w.Write([]byte(chatResponse)); err != nil {
