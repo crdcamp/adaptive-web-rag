@@ -83,6 +83,14 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	// First we want to tell the user that we're checking the "memory" to see if
 	// their question can be answered with internet results
 
+	// .... Buuuuuut, being able to update the user is another thing I'd
+	// have to learn so we're going to just check the memory for now
+
+	// First, we need to do a half assed conversion to search the vector database
+	vectorDBQuerySysPrompt := "You are meant to refine questions into a usable vector database query. Adjust the user's question into a vector database query based on nearest word search."
+
+	// use http POST to update user
+
 	// Then, if the answer is in memory, answer using that.
 
 	// If not, conduct an internet search
