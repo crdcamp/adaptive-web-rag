@@ -40,3 +40,7 @@ To show a list of the models discovered by the Router:
 ```bash
 curl http://localhost:8080/v1/models | jq
 ```
+
+```bash
+docker compose build
+```

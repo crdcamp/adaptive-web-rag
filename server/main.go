@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"log/slog"
 	"net/http"
@@ -19,6 +19,7 @@ import (
 )
 
 var AppConfig *Config
+var LlamaClient openai.Client
 
 func main() {
 	err := godotenv.Load("../.env")
@@ -31,11 +32,11 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	llamaClient := CreateLlamaClient(AppConfig.LlamaBaseURL, AppConfig.LlamaAPIKey)
+	LlamaClient = CreateLlamaClient(AppConfig.LlamaBaseURL, AppConfig.LlamaAPIKey)
 
 	mux := mux.NewRouter()
 	mux.HandleFunc("/", handleRoot)
-	mux.HandleFunc("/chat/", handleChat)
+	mux.HandleFunc("/chat", handleChat)
 	log.Fatal(http.ListenAndServe(":8082", mux))
 }
 
@@ -43,7 +44,7 @@ type ChatPost struct {
 	UserPrompt string
 }
 
-func handleRoot(w http.ResponseWriter, _ *http.Request, llamaClient ) {
+func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	_, err := w.Write([]byte("Welcome to the root page. Hit the chat endpoint instead please.\n"))
 	if err != nil {
 		slog.Error("error writing response", "err", err)
@@ -51,23 +52,7 @@ func handleRoot(w http.ResponseWriter, _ *http.Request, llamaClient ) {
 	}
 }
 
-func handleChat(w http.ResponseWriter, , llamaClient openai.Client, chatPrompt string) {
-	systemPrompt := "You are a helpful assistant. Answer the question to the best of your ability"
-	chatResponse := CreateChatCompletion(llamaClient, AppConfig.ChatModel, systemPrompt, chatPrompt)
-
-	var output bytes.Buffer
-	output.WriteString(chatResponse)
-
-	_, err := w.Write(output.Bytes())
-	if err != nil {
-		slog.Error("error writing response body", "err", err)
-		return
-	}
-}
-
-func handleJSON(w http.ResponseWriter, r *http.Request, llamaClient openai.Client) {
-	ctx := context.Background() // Add a timeout to this
-
+func handleChat(w http.ResponseWriter, r *http.Request) {
 	byteData, err := io.ReadAll(r.Body)
 	if err != nil {
 		slog.Error("error reading request body", "err", err)
@@ -76,16 +61,22 @@ func handleJSON(w http.ResponseWriter, r *http.Request, llamaClient openai.Clien
 	}
 
 	var chatPrompt ChatPost
-	err := json.Unmarshal(byteData, &chatPrompt)
-	if err != nil {
+	if err := json.Unmarshal(byteData, &chatPrompt); err != nil {
 		slog.Error("error unmarshalling chat request body", "err", err)
 		http.Error(w, "error parsing request JSON", http.StatusBadRequest)
 		return
 	}
 
-	if reqData.Name == "" {
+	if chatPrompt.UserPrompt == "" {
 		http.Error(w, "no input provided", http.StatusBadRequest)
 		return
+	}
+
+	systemPrompt := "You are a helpful assistant. Answer the question to the best of your ability"
+	chatResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModel, systemPrompt, chatPrompt.UserPrompt)
+
+	if _, err := w.Write([]byte(chatResponse)); err != nil {
+		slog.Error("error writing response body", "err", err)
 	}
 }
 
