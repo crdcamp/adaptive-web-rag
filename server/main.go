@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -52,7 +53,16 @@ func handleRoot(w http.ResponseWriter, _ *http.Request, llamaClient ) {
 
 func handleChat(w http.ResponseWriter, , llamaClient openai.Client, chatPrompt string) {
 	systemPrompt := "You are a helpful assistant. Answer the question to the best of your ability"
-	CreateChatCompletion(llamaClient, AppConfig.ChatModel, systemPrompt, chatPrompt)
+	chatResponse := CreateChatCompletion(llamaClient, AppConfig.ChatModel, systemPrompt, chatPrompt)
+
+	var output bytes.Buffer
+	output.WriteString(chatResponse)
+
+	_, err := w.Write(output.Bytes())
+	if err != nil {
+		slog.Error("error writing response body", "err", err)
+		return
+	}
 }
 
 func handleJSON(w http.ResponseWriter, r *http.Request, llamaClient openai.Client) {
