@@ -48,8 +48,18 @@ docker compose build
 
 # Some Test Curl Commands for Ya
 
+## Declarative Questions (definitely not the correct terminology)
+
 ```bash
 curl -X POST http://localhost:8082/chat \
   -H "Content-Type: application/json" \
   -d '{"UserPrompt": "Find out what the most popular restaraunts in Genieva Switzerland are"}'
+```
+
+## Regular Questions
+
+```bash
+curl -X POST http://localhost:8082/chat \
+  -H "Content-Type: application/json" \
+  -d '{"UserPrompt": "What are the most popular restaurants in Genieva Switzerland?"}'
 ```
