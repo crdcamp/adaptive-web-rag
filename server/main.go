@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"log/slog"
@@ -37,6 +38,10 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8082", mux))
 }
 
+type ChatPost struct {
+	UserPrompt string
+}
+
 func handleRoot(w http.ResponseWriter, _ *http.Request, llamaClient ) {
 	_, err := w.Write([]byte("Welcome to the root page. Hit the chat endpoint instead please.\n"))
 	if err != nil {
@@ -45,10 +50,33 @@ func handleRoot(w http.ResponseWriter, _ *http.Request, llamaClient ) {
 	}
 }
 
-func handleChat(w http.ResponseWriter, res *http.Request, llamaClient openai.Client) {
-	ctx := context.Background()
+func handleChat(w http.ResponseWriter, , llamaClient openai.Client, chatPrompt string) {
+	systemPrompt := "You are a helpful assistant. Answer the question to the best of your ability"
+	CreateChatCompletion(llamaClient, AppConfig.ChatModel, systemPrompt, chatPrompt)
+}
 
-	chatCompletion, err := CreateChatCompletion(llamaClient, AppConfig.ChatModel, )
+func handleJSON(w http.ResponseWriter, r *http.Request, llamaClient openai.Client) {
+	ctx := context.Background() // Add a timeout to this
+
+	byteData, err := io.ReadAll(r.Body)
+	if err != nil {
+		slog.Error("error reading request body", "err", err)
+		http.Error(w, "bad request body", http.StatusBadRequest)
+		return
+	}
+
+	var chatPrompt ChatPost
+	err := json.Unmarshal(byteData, &chatPrompt)
+	if err != nil {
+		slog.Error("error unmarshalling chat request body", "err", err)
+		http.Error(w, "error parsing request JSON", http.StatusBadRequest)
+		return
+	}
+
+	if reqData.Name == "" {
+		http.Error(w, "no input provided", http.StatusBadRequest)
+		return
+	}
 }
 
 type Config struct {
