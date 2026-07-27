@@ -45,8 +45,10 @@ curl http://localhost:8080/v1/models | jq
 docker compose build
 ```
 
+# Some Test Curl Commands for Ya
+
 ```bash
 curl -X POST http://localhost:8082/chat \
   -H "Content-Type: application/json" \
-  -d '{"UserPrompt": "Tell me about how inconceivable the size of the universe is."}'
+  -d '{"UserPrompt": "Find out what the most popular restaraunts in Genieva Switzerland are"}'
 ```
