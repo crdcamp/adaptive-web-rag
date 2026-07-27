@@ -24,7 +24,7 @@ var LlamaClient openai.Client
 func main() {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatal("Error loading .env file from root directory")
+		slog.Warn("no .env file found, relying on environment variables", "err", err)
 	}
 
 	AppConfig, err = LoadConfig()
