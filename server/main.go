@@ -53,6 +53,7 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte("Your input has been recieved. Processing...\n"))
 	byteData, err := io.ReadAll(r.Body)
 	if err != nil {
 		slog.Error("error reading request body", "err", err)

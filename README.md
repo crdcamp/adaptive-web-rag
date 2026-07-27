@@ -44,3 +44,9 @@ curl http://localhost:8080/v1/models | jq
 ```bash
 docker compose build
 ```
+
+```bash
+curl -X POST http://localhost:8082/chat \
+  -H "Content-Type: application/json" \
+  -d '{"UserPrompt": "Tell me about how inconceivable the size of the universe is."}'
+```
