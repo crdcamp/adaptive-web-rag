@@ -59,7 +59,7 @@ func CreateChatCompletion(client openai.Client, modelName, systemPrompt string, 
 	return chatResponse
 }
 
-func GenerateSearchQuery(client openai.Client, modelName string, prompt string) {
+func GenerateSearchQuery(client openai.Client, modelName string, prompt string) string {
 	chatResponse := CreateChatCompletion(client, modelName, "You are a search query generator. When given a question or topic, generate ONE search engine query that a person could enter into a browser to research it.", prompt)
 	chatResponseByte := []byte(strings.Trim(chatResponse, `"`))
 	path := filepath.Join("crawl_data/user_prompt.md")
@@ -70,6 +70,8 @@ func GenerateSearchQuery(client openai.Client, modelName string, prompt string) 
 		panic(err)
 	}
 	fmt.Println("Chat completion saved to `server/crawl_data/user_prompt.md`")
+
+	return chatResponse
 }
 
 // Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.

@@ -42,6 +42,8 @@ func main() {
 	mux := mux.NewRouter()
 	mux.HandleFunc("/", handleRoot)
 	mux.HandleFunc("/chat", handleChat)
+	// mux.HandleFunc("/collections", handleCollections) Need this later
+
 	log.Fatal(http.ListenAndServe(":8082", mux))
 }
 
@@ -86,8 +88,13 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	// .... Buuuuuut, being able to update the user is another thing I'd
 	// have to learn so we're going to just check the memory for now
 
-	// First, we need to do a half assed conversion to search the vector database
-	vectorDBQuerySysPrompt := "You are meant to refine questions into a usable vector database query. Adjust the user's question into a vector database query based on nearest word search."
+	// We need to do a half assed conversion to search the vector database
+	//vectorDBQuerySysPrompt := "You are a search query generator. When given a question or topic, generate ONE search engine query that a person could enter into a browser to research it."
+	//vectorDBQuery := CreateChatCompletion(LlamaClient, AppConfig.ChatModel, vectorDBQuerySysPrompt, chatPrompt.UserPrompt)
+	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModel, chatPrompt.UserPrompt)
+
+	// test := NearTextSearch(WeaviateClient, "WebSearchCollection", 3, vectorDBQuery)
+	// fmt.Println(test)
 
 	// use http POST to update user
 
@@ -99,10 +106,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	// If they aren't, inform the user you do not have extended search capability yet
 	// or something like that.
 
-	systemPrompt := ""
-	chatResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModel, systemPrompt, chatPrompt.UserPrompt)
-
-	if _, err := w.Write([]byte(chatResponse)); err != nil {
+	_, err = w.Write([]byte(searchQuery))
+	if err != nil {
 		slog.Error("error writing response body", "err", err)
 	}
 }
