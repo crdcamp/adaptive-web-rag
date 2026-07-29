@@ -78,7 +78,7 @@ func loadConfig() (*Config, error) {
 }
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("Welcome to the root page. Hit the `/chat` endpoint instead please.\n"))
+	_, err := w.Write([]byte("Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n"))
 	if err != nil {
 		slog.Error("error writing response", "err", err)
 		return
@@ -161,6 +161,17 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			slog.Error("error writing response body", "err", err)
 		}
+
+		_, err = w.Write([]byte("Searching memory..."))
+		if err != nil {
+			slog.Error("error writing response body", "err", err)
+		}
+		collectionNames := ReadAllCollectionDefinitions(WeaviateClient)
+		msg := fmt.Sprintf("Memory results: %v\n", collectionNames)
+		if _, err := w.Write([]byte(msg)); err != nil {
+			slog.Error("error writing response body", "err", err)
+		}
+
 	case "INVALID":
 		_, err = w.Write([]byte("Response validation result: " + initialResponseValidation + "\nInvalid prompt entered. Please ask a research-oriented question.\n"))
 		if err != nil {
