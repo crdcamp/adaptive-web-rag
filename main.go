@@ -158,6 +158,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
 
+	// If `initialResponseValidation` == INVALID, then...
+
 	_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
 	if err != nil {
 		slog.Error("error writing response body", "err", err)
