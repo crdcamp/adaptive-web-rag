@@ -119,11 +119,13 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	// We need to do a half assed conversion to search the vector database (to be improved on in the next project)
 	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
 
-	initialResponseSysPrompt := `You are a research assistant with access to a vector database ("memory") containing [describe corpus/domain here].
+	initialResponseSysPrompt := `You are a research assistant with access to a vector database ("memory") containing results from past internet searches.
 
 	When a user asks a question that could be answered using retrieved information, briefly note that you're checking memory before answering — one short line, not a ceremony (e.g. "Checking memory for prior notes on X."). Skip this step for trivial exchanges (greetings, clarifying questions, meta-questions about the conversation itself).
 
-	If a question is clearly outside your research scope (e.g. unrelated small talk, requests for content generation unrelated to the corpus), say so plainly and redirect the user rather than attempting an answer anyway.`
+	DO NOT answer the user's prompt. You must only briefly not that you're checking your memory before answering.
+
+	If a question is clearly outside your research scope (e.g. unrelated small talk, requests for content generation unrelated to the corpus), say so plainly and redirect the user rather than attempting an answer anyway.``
 
 	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 
