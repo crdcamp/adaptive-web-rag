@@ -108,17 +108,6 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// First we want to tell the user that we're checking the "memory" to see if
-	// their question can be answered with internet results
-
-	// .... Buuuuuut, being able to update the user is another thing I'd
-	// have to learn so we're going to just check the memory for now
-
-	// First, generate an initial response. The system prompt needs to fixate on the
-	// Fact that the model will only answer research-based questions.
-	// We need to do a half assed conversion to search the vector database (to be improved on in the next project)
-	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
-
 	// Initial  chat response
 	initialResponseSysPrompt := `You are a research assistant with access to a vector database ("memory"). The vector database ("memory") contains results from past internet searches.
 
@@ -151,28 +140,33 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	- Direct discussion of topics covered within the domain
 
 	### Output Format
-	Respond ONLY with either TRUE or FALSE. Do not include any explanation, punctuation, or extra words.
+	Respond ONLY with either INVALID or VALID . Do not include any explanation, punctuation, or extra words.
 
 	- Respond INVALID if the text is OUTSIDE the scope of research.
 	- Respond VALID if the text is WITHIN the scope of research.`
 
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
 
-	// If `initialResponseValidation` == INVALID, then...
-
+	//Initial response
 	_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
 	if err != nil {
 		slog.Error("error writing response body", "err", err)
 	}
 
-	_, err = w.Write([]byte("Search query: " + searchQuery + "\n"))
-	if err != nil {
-		slog.Error("error writing response body", "err", err)
-	}
-
-	_, err = w.Write([]byte("Response validation: " + initialResponseValidation + "\n"))
-	if err != nil {
-		slog.Error("error writing response body", "err", err)
+	// Initial response validation
+	switch initialResponseValidation {
+	case "VALID":
+		searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
+		_, err = w.Write([]byte("Response validation result: " + initialResponseValidation + "\nSearch query: " + searchQuery + "\n"))
+		if err != nil {
+			slog.Error("error writing response body", "err", err)
+		}
+	case "INVALID":
+		_, err = w.Write([]byte("Response validation result: " + initialResponseValidation + "\nInvalid prompt entered. Please ask a research-oriented question.\n"))
+		if err != nil {
+			slog.Error("error writing response body", "err", err)
+		}
+		// Need to add a case for not VALID or not INVALID
 	}
 }
 
