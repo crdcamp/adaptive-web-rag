@@ -87,7 +87,3 @@ func CallCrawlScript() {
 		panic(err)
 	}
 }
-
-func AnswerWithVectorDBResults(client openai.Client, LLMContext string) {
-	CreateChatCompletion(client, AppConfig.ChatModelNoThink, "Based on the following context, answer the question to the best of your abilities.:\n", LLMContext)
-}

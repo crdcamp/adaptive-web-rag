@@ -114,10 +114,18 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	// .... Buuuuuut, being able to update the user is another thing I'd
 	// have to learn so we're going to just check the memory for now
 
-	// We need to do a half assed conversion to search the vector database
-	//vectorDBQuerySysPrompt := "You are a search query generator. When given a question or topic, generate ONE search engine query that a person could enter into a browser to research it."
-	//vectorDBQuery := CreateChatCompletionNoThink(LlamaClient, AppConfig.ChatModel, vectorDBQuerySysPrompt, chatPrompt.UserPrompt)
+	// First, generate an initial response. The system prompt needs to fixate on the
+	// Fact that the model will only answer research-based questions.
+	// We need to do a half assed conversion to search the vector database (to be improved on in the next project)
 	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
+
+	initialResponseSysPrompt := `You are a research assistant with access to a vector database ("memory") containing [describe corpus/domain here].
+
+	When a user asks a question that could be answered using retrieved information, briefly note that you're checking memory before answering — one short line, not a ceremony (e.g. "Checking memory for prior notes on X."). Skip this step for trivial exchanges (greetings, clarifying questions, meta-questions about the conversation itself).
+
+	If a question is clearly outside your research scope (e.g. unrelated small talk, requests for content generation unrelated to the corpus), say so plainly and redirect the user rather than attempting an answer anyway.`
+
+	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 
 	// test := NearTextSearch(WeaviateClient, "WebSearchCollection", 3, vectorDBQuery)
 	// fmt.Println(test)
@@ -132,7 +140,12 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	// If they aren't, inform the user you do not have extended search capability yet
 	// or something like that.
 
-	_, err = w.Write([]byte(searchQuery))
+	_, err = w.Write([]byte(initialResponse + "\n"))
+	if err != nil {
+		slog.Error("error writing response body", "err", err)
+	}
+
+	_, err = w.Write([]byte(searchQuery + "\n"))
 	if err != nil {
 		slog.Error("error writing response body", "err", err)
 	}
