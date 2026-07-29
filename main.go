@@ -119,35 +119,56 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	// We need to do a half assed conversion to search the vector database (to be improved on in the next project)
 	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
 
-	initialResponseSysPrompt := `You are a research assistant with access to a vector database ("memory") containing results from past internet searches.
+	// Initial  chat response
+	initialResponseSysPrompt := `You are a research assistant with access to a vector database ("memory"). The vector database ("memory") contains results from past internet searches.
 
 	When a user asks a question that could be answered using retrieved information, briefly note that you're checking memory before answering — one short line, not a ceremony (e.g. "Checking memory for prior notes on X."). Skip this step for trivial exchanges (greetings, clarifying questions, meta-questions about the conversation itself).
 
 	DO NOT answer the user's prompt. You must only briefly not that you're checking your memory before answering.
 
-	If a question is clearly outside your research scope (e.g. unrelated small talk, requests for content generation unrelated to the corpus), say so plainly and redirect the user rather than attempting an answer anyway.``
+	If a question is clearly outside your research scope (e.g. unrelated small talk, requests for content generation unrelated to the corpus, insults), say so plainly and redirect the user rather than attempting an answer anyway.`
 
 	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 
-	// test := NearTextSearch(WeaviateClient, "WebSearchCollection", 3, vectorDBQuery)
-	// fmt.Println(test)
+	// Initial chat validation
+	initialResponseValidationSysPrompt := `You are a classifier evaluating whether a given text is relevant to a specific research corpus.
 
-	// use http POST to update user
+	### Input
+	<text_to_evaluate>
+	[INSERT ANSWER OR PROMPT HERE]
+	</text_to_evaluate>
 
-	// Then, if the answer is in memory, answer using that.
+	### Task
+	Determine if the provided text is OUTSIDE the scope of research.
 
-	// If not, conduct an internet search
+	OUT OF SCOPE includes:
+	- Small talk or casual conversation (e.g., "How are you?", "Tell me a joke")
+	- Requests or content generation unrelated to the research subject
+	- Insults, profanity, or conversational filler
 
-	// If the results are relevant to the question, then answer using those
-	// If they aren't, inform the user you do not have extended search capability yet
-	// or something like that.
+	IN SCOPE includes:
+	- Factual queries, analysis, or summaries relevant to the research corpus
+	- Direct discussion of topics covered within the domain
 
-	_, err = w.Write([]byte(initialResponse + "\n"))
+	### Output Format
+	Respond ONLY with either TRUE or FALSE. Do not include any explanation, punctuation, or extra words.
+
+	- Respond TRUE if the text is OUTSIDE the scope of research.
+	- Respond FALSE if the text is WITHIN the scope of research.`
+
+	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
+
+	_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
 	if err != nil {
 		slog.Error("error writing response body", "err", err)
 	}
 
-	_, err = w.Write([]byte(searchQuery + "\n"))
+	_, err = w.Write([]byte("Search query: " + searchQuery + "\n"))
+	if err != nil {
+		slog.Error("error writing response body", "err", err)
+	}
+
+	_, err = w.Write([]byte("Response validation: " + initialResponseValidation + "\n"))
 	if err != nil {
 		slog.Error("error writing response body", "err", err)
 	}
