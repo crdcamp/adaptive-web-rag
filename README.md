@@ -29,6 +29,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 
 # To Do
 - [ ] Add python environment creation and `pip install -r requirements.txt` to `Dockerfile`.
+- [ ] Add `\n` to create chat completion output (or write a function for the write bytes that includes `\n`).
 
 # Starting Docker
 
