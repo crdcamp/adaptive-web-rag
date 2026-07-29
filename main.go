@@ -142,7 +142,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	Determine if the provided text is OUTSIDE the scope of research.
 
 	OUT OF SCOPE includes:
-	- Small talk or casual conversation (e.g., "How are you?", "Tell me a joke")
+	- Small talk, casual conversation, or insults (e.g., "How are you?", "Tell me a joke", "You're the worst")
 	- Requests or content generation unrelated to the research subject
 	- Insults, profanity, or conversational filler
 
@@ -153,8 +153,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	### Output Format
 	Respond ONLY with either TRUE or FALSE. Do not include any explanation, punctuation, or extra words.
 
-	- Respond TRUE if the text is OUTSIDE the scope of research.
-	- Respond FALSE if the text is WITHIN the scope of research.`
+	- Respond INVALID if the text is OUTSIDE the scope of research.
+	- Respond VALID if the text is WITHIN the scope of research.`
 
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
 
