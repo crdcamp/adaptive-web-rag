@@ -50,11 +50,12 @@ func main() {
 }
 
 type Config struct {
-	LlamaURL    string
-	LlamaAPIKey string
-	WeaviateURL string
-	ChatModel   string
-	EmbedModel  string
+	LlamaURL         string
+	LlamaAPIKey      string
+	WeaviateURL      string
+	ChatModelThink   string
+	ChatModelNoThink string
+	EmbedModel       string
 }
 
 // Will expand to include time of request and maybe some other things
@@ -65,11 +66,12 @@ type ChatPost struct {
 // Load the .env file variables.
 func loadConfig() (*Config, error) {
 	cfg := &Config{
-		LlamaURL:    os.Getenv("LLAMA_URL"),
-		LlamaAPIKey: os.Getenv("LLAMA_API_KEY"),
-		WeaviateURL: os.Getenv("WEAVIATE_URL"),
-		ChatModel:   os.Getenv("CHAT_MODEL"),
-		EmbedModel:  os.Getenv("EMBED_MODEL"),
+		LlamaURL:         os.Getenv("LLAMA_URL"),
+		LlamaAPIKey:      os.Getenv("LLAMA_API_KEY"),
+		WeaviateURL:      os.Getenv("WEAVIATE_URL"),
+		ChatModelThink:   os.Getenv("CHAT_MODEL_THINK"),
+		ChatModelNoThink: os.Getenv("CHAT_MODEL_NO_THINK"),
+		EmbedModel:       os.Getenv("EMBED_MODEL"),
 	}
 
 	return cfg, nil
@@ -114,8 +116,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 
 	// We need to do a half assed conversion to search the vector database
 	//vectorDBQuerySysPrompt := "You are a search query generator. When given a question or topic, generate ONE search engine query that a person could enter into a browser to research it."
-	//vectorDBQuery := CreateChatCompletion(LlamaClient, AppConfig.ChatModel, vectorDBQuerySysPrompt, chatPrompt.UserPrompt)
-	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModel, chatPrompt.UserPrompt)
+	//vectorDBQuery := CreateChatCompletionNoThink(LlamaClient, AppConfig.ChatModel, vectorDBQuerySysPrompt, chatPrompt.UserPrompt)
+	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
 
 	// test := NearTextSearch(WeaviateClient, "WebSearchCollection", 3, vectorDBQuery)
 	// fmt.Println(test)

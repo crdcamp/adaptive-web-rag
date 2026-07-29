@@ -88,30 +88,6 @@ func CallCrawlScript() {
 	}
 }
 
-// Takes in a user's prompt and improves it for a vector database search
-func RefineVectorSearchQuery(client openai.Client, prompt string) string {
-	systemPrompt := `Rewrite the user's question into an optimized vector database search query.
-
-- Resolve pronouns/references using conversation context
-- Anchor the query to the specific subject/domain from context, even if the user didn't name it
-- Strip filler words ("can you", "I was wondering")
-- Preserve technical terms and proper nouns exactly
-- Split multi-part questions into separate queries
-- Output as noun phrases, not questions
-- Do not answer the question. Output only the rewritten query, no explanation.`
-
-	return CreateChatCompletion(client, AppConfig.ChatModel, systemPrompt, prompt)
-}
-
-// func EvaluateVectorResponse(client openai.Client, vectorResponse string) {
-// 	systemPrompt := `You are a relevance judge for vector database search results. Given a user query and a retrieved chunk, determine whether the chunk directly addresses the query's specific intent — not just whether it's topically adjacent.
-
-// A chunk that shares subject matter with the query but misses its specific angle, scope, or intent is NOT relevant. Do not be lenient with keyword/embedding overlap.
-
-// Output only valid JSON: {"relevant": true | false, "reason": "<one sentence>"}`
-// 	chatCompletion := CreateChatCompletion(client, AppConfig.ChatModel)
-// }
-
 func AnswerWithVectorDBResults(client openai.Client, LLMContext string) {
-	CreateChatCompletion(client, AppConfig.ChatModel, "Based on the following context, answer the question to the best of your abilities.:\n", LLMContext)
+	CreateChatCompletion(client, AppConfig.ChatModelNoThink, "Based on the following context, answer the question to the best of your abilities.:\n", LLMContext)
 }

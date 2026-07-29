@@ -63,9 +63,17 @@ curl -X POST http://localhost:8082/chat \
 ```bash
 curl -X POST http://localhost:8082/chat \
   -H "Content-Type: application/json" \
-  -d '{"UserPrompt": "What are the most popular restaurants in Genieva Switzerland?"}'
+  -d '{"UserPrompt": "What are some of the greatest mysteries throughout ancient history?"}'
 ```
 
 ```bash
-docker compose build --no-cache
+curl -X POST http://localhost:8082/chat \
+  -H "Content-Type: application/json" \
+  -d '{"UserPrompt": "What are some of the greatest mysteries throughout ancient history?"}'
+```
+
+```bash
+curl -X POST http://localhost:8082/chat \
+  -H "Content-Type: application/json" \
+  -d '{"UserPrompt": "How old would the founder of the company that acquired Instagram have been when Instagram was founded?"}'
 ```
