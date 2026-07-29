@@ -1,18 +1,25 @@
 services:
-  chat-interface:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
+  weaviate-server:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
+    healthcheck:
+      test: wget --no-verbose --tries=3 --spider http://localhost:8081/v1/.well-known/ready || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - ./vector-db:/vector-db
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8081"
+      - --scheme
+      - http
     ports:
-      - "8082:8082"
-    environment:
-      - LLAMA_SERVER=http://127.0.0.1:8080
-      - LLAMA_BASE_URL=http://llama-server:8080
-      - WEAVIATE_BASE_URL=127.0.0.1:8081
-      - WEAVIATE_BASE_URL_ALT="llama-server:8080"
-      - LLAMA_API_KEY=not-needed
-      - CHAT_MODEL=Qwen2.5-7B-Instruct-Q4_K_M
-      - EMBED_MODEL=Qwen3-Embedding-8B-Q5_K_M
+      - 8081:8081
+      - 50051:50051
+    restart: on-failure
 
   llama-server:
     image: ghcr.io/ggml-org/llama.cpp:server
@@ -36,31 +43,23 @@ services:
       - "1"
       - "--metrics"
       - "--verbose"
+    depends_on:
+      weaviate-server:
+        condition: service_healthy
 
-  weaviate-server:
-    image: cr.weaviate.io/semitechnologies/weaviate:1.37.7
-    volumes:
-      - ./vector-db:/vector-db
-    command:
-      - --host
-      - 0.0.0.0
-      - --port
-      - "8081"
-      - --scheme
-      - http
+  chat-interface:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
     ports:
-      - 8081:8081
-      - 50051:50051
-    restart: on-failure:0
-    environment:
-      QUERY_DEFAULTS_LIMIT: 8
-      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
-      PERSISTENCE_DATA_PATH: "/vector-db" # Must match the value after `:` in `volumes` above
-      ENABLE_MODULES: "text2vec-openai,generative-openai"
-      OPENAI_APIKEY: "not-needed"
-      OPENAI_BASEURL: "http://llama-server:8080/"
-      CLUSTER_HOSTNAME: "node1" # Can be set to any name
-      LOG_LEVEL: "debug"
+      - "8082:8082"
+    depends_on:
+      llama-server:
+        condition: service_started
+      weaviate-server:
+        condition: service_healthy
 
 volumes:
   vector-db:

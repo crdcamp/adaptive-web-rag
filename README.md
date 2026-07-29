@@ -9,12 +9,11 @@ I'm essentially rewriting the entire [previous repository](https://github.com/cr
 
 This project is designed to run on a Macbook base M4 chip at least... decently.
 
-## The Models I'm Using
+## The Model I'm Using
 
 For simplicity, I've been manually installing models. Eventually I'll start interacting with the HuggingFace CLI to streamline the installation a bit. For now, just visit these web pages and download the models into the `models` directory:
 
-- [Qwen/Qwen3-Embedding-8B-GGUF-Q5_K_M](https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF?show_file_info=Qwen3-Embedding-8B-Q5_K_M.gguf)
-- [Qwen/Qwen2.5-7B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF?show_file_info=qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf)
+- [Qwen3-8B-GGUF](https://huggingface.co/Qwen/Qwen3-8B-GGUF?show_file_info=Qwen3-8B-Q5_K_M.gguf)
 
 ## Issues to address in future projects
 
@@ -27,6 +26,9 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 * `docker-compose.yml` doesn't set everything up in a fresh environment.
 * Data handling between Go and Python could be much more elegant (maybe they can share data with memory?).
 * No updates on progress sent from server.
+
+# To Do
+- [ ] Add python environment creation and `pip install -r requirements.txt` to `Dockerfile`.
 
 # Starting Docker
 
@@ -62,4 +64,8 @@ curl -X POST http://localhost:8082/chat \
 curl -X POST http://localhost:8082/chat \
   -H "Content-Type: application/json" \
   -d '{"UserPrompt": "What are the most popular restaurants in Genieva Switzerland?"}'
+```
+
+```bash
+docker compose build --no-cache
 ```

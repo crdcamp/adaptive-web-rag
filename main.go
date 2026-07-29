@@ -24,32 +24,55 @@ var LlamaClient openai.Client
 var WeaviateClient *weaviate.Client
 
 func main() {
-	err := godotenv.Load("../.env")
+	err := godotenv.Load(".env")
+
 	if err != nil {
-		slog.Warn("no .env file found, relying on environment variables in `compose.yaml`", "err", err)
+		log.Printf("warning: could not load .env file: %v", err)
 	}
 
-	AppConfig, err = LoadConfig()
+	AppConfig, err = loadConfig()
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
 	// Clients for the models (LlamaClient) and the vector database (WeaviateClient)
-	LlamaClient = CreateLlamaClient(AppConfig.LlamaBaseURL, AppConfig.LlamaAPIKey)
-	WeaviateClient = CreateWeaviateClient(AppConfig.WeaviateBaseURL)
+	LlamaClient = createLlamaClient(AppConfig.LlamaURL, AppConfig.LlamaAPIKey)
+	WeaviateClient = createWeaviateClient(AppConfig.WeaviateURL)
 
 	// Endpoint for the actual chat
 	mux := mux.NewRouter()
 	mux.HandleFunc("/", handleRoot)
 	mux.HandleFunc("/chat", handleChat)
+	// Future endpoint for collections management
 	// mux.HandleFunc("/collections", handleCollections) Need this later
 
 	log.Fatal(http.ListenAndServe(":8082", mux))
 }
 
+type Config struct {
+	LlamaURL    string
+	LlamaAPIKey string
+	WeaviateURL string
+	ChatModel   string
+	EmbedModel  string
+}
+
 // Will expand to include time of request and maybe some other things
 type ChatPost struct {
 	UserPrompt string
+}
+
+// Load the .env file variables.
+func loadConfig() (*Config, error) {
+	cfg := &Config{
+		LlamaURL:    os.Getenv("LLAMA_URL"),
+		LlamaAPIKey: os.Getenv("LLAMA_API_KEY"),
+		WeaviateURL: os.Getenv("WEAVIATE_URL"),
+		ChatModel:   os.Getenv("CHAT_MODEL"),
+		EmbedModel:  os.Getenv("EMBED_MODEL"),
+	}
+
+	return cfg, nil
 }
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
@@ -61,7 +84,7 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
-	// Need to figure out how to send updates to the terminal (probably a POST)
+	// Intake the byte data provided by the request
 	byteData, err := io.ReadAll(r.Body)
 	if err != nil {
 		slog.Error("error reading request body", "err", err)
@@ -69,6 +92,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create a variable chatPrompt from ChatPost struct to unmarshal the byte data
 	var chatPrompt ChatPost
 	err = json.Unmarshal(byteData, &chatPrompt)
 	if err != nil {
@@ -112,35 +136,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type Config struct {
-	ChatModel          string
-	EmbedModel         string
-	LlamaBaseURL       string
-	LlamaServer        string
-	LlamaAPIKey        string
-	WeaviateBaseURL    string
-	WeaviateBaseURLAlt string
-	// LlamaClient        *openai.Client
-	// WeaviateClient     *weaviate.Client
-}
-
-// Load the .env file variables.
-func LoadConfig() (*Config, error) {
-	cfg := &Config{
-		ChatModel:          os.Getenv("CHAT_MODEL"),
-		EmbedModel:         os.Getenv("EMBED_MODEL"),
-		LlamaBaseURL:       os.Getenv("LLAMA_BASE_URL"),
-		LlamaServer:        os.Getenv("LLAMA_SERVER"),
-		LlamaAPIKey:        os.Getenv("LLAMA_API_KEY"),
-		WeaviateBaseURL:    os.Getenv("WEAVIATE_BASE_URL"),
-		WeaviateBaseURLAlt: os.Getenv("WEAVIATE_BASE_URL_ALT"), // Will delete eventually
-	}
-
-	return cfg, nil
-}
-
 // Create and return an OpenAI API compatible client for llama-server.
-func CreateLlamaClient(baseURL string, apiKey string) openai.Client {
+func createLlamaClient(baseURL string, apiKey string) openai.Client {
 	client := openai.NewClient(
 		option.WithBaseURL(baseURL),
 		// API Key is not required for llama-server
@@ -151,7 +148,7 @@ func CreateLlamaClient(baseURL string, apiKey string) openai.Client {
 }
 
 // Create and return a Weaviate client for your Weaviate vector database.
-func CreateWeaviateClient(host string) *weaviate.Client {
+func createWeaviateClient(host string) *weaviate.Client {
 	cfg := weaviate.Config{
 		Host:    host,
 		Scheme:  "http",

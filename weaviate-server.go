@@ -68,7 +68,7 @@ func CreateCollection(client *weaviate.Client, className string, description str
 		},
 		ModuleConfig: map[string]interface{}{
 			"text2vec-openai": map[string]interface{}{
-				"baseURL":            AppConfig.LlamaBaseURL,
+				"baseURL":            AppConfig.LlamaURL,
 				"model":              AppConfig.EmbedModel,
 				"vectorizeClassName": true,
 			},
