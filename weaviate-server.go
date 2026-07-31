@@ -187,6 +187,7 @@ func EmbedText(client *weaviate.Client, className string, splitText []models.Pro
 
 // Needs a class existence check
 // weaviate-server.go
+// INSTEAD OF RETURNING BYTES, THIS SHOULD RETURN THE DATA IN JSON FORMAT
 func NearTextSearch(client *weaviate.Client, className string, limit int, query string) ([]byte, error) {
 	fmt.Printf("Conducting near text search for query: %q\n", query)
 	ctx := context.Background()
