@@ -22,6 +22,7 @@ import (
 var AppConfig *Config
 var LlamaClient openai.Client
 var WeaviateClient *weaviate.Client
+var WebSearchCollection string
 
 func main() {
 	err := godotenv.Load(".env")
@@ -38,6 +39,9 @@ func main() {
 	// Clients for the models (LlamaClient) and the vector database (WeaviateClient)
 	LlamaClient = createLlamaClient(AppConfig.LlamaURL, AppConfig.LlamaAPIKey)
 	WeaviateClient = createWeaviateClient(AppConfig.WeaviateURL)
+
+	WebSearchCollection = "WebSearchCollection"
+	CreateCollection(WeaviateClient, WebSearchCollection, "A collection of web search results conducted and stored by an LLM.")
 
 	// Endpoint for the actual chat
 	mux := mux.NewRouter()
@@ -169,6 +173,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 			slog.Error("error writing response body", "err", err)
 		}
 
+		NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
+
 	case "INVALID":
 		//Initial response
 		_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
@@ -199,9 +205,11 @@ func createLlamaClient(baseURL string, apiKey string) openai.Client {
 // Create and return a Weaviate client for your Weaviate vector database.
 func createWeaviateClient(host string) *weaviate.Client {
 	cfg := weaviate.Config{
-		Host:    host,
-		Scheme:  "http",
-		Headers: nil,
+		Host:   host,
+		Scheme: "http",
+		Headers: map[string]string{
+			"X-Openai-Api-Key": AppConfig.LlamaAPIKey,
+		},
 	}
 	client, err := weaviate.NewClient(cfg)
 	if err != nil {
