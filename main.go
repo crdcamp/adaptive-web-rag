@@ -187,8 +187,16 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for _, r := range nearTextStruct.Get[WebSearchCollection] {
-			fmt.Fprintf(w, "Source: %s\nContent: %s\n\n", r.Source, r.Content)
+		// All the near text data handling desperately needs to be cleaned up my god
+		// ... To be fair the GraphQL stuff is just ridiculously difficult to figure out...
+		// I need to learn more about Go.
+		nearTextResults := nearTextStruct.Get[WebSearchCollection]
+		for _, r := range nearTextResults {
+			_, err := fmt.Fprintf(w, "Source: %s\nContent: %s\n\n", r.Source, r.Content)
+			if err != nil {
+				slog.Error("error writing response body", "err", err)
+				return
+			}
 		}
 
 	case "INVALID":
