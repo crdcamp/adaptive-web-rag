@@ -23,6 +23,7 @@ var AppConfig *Config
 var LlamaClient openai.Client
 var WeaviateClient *weaviate.Client
 var WebSearchCollection string
+var TestQuery string
 
 func main() {
 	err := godotenv.Load(".env")
@@ -41,7 +42,11 @@ func main() {
 	WeaviateClient = createWeaviateClient(AppConfig.WeaviateURL)
 
 	WebSearchCollection = "WebSearchCollection"
+	TestQuery = "What are some of the greatest mysteries throughout ancient history?"
 	CreateCollection(WeaviateClient, WebSearchCollection, "A collection of web search results conducted and stored by an LLM.")
+	GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, TestQuery)
+	CallCrawlScript()
+	SplitEmbedAndUploadText(WeaviateClient, "crawl_data/crawl_results.json", WebSearchCollection)
 
 	// Endpoint for the actual chat
 	mux := mux.NewRouter()
@@ -192,10 +197,18 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		// I need to learn more about Go.
 		nearTextResults := nearTextStruct.Get[WebSearchCollection]
 		for _, r := range nearTextResults {
-			_, err := fmt.Fprintf(w, "Source: %s\nContent: %s\n\n", r.Source, r.Content)
-			if err != nil {
-				slog.Error("error writing response body", "err", err)
-				return
+			if r.Content == "" {
+				_, err := w.Write([]byte("NO CONTENT FOUND\n"))
+				if err != nil {
+					slog.Error("error writing response body", "err", err)
+					return
+				}
+			} else {
+				_, err := w.Write([]byte("CONTENT FOUND:\n" + r.Content + "\n\n"))
+				if err != nil {
+					slog.Error("error writing response body", "err", err)
+					return
+				}
 			}
 		}
 
@@ -211,7 +224,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		}
 
 	default:
-		slog.Warn("Error evaluating prompt. The model did not return the expected results or `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
+		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
 	}
 }
 
