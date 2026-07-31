@@ -29,12 +29,10 @@ type CollectionNames struct {
 
 // This could maybe be merged with the HrefAndContent struct somehow
 type HrefAndContentDBResponse struct {
-	Get []struct {
-		Collection []struct {
-			Source  string `json:"source"`
-			Content string `json:"content"`
-		}
-	}
+	Get map[string][]struct {
+		Source  string `json:"source"`
+		Content string `json:"content"`
+	} `json:"Get"`
 }
 
 func CreateCollection(client *weaviate.Client, className string, description string) {
@@ -188,7 +186,8 @@ func EmbedText(client *weaviate.Client, className string, splitText []models.Pro
 }
 
 // Needs a class existence check
-func NearTextSearch(client *weaviate.Client, className string, limit int, query string) *models.GraphQLResponse {
+// weaviate-server.go
+func NearTextSearch(client *weaviate.Client, className string, limit int, query string) ([]byte, error) {
 	fmt.Printf("Conducting near text search for query: %q\n", query)
 	ctx := context.Background()
 
@@ -205,22 +204,24 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 		WithLimit(limit).
 		Do(ctx)
 
-	// Some AI error handling
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("near text search request failed: %w", err)
 	}
 
 	if len(response.Errors) > 0 {
-		fmt.Printf("Vector DB query %q returned GraphQL errors:\n", query)
+		var msgs []string
 		for _, e := range response.Errors {
-			fmt.Printf("  - %s\n", e.Message)
+			msgs = append(msgs, e.Message)
 		}
-		return response
+		return nil, fmt.Errorf("vector DB query %q returned GraphQL errors: %v", query, msgs)
 	}
 
-	fmt.Printf("Vector DB query: %q\nVector DB Response: %v\n", query, response)
+	b, err := json.Marshal(response.Data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal graphql response data: %w", err)
+	}
 
-	return response
+	return b, nil
 }
 
 //func KeyWordSearch() {}

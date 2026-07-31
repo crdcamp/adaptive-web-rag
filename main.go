@@ -173,7 +173,23 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 			slog.Error("error writing response body", "err", err)
 		}
 
-		NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
+		nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
+		if err != nil {
+			slog.Error("error running near text search", "err", err)
+			http.Error(w, "error searching memory", http.StatusInternalServerError)
+			return
+		}
+
+		var nearTextStruct HrefAndContentDBResponse
+		if err := json.Unmarshal(nearTextBytes, &nearTextStruct); err != nil {
+			slog.Error("error unmarshalling near text search response", "err", err)
+			http.Error(w, "error parsing memory search results", http.StatusInternalServerError)
+			return
+		}
+
+		for _, r := range nearTextStruct.Get[WebSearchCollection] {
+			fmt.Fprintf(w, "Source: %s\nContent: %s\n\n", r.Source, r.Content)
+		}
 
 	case "INVALID":
 		//Initial response
