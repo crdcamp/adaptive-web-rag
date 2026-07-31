@@ -25,7 +25,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 * Web search doesn't produce contextual searches well at all. Could also be solved with the above suggestion.
 * `docker-compose.yml` doesn't set everything up in a fresh environment.
 * Data handling between Go and Python could be much more elegant (maybe they can share data with memory?).
-* No updates on progress sent from server.
+* No updates on progress sent from server. This is a... pretty annoying issue.
 * Left out an API for managing collections. Not a huge deal at the moment, but will definitely need to be done in the next project.
 * Python script can be included in the REST API instead of saving files.
 

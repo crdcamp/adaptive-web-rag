@@ -43,6 +43,7 @@ func main() {
 
 	WebSearchCollection = "WebSearchCollection"
 	TestQuery = "What are some of the greatest mysteries throughout ancient history?"
+
 	CreateCollection(WeaviateClient, WebSearchCollection, "A collection of web search results conducted and stored by an LLM.")
 	GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, TestQuery)
 	CallCrawlScript()
