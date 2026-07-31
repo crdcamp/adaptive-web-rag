@@ -27,6 +27,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 * Data handling between Go and Python could be much more elegant (maybe they can share data with memory?).
 * No updates on progress sent from server.
 * Left out an API for managing collections. Not a huge deal at the moment, but will definitely need to be done in the next project.
+* Python script can be included in the REST API instead of saving files.
 
 # To Do
 - [ ] Add python environment creation and `pip install -r requirements.txt` to `Dockerfile`.

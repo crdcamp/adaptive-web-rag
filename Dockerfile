@@ -2,6 +2,7 @@ FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
+#COPY crawl.py ./
 RUN go mod download
 # RUN pip install -r requirements.txt We'll figure this part out later
 
