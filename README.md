@@ -26,6 +26,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 * `docker-compose.yml` doesn't set everything up in a fresh environment.
 * Data handling between Go and Python could be much more elegant (maybe they can share data with memory?).
 * No updates on progress sent from server.
+* Left out an API for managing collections. Not a huge deal at the moment, but will definitely need to be done in the next project.
 
 # To Do
 - [ ] Add python environment creation and `pip install -r requirements.txt` to `Dockerfile`.
