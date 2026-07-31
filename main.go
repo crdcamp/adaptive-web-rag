@@ -45,9 +45,9 @@ func main() {
 	TestQuery = "What are some of the greatest mysteries throughout ancient history?"
 
 	CreateCollection(WeaviateClient, WebSearchCollection, "A collection of web search results conducted and stored by an LLM.")
-	GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, TestQuery)
-	CallCrawlScript()
-	SplitEmbedAndUploadText(WeaviateClient, "crawl_data/crawl_results.json", WebSearchCollection)
+	// GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, TestQuery)
+	// CallCrawlScript()
+	// SplitEmbedAndUploadText(WeaviateClient, "crawl_data/crawl_results.json", WebSearchCollection)
 
 	// Endpoint for the actual chat
 	mux := mux.NewRouter()
@@ -198,6 +198,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		// I need to learn more about Go.
 		nearTextResults := nearTextStruct.Get[WebSearchCollection]
 		for _, r := range nearTextResults {
+			// I'm almost certain this check isn't sufficient
 			if r.Content == "" {
 				_, err := w.Write([]byte("NO CONTENT FOUND\n"))
 				if err != nil {
@@ -205,10 +206,31 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			} else {
-				_, err := w.Write([]byte("CONTENT FOUND:\n" + r.Content + "\n\n"))
+				_, err := w.Write([]byte("CONTENT FOUND (source: " + r.Source + "):\n" + r.Content + "\n\n"))
 				if err != nil {
 					slog.Error("error writing response body", "err", err)
 					return
+				}
+				// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
+				// Another time you can create a function that does this to avoid that issue
+				vectorResponseValidationSysPrompt := `You are a strict relevance classifier for a RAG pipeline.
+
+				Your task is to determine whether the retrieved text context is relevant to the user's prompt.
+
+				Context is RELEVANT if it contains direct answers, partial facts, or necessary background information to help address the prompt. Otherwise, it is IRRELEVANT.
+
+				User Prompt:
+				"""
+				` + chatPrompt.UserPrompt + `
+				"""
+
+				Retrieved Context:
+				"""
+				` + r.Content + `
+				"""
+
+				Respond with EXACTLY one word: "RELEVANT" or "IRRELEVANT". Do not include quotes, explanations, or any other text.`
+				vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
 				}
 			}
 		}
