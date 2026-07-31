@@ -185,9 +185,17 @@ func EmbedText(client *weaviate.Client, className string, splitText []models.Pro
 	fmt.Println("Text embeddings complete")
 }
 
+func SplitEmbedAndUploadText(weaviateClient *weaviate.Client, fileName string, className string) {
+	splitResults := SplitCrawlResults(fileName)
+	EmbedText(weaviateClient, className, splitResults)
+}
+
 // Needs a class existence check
 // weaviate-server.go
+// Do this before doing anything else:
 // INSTEAD OF RETURNING BYTES, THIS SHOULD RETURN THE DATA IN JSON FORMAT
+// YOU ALSO NEED TO FILL THE DATABASE WITH INFORMATION REGARDING
+// EACH EXAMPLE (or just one or 2 of them)
 func NearTextSearch(client *weaviate.Client, className string, limit int, query string) ([]byte, error) {
 	fmt.Printf("Conducting near text search for query: %q\n", query)
 	ctx := context.Background()
@@ -224,6 +232,3 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 
 	return b, nil
 }
-
-//func KeyWordSearch() {}
-//func CheckResultValidity() {}
