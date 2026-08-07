@@ -121,41 +121,22 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Initial  chat response
-	initialResponseSysPrompt := `You are a research assistant with access to a vector database ("memory"). The vector database ("memory") contains results from past internet searches.
-
-	When a user asks a question that could be answered using retrieved information, briefly note that you're checking memory before answering — one short line, not a ceremony (e.g. "Checking memory for prior notes on X."). Skip this step for trivial exchanges (greetings, clarifying questions, meta-questions about the conversation itself).
-
-	DO NOT answer the user's prompt. You must only briefly not that you're checking your memory before answering.
-
-	If a question is clearly outside your research scope (e.g. unrelated small talk, requests for content generation unrelated to the corpus, insults), say so plainly and redirect the user rather than attempting an answer anyway.`
+	initialResponseSysPromptData, err := os.ReadFile("prompts/initialResponseSysPrompt.md")
+	if err != nil {
+		log.Fatal(err)
+	}
+	initialResponseSysPrompt := string(initialResponseSysPromptData)
+	fmt.Printf("initialResponseSysPrompt result:\n%v", initialResponseSysPrompt)
 
 	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 
 	// Initial chat validation
-	initialResponseValidationSysPrompt := `You are a classifier evaluating whether a given text is relevant to a specific research corpus.
+	initialResponseValidationSysPromptData, err := os.ReadFile("prompts/initialResponseValidationSysPrompt.md")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	### Input
-	<text_to_evaluate>
-	[INSERT ANSWER OR PROMPT HERE]
-	</text_to_evaluate>
-
-	### Task
-	Determine if the provided text is OUTSIDE the scope of research.
-
-	OUT OF SCOPE includes:
-	- Small talk, casual conversation, or insults (e.g., "How are you?", "Tell me a joke", "You're the worst")
-	- Requests or content generation unrelated to the research subject
-	- Insults, profanity, or conversational filler
-
-	IN SCOPE includes:
-	- Factual queries, analysis, or summaries relevant to the research corpus
-	- Direct discussion of topics covered within the domain
-
-	### Output Format
-	Respond ONLY with either INVALID or VALID . Do not include any explanation, punctuation, or extra words.
-
-	- Respond INVALID if the text is OUTSIDE the scope of research.
-	- Respond VALID if the text is WITHIN the scope of research.`
+	initialResponseValidationSysPrompt := string(initialResponseValidationSysPromptData)
 
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
 
@@ -231,10 +212,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 
 				Respond with EXACTLY one word: "RELEVANT" or "IRRELEVANT". Do not include quotes, explanations, or any other text.`
 				vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
-				}
 			}
 		}
-
 	case "INVALID":
 		//Initial response
 		_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
