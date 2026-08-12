@@ -134,14 +134,12 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Initial  chat response
-	initialResponseSysPromptData := ReadMDFile("prompts/initialResponseSysPrompt.md")
-	initialResponseSysPrompt := initialResponseSysPromptData
+	initialResponseSysPrompt := ReadMDFile("prompts/initialResponseSysPrompt.md")
 	fmt.Printf("initialResponseSysPrompt result:\n%v", initialResponseSysPrompt)
 	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 
 	// Initial chat validation
-	initialResponseValidationSysPromptData := ReadMDFile("prompts/initialResponseValidationSysPrompt.md")
-	initialResponseValidationSysPrompt := initialResponseValidationSysPromptData
+	initialResponseValidationSysPrompt := ReadMDFile("prompts/initialResponseValidationSysPrompt.md")
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
 
 	// Initial response validation
@@ -154,7 +152,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		WriteBytes(w, "Searching memory...\n")
 
 		// WWEEEEEEEP WEEEEEEP WEEEEEP WOOOOOOP EMERGENCY BELOW!!!!!!
-		// `nearTextBytes` shouldn't be returning an error. NearTextSearch should be handling this on its own... Common bruv
+		// `NearTextSearch` shouldn't be returning an error. `NearTextSearch` should be handling this on its own... Common bruv
 		nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
 		if err != nil {
 			slog.Error("error running near text search", "err", err)
