@@ -95,7 +95,12 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-//func writeBytes()
+func writeBytes(w http.ResponseWriter, input string) {
+	_, err := w.Write([]byte(input))
+	if err != nil {
+		slog.Error("error writing response body", "err", err)
+	}
+}
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
 	// Intake the byte data provided by the request
