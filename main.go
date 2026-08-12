@@ -172,11 +172,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		nearTextResults := nearTextStruct.Get[WebSearchCollection]
 		var resultsSlice []string
 		for _, r := range nearTextResults {
-			// I'm almost certain this check isn't sufficient
-			// Remove the check. Just check resultsSlice outside of the loop at the end.
-			// If it's empty, do something blah blah blah
-			// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
-			// This entire approach in general is pretty half assed awktually.. Let's just get it working dude
+			// Huge risk of prompt injection here (not a genuine concern)
+			// This entire approach in general is pretty half assed awktually.. Let's just get it working
 			WriteBytes(w, "Analyzing relevance of content for source: "+r.Source+"\n")
 
 			// WHY ARE YOU INPUTTING THESE VARIABLES INTO THE SYSTEM PROMPT?!?!?!?
@@ -202,9 +199,6 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 
 			// Needs to be finished
 			// Probably gonna end up being a switch statement
-			// NEED TO ADD A STRUCT OR SOMETHING FOR STORING THE DATABASE CONTENT DURING THIS ITERATION
-			// AFTER THAT, YOU CAN PUT THE CONTENT INTO IT
-			// Note that this current use is completely incorrect
 			WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
 			if vectorResponseValidation == "RELEVANT" {
 				resultsSlice = append(resultsSlice, r.Content)
@@ -213,7 +207,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		}
 
 		allVectorDBResults := strings.Join(resultsSlice, "\nEND OF CONTENT\n\n")
-		WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults)
+		WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults+"\n")
 
 		vectorDBAnswer := AnswerWithResults(LlamaClient, chatPrompt.UserPrompt, allVectorDBResults)
 		WriteBytes(w, "\n\n\nANSWER:\n")

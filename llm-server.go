@@ -92,10 +92,8 @@ func CallCrawlScript() {
 // Might be better to take a bunch of the logic from main.go and put it here
 func AnswerWithResults(llamaClient openai.Client, userPrompt string, vectorDBResult string) string {
 	sysPrompt := ReadMDFile("prompts/answerWithResultsSysPrompt.md")
-
 	promptInput := "Answer this question: " + userPrompt + "with the following context:\n" + vectorDBResult
-
-	result := CreateChatCompletion(llamaClient, AppConfig.ChatModelNoThink, sysPrompt, promptInput)
+	result := CreateChatCompletion(llamaClient, AppConfig.ChatModelThink, sysPrompt, promptInput)
 
 	return result
 }
