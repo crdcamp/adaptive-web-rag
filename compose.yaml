@@ -51,8 +51,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      LLAMA_URL: http://llama-server:8080/
+      WEAVIATE_URL: weaviate-server:8081
+      LLAMA_API_KEY: not-needed
+      CHAT_MODEL_THINK: Qwen3-8B-Instruct-Think
+      CHAT_MODEL_NO_THINK: Qwen3-8B-Instruct-No-Think
+      EMBED_MODEL: Qwen3-8B-Instruct-Embed
     ports:
       - "8082:8082"
     depends_on:
