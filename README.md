@@ -28,6 +28,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 * No updates on progress sent from server. This is a... pretty annoying issue.
 * Left out an API for managing collections. Not a huge deal at the moment, but will definitely need to be done in the next project.
 * Python script can be included in the REST API instead of saving files.
+* Pretty certain the Docker implementation requires specifying the device's GPU.
 
 # To Do
 - [ ] Add python environment creation and `pip install -r requirements.txt` to `Dockerfile`.
