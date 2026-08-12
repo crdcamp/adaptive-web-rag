@@ -87,7 +87,7 @@ func loadConfig() (*Config, error) {
 	return cfg, nil
 }
 
-func writeBytes(w http.ResponseWriter, input string) {
+func WriteBytes(w http.ResponseWriter, input string) {
 	_, err := w.Write([]byte(input))
 	if err != nil {
 		slog.Error("error writing response body", "err", err)
@@ -95,7 +95,7 @@ func writeBytes(w http.ResponseWriter, input string) {
 }
 
 // Needs a file extension check
-func readMDFile(filePath string) string {
+func ReadMDFile(filePath string) string {
 	resultBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -106,7 +106,7 @@ func readMDFile(filePath string) string {
 }
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
-	writeBytes(w, "Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n")
+	WriteBytes(w, "Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n")
 }
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
@@ -133,13 +133,13 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Initial  chat response
-	initialResponseSysPromptData := readMDFile("prompts/initialResponseSysPrompt.md")
+	initialResponseSysPromptData := ReadMDFile("prompts/initialResponseSysPrompt.md")
 	initialResponseSysPrompt := initialResponseSysPromptData
 	fmt.Printf("initialResponseSysPrompt result:\n%v", initialResponseSysPrompt)
 	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 
 	// Initial chat validation
-	initialResponseValidationSysPromptData := readMDFile("prompts/initialResponseValidationSysPrompt.md")
+	initialResponseValidationSysPromptData := ReadMDFile("prompts/initialResponseValidationSysPrompt.md")
 	initialResponseValidationSysPrompt := initialResponseValidationSysPromptData
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
 
@@ -148,9 +148,9 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	case "VALID":
 		//Initial response
 		searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
-		writeBytes(w, "Response validation result: "+initialResponseValidation+"\nSearch query: "+searchQuery+"\n")
-		writeBytes(w, "Model response: "+initialResponse+"\n")
-		writeBytes(w, "Searching memory...")
+		WriteBytes(w, "Response validation result: "+initialResponseValidation+"\nSearch query: "+searchQuery+"\n")
+		WriteBytes(w, "Model response: "+initialResponse+"\n")
+		WriteBytes(w, "Searching memory...")
 
 		// This shouldn't be returning an error. NearTextSearch should be handling this on its own
 		nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
@@ -174,9 +174,9 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		for _, r := range nearTextResults {
 			// I'm almost certain this check isn't sufficient
 			if r.Content == "" {
-				writeBytes(w, "NO CONTENT FOUND\n")
+				WriteBytes(w, "NO CONTENT FOUND\n")
 			} else {
-				writeBytes(w, "CONTENT FOUND (source: "+r.Source+"):\n"+r.Content+"\n\n")
+				WriteBytes(w, "CONTENT FOUND (source: "+r.Source+"):\n"+r.Content+"\n\n")
 				// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
 				// Another time you can create a function that does this to avoid that issue
 				// This entire approach in general is pretty half assed awktually
@@ -200,15 +200,17 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 				vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
 
 				// Needs to be finished
+				// Probably gonna end up being a switch statement
 				if vectorResponseValidation == "RELEVANT" {
-					writeBytes(w, "Model response: "+initialResponse+"\n")
+					WriteBytes(w, "Model response: "+initialResponse+"\n")
+					// Insert AnswerWithDBResults here
 				}
 			}
 		}
 	case "INVALID":
 		//Initial response
-		writeBytes(w, "Model response: "+initialResponse+"\n")
-		writeBytes(w, "Response validation result: "+initialResponseValidation+"\nInvalid prompt entered. Please ask a research-oriented question.\n")
+		WriteBytes(w, "Model response: "+initialResponse+"\n")
+		WriteBytes(w, "Response validation result: "+initialResponseValidation+"\nInvalid prompt entered. Please ask a research-oriented question.\n")
 
 	default:
 		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
