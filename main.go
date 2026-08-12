@@ -149,11 +149,12 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	case "VALID":
 		//Initial response
 		searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
-		WriteBytes(w, "Response validation result: "+initialResponseValidation+"\nSearch query: "+searchQuery+"\n")
+		WriteBytes(w, "User prompt validation result: "+initialResponseValidation+"\nSearch query: "+searchQuery+"\n")
 		WriteBytes(w, "Model response: "+initialResponse+"\n")
-		WriteBytes(w, "Searching memory...")
+		WriteBytes(w, "Searching memory...\n")
 
-		// This shouldn't be returning an error. NearTextSearch should be handling this on its own
+		// WWEEEEEEEP WEEEEEEP WEEEEEP WOOOOOOP EMERGENCY BELOW!!!!!!
+		// `nearTextBytes` shouldn't be returning an error. NearTextSearch should be handling this on its own... Common bruv
 		nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
 		if err != nil {
 			slog.Error("error running near text search", "err", err)
@@ -170,22 +171,18 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 
 		// All the near text data handling desperately needs to be cleaned up my god
 		// ... To be fair the GraphQL stuff is just ridiculously difficult to figure out...
-		// I need to learn more about Go.
 		nearTextResults := nearTextStruct.Get[WebSearchCollection]
 		var resultsSlice []string
-		WriteBytes(w, "Searching for content...\n")
 		for _, r := range nearTextResults {
 			// I'm almost certain this check isn't sufficient
 			// Remove the check. Just check resultsSlice outside of the loop at the end.
 			// If it's empty, do something blah blah blah
-			// CLEAN UP THESE PRINT STATEMENTS IN THE LOOP
 			// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
-			// Another time you can create a function that does this to avoid that issue
-			// This entire approach in general is pretty half assed awktually
+			// This entire approach in general is pretty half assed awktually.. Let's just get it working dude
 			WriteBytes(w, "Analyzing relevance of content for source: "+r.Source+"\n")
 
-			// WHY ARE YOU INPUTTING THIS INTO THE SYSTEM PROMPT?!?!?!?
-			// MAKE A MD FILE FOR THIS AND INPUT THOSE VARIABLES INTO THE USER PROMPT
+			// WHY ARE YOU INPUTTING THESE VARIABLES INTO THE SYSTEM PROMPT?!?!?!?
+			// MAKE A MD FILE FOR THIS AND INPUT THOSE VARIABLES INTO THE USER PROMPT INSTEAD YOU SILLY GOOSE
 			vectorResponseValidationSysPrompt := `You are a strict relevance classifier for a RAG pipeline.
 
 				Your task is to determine whether the retrieved text context is relevant to the user's prompt.
@@ -210,18 +207,24 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 			// NEED TO ADD A STRUCT OR SOMETHING FOR STORING THE DATABASE CONTENT DURING THIS ITERATION
 			// AFTER THAT, YOU CAN PUT THE CONTENT INTO IT
 			// Note that this current use is completely incorrect
-			WriteBytes(w, "Content relevancy: "+vectorResponseValidation)
+			WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
 			if vectorResponseValidation == "RELEVANT" {
 				resultsSlice = append(resultsSlice, r.Content)
 			}
 
-			allResults := strings.Join(resultsSlice, "\n\n")
-			WriteBytes(w, "ALL RESULTS\n"+allResults)
 		}
+
+		allVectorDBResults := strings.Join(resultsSlice, "\nEND OF CONTENT\n\n")
+		WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults)
+
+		vectorDBAnswer := AnswerWithResults(LlamaClient, chatPrompt.UserPrompt, allVectorDBResults)
+		WriteBytes(w, "\n\n\nANSWER:\n")
+		WriteBytes(w, vectorDBAnswer)
+
 	case "INVALID":
 		//Initial response
 		WriteBytes(w, "Model response: "+initialResponse+"\n")
-		WriteBytes(w, "Response validation result: "+initialResponseValidation+"\nInvalid prompt entered. Please ask a research-oriented question.\n")
+		WriteBytes(w, "User prompt validation result: "+initialResponseValidation+"\nInvalid prompt entered. Please ask a research-oriented question.\n")
 
 	default:
 		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
