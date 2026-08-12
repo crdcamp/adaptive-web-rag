@@ -102,6 +102,17 @@ func writeBytes(w http.ResponseWriter, input string) {
 	}
 }
 
+// Needs a file extension check
+func readMDFile(filePath string) string {
+	resultBytes, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resultString := string(resultBytes)
+	return resultString
+}
+
 func handleChat(w http.ResponseWriter, r *http.Request) {
 	// Intake the byte data provided by the request
 	byteData, err := io.ReadAll(r.Body)
