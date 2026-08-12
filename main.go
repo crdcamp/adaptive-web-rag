@@ -201,9 +201,13 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 
 				// Needs to be finished
 				// Probably gonna end up being a switch statement
+				// NEED TO ADD A STRUCT OR SOMETHING FOR STORING THE DATABASE CONTENT DURING THIS ITERATION
+				// AFTER THAT, YOU CAN PUT THE CONTENT INTO IT
+				// Note that this current use is completely incorrect
 				if vectorResponseValidation == "RELEVANT" {
 					WriteBytes(w, "Model response: "+initialResponse+"\n")
-					// Insert AnswerWithDBResults here
+					vectorDBAnswer := AnswerWithResults(LlamaClient, chatPrompt.UserPrompt, r.Content)
+					WriteBytes(w, vectorDBAnswer)
 				}
 			}
 		}
