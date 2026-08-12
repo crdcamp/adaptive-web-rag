@@ -106,7 +106,7 @@ func readMDFile(filePath string) string {
 }
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
-	writeBytes("Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n")
+	writeBytes(w, "Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n")
 }
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
@@ -174,17 +174,9 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		for _, r := range nearTextResults {
 			// I'm almost certain this check isn't sufficient
 			if r.Content == "" {
-				_, err := w.Write([]byte("NO CONTENT FOUND\n"))
-				if err != nil {
-					slog.Error("error writing response body", "err", err)
-					return
-				}
+				writeBytes(w, "NO CONTENT FOUND\n")
 			} else {
-				_, err := w.Write([]byte("CONTENT FOUND (source: " + r.Source + "):\n" + r.Content + "\n\n"))
-				if err != nil {
-					slog.Error("error writing response body", "err", err)
-					return
-				}
+				writeBytes(w, "CONTENT FOUND (source: "+r.Source+"):\n"+r.Content+"\n\n")
 				// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
 				// Another time you can create a function that does this to avoid that issue
 				// This entire approach in general is pretty half assed awktually
@@ -208,23 +200,14 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 				vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
 
 				if vectorResponseValidation == "RELEVANT" {
-					_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
-					if err != nil {
-						slog.Error("error writing response body", "err", err)
-					}
+					writeBytes(w, "Model response: "+initialResponse+"\n")
 				}
 			}
 		}
 	case "INVALID":
 		//Initial response
-		_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
-		if err != nil {
-			slog.Error("error writing response body", "err", err)
-		}
-		_, err = w.Write([]byte("Response validation result: " + initialResponseValidation + "\nInvalid prompt entered. Please ask a research-oriented question.\n"))
-		if err != nil {
-			slog.Error("error writing response body", "err", err)
-		}
+		writeBytes(w, "Model response: "+initialResponse+"\n")
+		writeBytes(w, "Response validation result: "+initialResponseValidation+"\nInvalid prompt entered. Please ask a research-oriented question.\n")
 
 	default:
 		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
