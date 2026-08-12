@@ -87,3 +87,6 @@ func CallCrawlScript() {
 		panic(err)
 	}
 }
+
+// Answer a user's question based on results retrieved from the Weaviate database.
+//func AnswerWithResults(){}

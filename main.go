@@ -136,9 +136,9 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	initialResponseSysPromptData := readMDFile("prompts/initialResponseSysPrompt.md")
 	initialResponseSysPrompt := initialResponseSysPromptData
 	fmt.Printf("initialResponseSysPrompt result:\n%v", initialResponseSysPrompt)
+	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 
 	// Initial chat validation
-	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
 	initialResponseValidationSysPromptData := readMDFile("prompts/initialResponseValidationSysPrompt.md")
 	initialResponseValidationSysPrompt := initialResponseValidationSysPromptData
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
@@ -199,6 +199,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 				Respond with EXACTLY one word: "RELEVANT" or "IRRELEVANT". Do not include quotes, explanations, or any other text.`
 				vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
 
+				// Needs to be finished
 				if vectorResponseValidation == "RELEVANT" {
 					writeBytes(w, "Model response: "+initialResponse+"\n")
 				}
