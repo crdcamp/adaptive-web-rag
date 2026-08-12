@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -171,6 +172,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		// ... To be fair the GraphQL stuff is just ridiculously difficult to figure out...
 		// I need to learn more about Go.
 		nearTextResults := nearTextStruct.Get[WebSearchCollection]
+		var resultsSlice []string
 		for _, r := range nearTextResults {
 			// I'm almost certain this check isn't sufficient
 			if r.Content == "" {
@@ -205,11 +207,11 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 				// AFTER THAT, YOU CAN PUT THE CONTENT INTO IT
 				// Note that this current use is completely incorrect
 				if vectorResponseValidation == "RELEVANT" {
-					WriteBytes(w, "Model response: "+initialResponse+"\n")
-					vectorDBAnswer := AnswerWithResults(LlamaClient, chatPrompt.UserPrompt, r.Content)
-					WriteBytes(w, vectorDBAnswer)
+					resultsSlice = append(resultsSlice, r.Content)
 				}
 			}
+			allResults := strings.Join(resultsSlice, "\n\n")
+			WriteBytes(w, "ALL RESULTS\n"+allResults)
 		}
 	case "INVALID":
 		//Initial response
