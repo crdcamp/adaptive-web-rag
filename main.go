@@ -87,14 +87,6 @@ func loadConfig() (*Config, error) {
 	return cfg, nil
 }
 
-func handleRoot(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n"))
-	if err != nil {
-		slog.Error("error writing response", "err", err)
-		return
-	}
-}
-
 func writeBytes(w http.ResponseWriter, input string) {
 	_, err := w.Write([]byte(input))
 	if err != nil {
@@ -111,6 +103,10 @@ func readMDFile(filePath string) string {
 
 	resultString := string(resultBytes)
 	return resultString
+}
+
+func handleRoot(w http.ResponseWriter, _ *http.Request) {
+	writeBytes("Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n")
 }
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
@@ -137,23 +133,14 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Initial  chat response
-	initialResponseSysPromptData, err := os.ReadFile("prompts/initialResponseSysPrompt.md")
-	if err != nil {
-		log.Fatal(err)
-	}
-	initialResponseSysPrompt := string(initialResponseSysPromptData)
+	initialResponseSysPromptData := readMDFile("prompts/initialResponseSysPrompt.md")
+	initialResponseSysPrompt := initialResponseSysPromptData
 	fmt.Printf("initialResponseSysPrompt result:\n%v", initialResponseSysPrompt)
 
-	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
-
 	// Initial chat validation
-	initialResponseValidationSysPromptData, err := os.ReadFile("prompts/initialResponseValidationSysPrompt.md")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	initialResponseValidationSysPrompt := string(initialResponseValidationSysPromptData)
-
+	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
+	initialResponseValidationSysPromptData := readMDFile("prompts/initialResponseValidationSysPrompt.md")
+	initialResponseValidationSysPrompt := initialResponseValidationSysPromptData
 	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
 
 	// Initial response validation
@@ -161,21 +148,11 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	case "VALID":
 		//Initial response
 		searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, chatPrompt.UserPrompt)
-		_, err = w.Write([]byte("Response validation result: " + initialResponseValidation + "\nSearch query: " + searchQuery + "\n"))
-		if err != nil {
-			slog.Error("error writing response body", "err", err)
-		}
+		writeBytes(w, "Response validation result: "+initialResponseValidation+"\nSearch query: "+searchQuery+"\n")
+		writeBytes(w, "Model response: "+initialResponse+"\n")
+		writeBytes(w, "Searching memory...")
 
-		_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
-		if err != nil {
-			slog.Error("error writing response body", "err", err)
-		}
-
-		_, err = w.Write([]byte("Searching memory..."))
-		if err != nil {
-			slog.Error("error writing response body", "err", err)
-		}
-
+		// This shouldn't be returning an error. NearTextSearch should be handling this on its own
 		nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
 		if err != nil {
 			slog.Error("error running near text search", "err", err)
