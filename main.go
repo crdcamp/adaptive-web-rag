@@ -194,6 +194,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 				}
 				// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
 				// Another time you can create a function that does this to avoid that issue
+				// This entire approach in general is pretty half assed awktually
 				vectorResponseValidationSysPrompt := `You are a strict relevance classifier for a RAG pipeline.
 
 				Your task is to determine whether the retrieved text context is relevant to the user's prompt.
@@ -212,6 +213,13 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 
 				Respond with EXACTLY one word: "RELEVANT" or "IRRELEVANT". Do not include quotes, explanations, or any other text.`
 				vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
+
+				if vectorResponseValidation == "RELEVANT" {
+					_, err = w.Write([]byte("Model response: " + initialResponse + "\n"))
+					if err != nil {
+						slog.Error("error writing response body", "err", err)
+					}
+				}
 			}
 		}
 	case "INVALID":
