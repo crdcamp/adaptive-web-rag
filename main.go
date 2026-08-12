@@ -173,16 +173,20 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		// I need to learn more about Go.
 		nearTextResults := nearTextStruct.Get[WebSearchCollection]
 		var resultsSlice []string
+		WriteBytes(w, "Searching for content...\n")
 		for _, r := range nearTextResults {
 			// I'm almost certain this check isn't sufficient
-			if r.Content == "" {
-				WriteBytes(w, "NO CONTENT FOUND\n")
-			} else {
-				WriteBytes(w, "CONTENT FOUND (source: "+r.Source+"):\n"+r.Content+"\n\n")
-				// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
-				// Another time you can create a function that does this to avoid that issue
-				// This entire approach in general is pretty half assed awktually
-				vectorResponseValidationSysPrompt := `You are a strict relevance classifier for a RAG pipeline.
+			// Remove the check. Just check resultsSlice outside of the loop at the end.
+			// If it's empty, do something blah blah blah
+			// CLEAN UP THESE PRINT STATEMENTS IN THE LOOP
+			// Huge risk of prompt injection here (not a genuine concern for the current scope, but worth noting for now)
+			// Another time you can create a function that does this to avoid that issue
+			// This entire approach in general is pretty half assed awktually
+			WriteBytes(w, "Analyzing relevance of content for source: "+r.Source+"\n")
+
+			// WHY ARE YOU INPUTTING THIS INTO THE SYSTEM PROMPT?!?!?!?
+			// MAKE A MD FILE FOR THIS AND INPUT THOSE VARIABLES INTO THE USER PROMPT
+			vectorResponseValidationSysPrompt := `You are a strict relevance classifier for a RAG pipeline.
 
 				Your task is to determine whether the retrieved text context is relevant to the user's prompt.
 
@@ -199,17 +203,18 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 				"""
 
 				Respond with EXACTLY one word: "RELEVANT" or "IRRELEVANT". Do not include quotes, explanations, or any other text.`
-				vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
+			vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
 
-				// Needs to be finished
-				// Probably gonna end up being a switch statement
-				// NEED TO ADD A STRUCT OR SOMETHING FOR STORING THE DATABASE CONTENT DURING THIS ITERATION
-				// AFTER THAT, YOU CAN PUT THE CONTENT INTO IT
-				// Note that this current use is completely incorrect
-				if vectorResponseValidation == "RELEVANT" {
-					resultsSlice = append(resultsSlice, r.Content)
-				}
+			// Needs to be finished
+			// Probably gonna end up being a switch statement
+			// NEED TO ADD A STRUCT OR SOMETHING FOR STORING THE DATABASE CONTENT DURING THIS ITERATION
+			// AFTER THAT, YOU CAN PUT THE CONTENT INTO IT
+			// Note that this current use is completely incorrect
+			WriteBytes(w, "Content relevancy: "+vectorResponseValidation)
+			if vectorResponseValidation == "RELEVANT" {
+				resultsSlice = append(resultsSlice, r.Content)
 			}
+
 			allResults := strings.Join(resultsSlice, "\n\n")
 			WriteBytes(w, "ALL RESULTS\n"+allResults)
 		}
