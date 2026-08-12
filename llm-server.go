@@ -89,4 +89,8 @@ func CallCrawlScript() {
 }
 
 // Answer a user's question based on results retrieved from the Weaviate database.
-//func AnswerWithResults(){}
+// Might be better to take a bunch of the logic from main.go and put it here
+func AnswerWithResults(userPrompt string, vectorDBResult string) {
+	sysPrompt := ReadMDFile("prompts/anserWithResultsSysPrompt.md")
+	fmt.Println(sysPrompt)
+}
