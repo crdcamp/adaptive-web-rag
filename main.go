@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"log/slog"
 	"net/http"
@@ -50,7 +52,7 @@ func main() {
 	// Endpoint for the actual chat
 	mux := mux.NewRouter()
 	mux.HandleFunc("/", handleRoot)
-	mux.HandleFunc("/chat", HandleChat)
+	mux.HandleFunc("/chat", handleChat)
 	// Future endpoint for collections management
 	// mux.HandleFunc("/collections", handleCollections) Need this later
 
@@ -100,6 +102,35 @@ func ReadMDFile(filePath string) string {
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	WriteBytes(w, "Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n(Note: Collections management is not implemented.)")
+}
+
+func handleChat(w http.ResponseWriter, r *http.Request) {
+	// Intake the byte data provided by the request
+	byteData, err := io.ReadAll(r.Body)
+	if err != nil {
+		slog.Error("error reading request body", "err", err)
+		http.Error(w, "bad request body", http.StatusBadRequest)
+		return
+	}
+
+	// Create a variable chatPrompt from ChatPost struct to unmarshal the byte data
+	var chatPrompt ChatPost
+	err = json.Unmarshal(byteData, &chatPrompt)
+	if err != nil {
+		slog.Error("error unmarshalling chat request body", "err", err)
+		http.Error(w, "error parsing request JSON", http.StatusBadRequest)
+		return
+	}
+
+	if chatPrompt.UserPrompt == "" {
+		http.Error(w, "No prompt was provided. Please try again", http.StatusBadRequest)
+		return
+	}
+
+	InitialResponse := InitialResponse(w, chatPrompt)
+	InitialPromptValidation := InitialPromptValidation(w, chatPrompt)
+
+	InitialPromptDecisionTree(w, chatPrompt, InitialResponse, InitialPromptValidation)
 }
 
 // Create and return an OpenAI API compatible client for llama-server.
