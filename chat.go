@@ -124,7 +124,7 @@ func initialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, initial
 
 	default:
 		// THIS SHOULD BE A FATAL ERROR. THE PROGRAM SHOULD STOP IF THIS BASIC CHECK HAS FAILED!
-		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
+		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialPromptValidation)
 
 	}
 }
