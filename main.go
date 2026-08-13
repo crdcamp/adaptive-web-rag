@@ -176,26 +176,11 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 			// This entire approach in general is pretty half assed awktually.. Let's just get it working
 			WriteBytes(w, "Analyzing relevance of content for source: "+r.Source+"\n")
 
-			// WHY ARE YOU INPUTTING THESE VARIABLES INTO THE SYSTEM PROMPT?!?!?!?
-			// MAKE A MD FILE FOR THIS AND INPUT THOSE VARIABLES INTO THE USER PROMPT INSTEAD YOU SILLY GOOSE
-			vectorResponseValidationSysPrompt := `You are a strict relevance classifier for a RAG pipeline.
+			vectorResponseValidationSysPrompt := ReadMDFile("prompts/vectorResponseValidationSysPrompt.md")
+			vectorResponseUserPrompt := "You are given the following prompt :\n\n" + chatPrompt.UserPrompt +
+				"\n\nBased on the given prompt, strictly classify the following context as RELEVANT or IRRELEVANT:\n" + r.Content
 
-				Your task is to determine whether the retrieved text context is relevant to the user's prompt.
-
-				Context is RELEVANT if it contains direct answers, partial facts, or necessary background information to help address the prompt. Otherwise, it is IRRELEVANT.
-
-				User Prompt:
-				"""
-				` + chatPrompt.UserPrompt + `
-				"""
-
-				Retrieved Context:
-				"""
-				` + r.Content + `
-				"""
-
-				Respond with EXACTLY one word: "RELEVANT" or "IRRELEVANT". Do not include quotes, explanations, or any other text.`
-			vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, r.Content)
+			vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, vectorResponseUserPrompt)
 
 			// Needs to be finished
 			// Probably gonna end up being a switch statement
@@ -203,10 +188,14 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 			if vectorResponseValidation == "RELEVANT" {
 				resultsSlice = append(resultsSlice, r.Content)
 			}
-
 		}
 
-		allVectorDBResults := strings.Join(resultsSlice, "\nEND OF CONTENT\n\n")
+		// If allVectorDBResults is empty, call a function for internet search
+		// that originates in llama-server.go
+		if len(resultsSlice) == 0 {
+			WriteBytes(w, "NO RELEVANT RESULTS FOUND!\n")
+		}
+		allVectorDBResults := strings.Join(resultsSlice, "\nEND OF CONTENT\n")
 		WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults+"\n")
 
 		vectorDBAnswer := AnswerWithResults(LlamaClient, chatPrompt.UserPrompt, allVectorDBResults)
@@ -218,6 +207,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		WriteBytes(w, "Model response: "+initialResponse+"\n")
 		WriteBytes(w, "User prompt validation result: "+initialResponseValidation+"\nInvalid prompt entered. Please ask a research-oriented question.\n")
 
+	// THIS SHOULD BE A FATAL ERROR. THE PROGRAM SHOULD STOP IF THIS BASIC CHECK HAS FAILED!
 	default:
 		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
 	}
@@ -227,7 +217,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 func createLlamaClient(baseURL string, apiKey string) openai.Client {
 	client := openai.NewClient(
 		option.WithBaseURL(baseURL),
-		// API Key is not required for llama-server
+		// API Key is not required for llama-server (but hey, ya neva know)
 		option.WithAPIKey(apiKey),
 	)
 
