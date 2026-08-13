@@ -69,7 +69,6 @@ func GenerateSearchQuery(client openai.Client, modelName string, prompt string) 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Chat completion saved to `server/crawl_data/user_prompt.md`")
 
 	return chatResponse
 }

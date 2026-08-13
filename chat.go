@@ -21,8 +21,8 @@ type ChatPost struct {
 
 // Provide an introductory response to a user's prompt and determine the
 // validity of their request. If the model deems the prompt to not be
-// research related, the prompt will be semantically redirected. If the
-// model deems the prompt to be research related, it will notify the user
+// research related, the model respond by semantically redirecting the user.
+// If the model deems the prompt to be research related, it will notify the user
 // that it's checking the vector database for relevant results (but not
 // actually check the vector database).
 func initialResponse(w http.ResponseWriter, chatPost ChatPost) string {
@@ -114,8 +114,19 @@ func invalidPromptHandling(w http.ResponseWriter, initialResponse string, initia
 	WriteBytes(w, "Model response: "+initialResponse+"\n")
 }
 
-func initialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, initialPromptValidation string) {
+func initialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, initialResponse string, initialPromptValidation string) {
+	switch initialPromptValidation {
+	case "VALID":
+		validPromptHandling(w, chatPost)
 
+	case "INVALID":
+		invalidPromptHandling(w, initialResponse, initialPromptValidation)
+
+	default:
+		// THIS SHOULD BE A FATAL ERROR. THE PROGRAM SHOULD STOP IF THIS BASIC CHECK HAS FAILED!
+		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", initialResponseValidation)
+
+	}
 }
 
 // THIS NEEDS TO BE DIVIDED INTO SEVERAL FUNCTIONS
