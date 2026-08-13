@@ -14,6 +14,20 @@ type ChatPost struct {
 	UserPrompt string
 }
 
+func initialResponse(userPrompt ChatPost) string {
+	initialResponseSysPrompt := ReadMDFile("prompts/initialResponseSysPrompt.md")
+	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
+
+	return initialResponse
+}
+
+func initialResponseValidation(userPrompt ChatPost) string {
+	initialResponseValidationSysPrompt := ReadMDFile("prompts/initialResponseValidationSysPrompt.md")
+	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
+
+	return initialResponseValidation
+}
+
 // THIS NEEDS TO BE DIVIDED INTO SEVERAL FUNCTIONS
 // Start by just verbally coding it out. Think of it like a decision tree my dude
 func HandleChat(w http.ResponseWriter, r *http.Request) {
