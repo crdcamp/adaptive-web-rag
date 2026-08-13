@@ -15,33 +15,65 @@ type ChatPost struct {
 	UserPrompt string
 }
 
+// These functions are looking a bit inefficient (I don't have exact reasoning for that at
+// the moment). I think UserPrompt could just be declared once, but we'll look into that
+// when the rough drafts of the functions are complete.
+
 // Provide an introductory response to a user's prompt and determine the
 // validity of their request. If the model deems the prompt to not be
 // research related, the prompt will be semantically redirected. If the
 // model deems the prompt to be research related, it will notify the user
 // that it's checking the vector database for relevant results (but not
 // actually check the vector database).
-func initialResponse(chatPost ChatPost) string {
+func initialResponse(w http.ResponseWriter, chatPost ChatPost) string {
 	userPrompt := chatPost.UserPrompt
+	WriteBytes(w, "Introductory user prompt: "+userPrompt+"\n")
+
 	initialResponseSysPrompt := ReadMDFile("prompts/initialResponseSysPrompt.md")
 	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, userPrompt)
+	WriteBytes(w, "Initial prompt response: "+initialResponse+"\n")
 
 	return initialResponse
 }
 
 // Evaluate a prompt to determine if it valid or invalid to the scope
-// of a research question. The model will respond strictly with `VALID`
+// of a research question. The model will strictly respond with `VALID`
 // or `INVALID`.
-func initialPromptValidation(chatPost ChatPost) string {
+func initialPromptValidation(w http.ResponseWriter, chatPost ChatPost) string {
 	userPrompt := chatPost.UserPrompt
-	initialResponseValidationSysPrompt := ReadMDFile("prompts/initialResponseValidationSysPrompt.md")
-	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, userPrompt)
 
-	return initialResponseValidation
+	initialPromptValidationSysPrompt := ReadMDFile("prompts/initialPromptValidationSysPrompt.md")
+	initialPromptValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialPromptValidationSysPrompt, userPrompt)
+	WriteBytes(w, "Prompt validation result: "+initialPromptValidation+"\n")
+
+	return initialPromptValidation
 }
 
-func initialPromptDecisionTree(initialResponseValidation string) string {
-	return initialResponseValidation
+func initialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, initialPromptValidation string) {
+	userPrompt := chatPost.UserPrompt
+
+	switch initialPromptValidation {
+	case "VALID":
+		searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, userPrompt)
+		WriteBytes(w, "Search query generated: "+searchQuery+"\nSearching memory...\n")
+
+		// WWEEEEEEEP WEEEEEEP WEEEEEP WOOOOOOP EMERGENCY BELOW!!!!!!
+		// `NearTextSearch` shouldn't be returning an error. `NearTextSearch` should be handling this on its own... Common bruv
+		nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
+		if err != nil {
+			slog.Error("error running near text search", "err", err)
+			http.Error(w, "error searching memory", http.StatusInternalServerError)
+			return
+		}
+
+		var nearTextStruct HrefAndContentDBResponse
+		if err := json.Unmarshal(nearTextBytes, &nearTextStruct); err != nil {
+			slog.Error("error unmarshalling near text search response", "err", err)
+			http.Error(w, "error parsing memory search results", http.StatusInternalServerError)
+			return
+		}
+
+	}
 }
 
 // THIS NEEDS TO BE DIVIDED INTO SEVERAL FUNCTIONS
@@ -70,7 +102,7 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	initialResponse := initialResponse(chatPrompt)
-	initialResponseValidation := initialResponseValidation(chatPrompt)
+	initialResponseValidation := initialPromptValidation(chatPrompt)
 
 	// Initial response validation
 	// THIS SHOULD PROBABLY BE ITS OWN FUNCTION
