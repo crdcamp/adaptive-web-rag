@@ -54,7 +54,7 @@ func CreateChatCompletion(client openai.Client, modelName, systemPrompt string, 
 		panic(err)
 	}
 	chatResponse := chatCompletion.Choices[0].Message.Content
-	fmt.Printf("Chat completion response:\n%q\n", chatResponse)
+	fmt.Printf("Chat completion response: %q\n", chatResponse)
 
 	return chatResponse
 }
@@ -92,7 +92,7 @@ func CallCrawlScript() {
 // NOTE: THE CURRENT PROMPT STUFF IS A VERY ROUGH DRAFT. THIS IS TERRIBLE RIGHT NOW.
 func AnswerWithResults(llamaClient openai.Client, userPrompt string, vectorDBResult string) string {
 	sysPrompt := ReadMDFile("prompts/answerWithResultsSysPrompt.md")
-	promptInput := "Answer this question: " + userPrompt + "with the following context:\n" + vectorDBResult
+	promptInput := "QUESTION: " + userPrompt + "\n\n" + vectorDBResult
 	result := CreateChatCompletion(llamaClient, AppConfig.ChatModelThink, sysPrompt, promptInput)
 
 	return result

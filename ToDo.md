@@ -1,1 +1,4 @@
-- [ ] Fix prompts for vector db answer.
+- [ ] Convert relevance analysis to a function
+- [ ] Handle what happens when there are no relevant results in the vector DB (using new relevance function).
+- [ ] Separate Print statements and logs more logically. Most of these outputs should be in docker anyway.
+- [x] Fix prompts for vector db answer.

@@ -91,8 +91,7 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 		WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
 		if vectorResponseValidation == "RELEVANT" {
 			resultsSlice = append(resultsSlice, "SOURCE: "+r.Source,
-				"CONTENT: "+r.Content+
-					"\nEND OF CONTENT\n")
+				"CONTENT: "+r.Content+"\nEND OF CONTENT\n")
 		}
 	}
 

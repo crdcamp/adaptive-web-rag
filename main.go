@@ -18,12 +18,11 @@ import (
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 )
 
-// Configurations (they're a mess)
+// Configurations
 var AppConfig *Config
 var LlamaClient openai.Client
 var WeaviateClient *weaviate.Client
 var WebSearchCollection string
-var TestQuery string
 
 func main() {
 	err := godotenv.Load(".env")
@@ -42,12 +41,8 @@ func main() {
 	WeaviateClient = createWeaviateClient(AppConfig.WeaviateURL)
 
 	WebSearchCollection = "WebSearchCollection"
-	TestQuery = "What are some of the greatest mysteries throughout ancient history?"
 
 	CreateCollection(WeaviateClient, WebSearchCollection, "A collection of web search results conducted and stored by an LLM.")
-	// GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, TestQuery)
-	// CallCrawlScript()
-	// SplitEmbedAndUploadText(WeaviateClient, "crawl_data/crawl_results.json", WebSearchCollection)
 
 	// Endpoint for the actual chat
 	mux := mux.NewRouter()
@@ -68,7 +63,7 @@ type Config struct {
 	EmbedModel       string
 }
 
-// Load the .env file variables.
+// Load the .env file variables (can't get them working in docker don't feel like figuring that out).
 func loadConfig() (*Config, error) {
 	cfg := &Config{
 		LlamaURL:         os.Getenv("LLAMA_URL"),
@@ -132,6 +127,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	InitialPromptValidation := InitialPromptValidation(w, chatPrompt)
 	InitialPromptDecisionTree(w, chatPrompt, InitialResponse, InitialPromptValidation)
 }
+
+// func handleCollections(){}
 
 // Create and return an OpenAI API compatible client for llama-server.
 func createLlamaClient(baseURL string, apiKey string) openai.Client {
