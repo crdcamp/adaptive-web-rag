@@ -29,6 +29,7 @@ For simplicity, I've been manually installing models. Eventually I'll start inte
 * Left out an API for managing collections. Not a huge deal at the moment, but will definitely need to be done in the next project.
 * Python script can be included in the REST API instead of saving files.
 * Pretty certain the Docker implementation requires specifying the device's GPU.
+* No handling for further questions about a mentioned topic.
 
 # To Do
 - [ ] Add python environment creation and `pip install -r requirements.txt` to `Dockerfile`.

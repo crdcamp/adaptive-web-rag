@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -20,7 +21,7 @@ type ChatPost struct {
 
 // Provide an introductory response to a user's prompt and determine the
 // validity of their request. If the model deems the prompt to not be
-// research related, the model respond by semantically redirecting the user.
+// research related, the model will respond by semantically redirecting the user.
 // If the model deems the prompt to be research related, it will notify the user
 // that it's checking the vector database for relevant results (but not
 // actually check the vector database).
@@ -28,20 +29,20 @@ func InitialResponse(w http.ResponseWriter, chatPost ChatPost) string {
 	userPrompt := chatPost.UserPrompt
 	WriteBytes(w, "Introductory user prompt: "+userPrompt+"\n")
 
-	InitialResponseSysPrompt := ReadMDFile("prompts/InitialResponseSysPrompt.md")
+	InitialResponseSysPrompt := ReadMDFile("prompts/initialPromptSysPrompt.md")
 	InitialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, InitialResponseSysPrompt, userPrompt)
 	WriteBytes(w, "Initial prompt response: "+InitialResponse+"\n")
 
 	return InitialResponse
 }
 
-// Evaluate a prompt to determine if it valid or invalid to the scope
-// of a research question. The model will strictly respond with `VALID`
+// Evaluate a prompt to determine if it is valid or invalid in the context of
+// research related questions. The model should strictly output `VALID`
 // or `INVALID`.
 func InitialPromptValidation(w http.ResponseWriter, chatPost ChatPost) string {
 	userPrompt := chatPost.UserPrompt
 
-	InitialPromptValidationSysPrompt := ReadMDFile("prompts/InitialPromptValidationSysPrompt.md")
+	InitialPromptValidationSysPrompt := ReadMDFile("prompts/initialPromptValidationSysPrompt.md")
 	InitialPromptValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, InitialPromptValidationSysPrompt, userPrompt)
 	WriteBytes(w, "Prompt validation result: "+InitialPromptValidation+"\n")
 
@@ -52,7 +53,6 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	userPrompt := chatPost.UserPrompt
 
 	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, userPrompt)
-	WriteBytes(w, "Search query generated: "+searchQuery+"\nSearching memory...\n")
 	WriteBytes(w, "Search query generated: "+searchQuery+"\nSearching memory...\n")
 
 	// WWEEEEEEEP WEEEEEEP WEEEEEP WOOOOOOP EMERGENCY BELOW!!!!!!
@@ -76,8 +76,9 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	nearTextResults := nearTextStruct.Get[WebSearchCollection]
 	var resultsSlice []string
 	for _, r := range nearTextResults {
-		// Huge risk of prompt injection here (not a genuine concern)
-		// This entire approach in general is pretty half assed awktually.. Let's just get it working
+		// THE ANALYSIS OF RELEVANCE SHOULD BE ITS OWN FUNCTION!
+		// YOU WILL NEED TO REUSE THIS WHEN CONDUCTING A WEB SEARCH
+		// This entire approach in general is pretty half assed.. Let's just get it working
 		WriteBytes(w, "Analyzing relevance of content for source: "+r.Source+"\n")
 
 		vectorResponseValidationSysPrompt := ReadMDFile("prompts/vectorResponseValidationSysPrompt.md")
@@ -86,8 +87,6 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 
 		vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, vectorResponseUserPrompt)
 
-		// Needs to be finished
-		// Probably gonna end up being a switch statement
 		WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
 		if vectorResponseValidation == "RELEVANT" {
 			resultsSlice = append(resultsSlice, "SOURCE: "+r.Source,
@@ -105,7 +104,7 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 		vectorDBAnswer := AnswerWithResults(LlamaClient, userPrompt, allVectorDBResults)
 		WriteBytes(w, "\n\n\nANSWER:\n")
 		WriteBytes(w, vectorDBAnswer)
-	} // ELSE CALL THE CRAWL SCRIPT AND RERUN THE LOOP AND STORE RELEVANT RESULTS
+	} // ELSE CALL THE CRAWL SCRIPT AND STORE RELEVANT RESULTS (TBD)
 }
 
 func InvalidPromptHandling(w http.ResponseWriter, InitialResponse string, InitialPromptValidation string) {
@@ -122,7 +121,6 @@ func InitialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, Initial
 		InvalidPromptHandling(w, InitialResponse, InitialPromptValidation)
 
 	default:
-		// THIS SHOULD BE A FATAL ERROR. THE PROGRAM SHOULD STOP IF THIS BASIC CHECK HAS FAILED!
-		slog.Warn("Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", InitialPromptValidation)
+		log.Fatal("FATAL: Error evaluating prompt. The model did not return the expected result of `VALID` or `INVALID`", "Here's the model's output: ", InitialPromptValidation)
 	}
 }
