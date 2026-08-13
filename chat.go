@@ -2,29 +2,45 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
 	"strings"
 )
 
-// Will expand to include time of request and maybe some other things
+// A struct for handling HTTP requests for the server's chat interface.
+// I will expand this to include time of request and maybe some other things
+// in a later project.
 type ChatPost struct {
 	UserPrompt string
 }
 
-func initialResponse(userPrompt ChatPost) string {
+// Provide an introductory response to a user's prompt and determine the
+// validity of their request. If the model deems the prompt to not be
+// research related, the prompt will be semantically redirected. If the
+// model deems the prompt to be research related, it will notify the user
+// that it's checking the vector database for relevant results (but not
+// actually check the vector database).
+func initialResponse(chatPost ChatPost) string {
+	userPrompt := chatPost.UserPrompt
 	initialResponseSysPrompt := ReadMDFile("prompts/initialResponseSysPrompt.md")
-	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
+	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, userPrompt)
 
 	return initialResponse
 }
 
-func initialResponseValidation(userPrompt ChatPost) string {
+// Evaluate a prompt to determine if it valid or invalid to the scope
+// of a research question. The model will respond strictly with `VALID`
+// or `INVALID`.
+func initialPromptValidation(chatPost ChatPost) string {
+	userPrompt := chatPost.UserPrompt
 	initialResponseValidationSysPrompt := ReadMDFile("prompts/initialResponseValidationSysPrompt.md")
-	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
+	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, userPrompt)
 
+	return initialResponseValidation
+}
+
+func initialPromptDecisionTree(initialResponseValidation string) string {
 	return initialResponseValidation
 }
 
@@ -53,14 +69,8 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Initial  chat response
-	initialResponseSysPrompt := ReadMDFile("prompts/initialResponseSysPrompt.md")
-	fmt.Printf("initialResponseSysPrompt result:\n%v", initialResponseSysPrompt)
-	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, chatPrompt.UserPrompt)
-
-	// Initial chat validation
-	initialResponseValidationSysPrompt := ReadMDFile("prompts/initialResponseValidationSysPrompt.md")
-	initialResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseValidationSysPrompt, chatPrompt.UserPrompt)
+	initialResponse := initialResponse(chatPrompt)
+	initialResponseValidation := initialResponseValidation(chatPrompt)
 
 	// Initial response validation
 	// THIS SHOULD PROBABLY BE ITS OWN FUNCTION
