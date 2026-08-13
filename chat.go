@@ -15,9 +15,10 @@ type ChatPost struct {
 	UserPrompt string
 }
 
-// These functions are looking a bit inefficient (I don't have exact reasoning for that at
-// the moment). I think UserPrompt could just be declared once, but we'll look into that
-// when the rough drafts of the functions are complete.
+// THE SEARCH QUERY IS BEING GENERATED TWICE!!!! Or the update for it is being printed twice...
+// I can't seem to figure out why.
+// ALSO the invalid prompt responses are being printed twice...
+// No matter, this can be fixed but not right now.
 
 // Provide an introductory response to a user's prompt and determine the
 // validity of their request. If the model deems the prompt to not be
