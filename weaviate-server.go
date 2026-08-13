@@ -196,7 +196,7 @@ func SplitEmbedAndUploadText(weaviateClient *weaviate.Client, fileName string, c
 // INSTEAD OF RETURNING BYTES, THIS SHOULD RETURN THE DATA IN JSON FORMAT
 // YOU ALSO NEED TO FILL THE DATABASE WITH INFORMATION REGARDING
 // EACH EXAMPLE (or just one or 2 of them)
-func NearTextSearch(client *weaviate.Client, className string, limit int, query string) ([]byte, error) {
+func NearTextSearch(client *weaviate.Client, className string, searchLimit int, query string) ([]byte, error) {
 	fmt.Printf("Conducting near text search for query: %q\n", query)
 	ctx := context.Background()
 
@@ -210,7 +210,7 @@ func NearTextSearch(client *weaviate.Client, className string, limit int, query 
 			graphql.Field{Name: "content"},
 		).
 		WithNearText(nearText).
-		WithLimit(limit).
+		WithLimit(searchLimit).
 		Do(ctx)
 
 	if err != nil {

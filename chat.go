@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+
+	"github.com/openai/openai-go/v3"
 )
 
 // A struct for handling HTTP requests for the server's chat interface.
@@ -50,6 +52,20 @@ func InitialPromptValidation(w http.ResponseWriter, chatPost ChatPost) string {
 	return InitialPromptValidation
 }
 
+func AnalyzeContentRelevance(w http.ResponseWriter, llamaClient openai.Client, chatPost ChatPost, vectorDBResult string) string {
+	userPrompt := chatPost.UserPrompt
+	WriteBytes(w, "Analyzing relevance of content: "+vectorDBResult+"\nEND OF CONTENT\n")
+
+	vectorResponseValidationSysPrompt := ReadMDFile("prompts/vectorResponseValidationSysPrompt.md")
+	vectorResponseUserPrompt := "You are given the following prompt : " + userPrompt +
+		"\n\nBased on the given prompt, strictly classify the following context as RELEVANT or IRRELEVANT:\n" + vectorDBResult
+
+	vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, vectorResponseUserPrompt)
+	WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
+
+	return vectorResponseValidation
+}
+
 func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	userPrompt := chatPost.UserPrompt
 
@@ -77,30 +93,15 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	nearTextResults := nearTextStruct.Get[WebSearchCollection]
 	var resultsSlice []string
 	for _, r := range nearTextResults {
-		// THE ANALYSIS OF RELEVANCE SHOULD BE ITS OWN FUNCTION!
-		// YOU WILL NEED TO REUSE THIS WHEN CONDUCTING A WEB SEARCH
-		// This entire approach in general is pretty half assed.. Let's just get it working
-		WriteBytes(w, "Analyzing relevance of content for source: "+r.Source+"\n")
-
-		vectorResponseValidationSysPrompt := ReadMDFile("prompts/vectorResponseValidationSysPrompt.md")
-		vectorResponseUserPrompt := "You are given the following prompt :\n\n" + userPrompt +
-			"\n\nBased on the given prompt, strictly classify the following context as RELEVANT or IRRELEVANT:\n" + r.Content
-
-		vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, vectorResponseUserPrompt)
-
-		WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
+		vectorResponseValidation := AnalyzeContentRelevance(w, LlamaClient, chatPost, r.Content)
 		if vectorResponseValidation == "RELEVANT" {
 			resultsSlice = append(resultsSlice, "SOURCE: "+r.Source,
 				"CONTENT: "+r.Content+"\nEND OF CONTENT\n")
 		}
 	}
 
-	// If allVectorDBResults is empty, call a function for internet search
-	// that originates in llama-server.go
 	if len(resultsSlice) != 0 {
 		allVectorDBResults := strings.Join(resultsSlice, "\n")
-		WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults+"\n")
-
 		vectorDBAnswer := AnswerWithResults(LlamaClient, userPrompt, allVectorDBResults)
 		WriteBytes(w, "\n\n\nANSWER:\n")
 		WriteBytes(w, vectorDBAnswer)
