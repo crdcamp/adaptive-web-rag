@@ -49,31 +49,70 @@ func initialPromptValidation(w http.ResponseWriter, chatPost ChatPost) string {
 	return initialPromptValidation
 }
 
-func initialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, initialPromptValidation string) {
+func validPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	userPrompt := chatPost.UserPrompt
 
-	switch initialPromptValidation {
-	case "VALID":
-		searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, userPrompt)
-		WriteBytes(w, "Search query generated: "+searchQuery+"\nSearching memory...\n")
+	searchQuery := GenerateSearchQuery(LlamaClient, AppConfig.ChatModelNoThink, userPrompt)
+	WriteBytes(w, "Search query generated: "+searchQuery+"\nSearching memory...\n")
+	WriteBytes(w, "Search query generated: "+searchQuery+"\nSearching memory...\n")
 
-		// WWEEEEEEEP WEEEEEEP WEEEEEP WOOOOOOP EMERGENCY BELOW!!!!!!
-		// `NearTextSearch` shouldn't be returning an error. `NearTextSearch` should be handling this on its own... Common bruv
-		nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
-		if err != nil {
-			slog.Error("error running near text search", "err", err)
-			http.Error(w, "error searching memory", http.StatusInternalServerError)
-			return
-		}
-
-		var nearTextStruct HrefAndContentDBResponse
-		if err := json.Unmarshal(nearTextBytes, &nearTextStruct); err != nil {
-			slog.Error("error unmarshalling near text search response", "err", err)
-			http.Error(w, "error parsing memory search results", http.StatusInternalServerError)
-			return
-		}
-
+	// WWEEEEEEEP WEEEEEEP WEEEEEP WOOOOOOP EMERGENCY BELOW!!!!!!
+	// `NearTextSearch` shouldn't be returning an error. `NearTextSearch` should be handling this on its own... Common bruv
+	nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
+	if err != nil {
+		slog.Error("error running near text search", "err", err)
+		http.Error(w, "error searching memory", http.StatusInternalServerError)
+		return
 	}
+
+	var nearTextStruct HrefAndContentDBResponse
+	if err := json.Unmarshal(nearTextBytes, &nearTextStruct); err != nil {
+		slog.Error("error unmarshalling near text search response", "err", err)
+		http.Error(w, "error parsing memory search results", http.StatusInternalServerError)
+		return
+	}
+
+	// All the near text data handling desperately needs to be cleaned up my god
+	// ... To be fair the GraphQL stuff is just ridiculously difficult to figure out...
+	nearTextResults := nearTextStruct.Get[WebSearchCollection]
+	var resultsSlice []string
+	for _, r := range nearTextResults {
+		// Huge risk of prompt injection here (not a genuine concern)
+		// This entire approach in general is pretty half assed awktually.. Let's just get it working
+		WriteBytes(w, "Analyzing relevance of content for source: "+r.Source+"\n")
+
+		vectorResponseValidationSysPrompt := ReadMDFile("prompts/vectorResponseValidationSysPrompt.md")
+		vectorResponseUserPrompt := "You are given the following prompt :\n\n" + userPrompt +
+			"\n\nBased on the given prompt, strictly classify the following context as RELEVANT or IRRELEVANT:\n" + r.Content
+
+		vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, vectorResponseUserPrompt)
+
+		// Needs to be finished
+		// Probably gonna end up being a switch statement
+		WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
+		if vectorResponseValidation == "RELEVANT" {
+			resultsSlice = append(resultsSlice, "SOURCE: "+r.Source,
+				"CONTENT: "+r.Content+
+					"\nEND OF CONTENT\n")
+		}
+	}
+
+	// If allVectorDBResults is empty, call a function for internet search
+	// that originates in llama-server.go
+	if len(resultsSlice) != 0 {
+		allVectorDBResults := strings.Join(resultsSlice, "\n")
+		WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults+"\n")
+
+		vectorDBAnswer := AnswerWithResults(LlamaClient, userPrompt, allVectorDBResults)
+		WriteBytes(w, "\n\n\nANSWER:\n")
+		WriteBytes(w, vectorDBAnswer)
+	} // ELSE CALL THE CRAWL SCRIPT AND RERUN THE LOOP AND STORE RELEVANT RESULTS
+}
+
+func invalidPromptHandling(w http.ResponseWriter, chatPost ChatPost)
+
+func initialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, initialPromptValidation string) {
+
 }
 
 // THIS NEEDS TO BE DIVIDED INTO SEVERAL FUNCTIONS
@@ -101,8 +140,8 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	initialResponse := initialResponse(chatPrompt)
-	initialResponseValidation := initialPromptValidation(chatPrompt)
+	initialResponse := initialResponse(w, chatPrompt)
+	initialResponseValidation := initialPromptValidation(w, chatPrompt)
 
 	// Initial response validation
 	// THIS SHOULD PROBABLY BE ITS OWN FUNCTION
