@@ -109,7 +109,10 @@ func validPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	} // ELSE CALL THE CRAWL SCRIPT AND RERUN THE LOOP AND STORE RELEVANT RESULTS
 }
 
-func invalidPromptHandling(w http.ResponseWriter, chatPost ChatPost)
+func invalidPromptHandling(w http.ResponseWriter, initialResponse string, initialPromptValidation string) {
+	WriteBytes(w, "User prompt validation result: "+initialPromptValidation+"\nInvalid prompt entered. Please ask a research-oriented question.\n")
+	WriteBytes(w, "Model response: "+initialResponse+"\n")
+}
 
 func initialPromptDecisionTree(w http.ResponseWriter, chatPost ChatPost, initialPromptValidation string) {
 
