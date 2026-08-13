@@ -88,8 +88,6 @@ func CallCrawlScript() {
 }
 
 // Answer a user's question based on results retrieved from the Weaviate database.
-// Might be better to take a bunch of the logic from main.go and put it here
-// NOTE: THE CURRENT PROMPT STUFF IS A VERY ROUGH DRAFT. THIS IS TERRIBLE RIGHT NOW.
 func AnswerWithResults(llamaClient openai.Client, userPrompt string, vectorDBResult string) string {
 	sysPrompt := ReadMDFile("prompts/answerWithResultsSysPrompt.md")
 	promptInput := "QUESTION: " + userPrompt + "\n\n" + vectorDBResult

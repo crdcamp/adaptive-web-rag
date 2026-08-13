@@ -122,7 +122,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// The following functions are found in `chat.go`
+	// Initial chat handling (found in `chat.go`)
 	InitialResponse := InitialResponse(w, chatPrompt)
 	InitialPromptValidation := InitialPromptValidation(w, chatPrompt)
 	InitialPromptDecisionTree(w, chatPrompt, InitialResponse, InitialPromptValidation)
