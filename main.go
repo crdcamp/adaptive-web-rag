@@ -186,21 +186,22 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 			// Probably gonna end up being a switch statement
 			WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
 			if vectorResponseValidation == "RELEVANT" {
-				resultsSlice = append(resultsSlice, r.Content)
+				resultsSlice = append(resultsSlice, "SOURCE: "+r.Source,
+					"CONTENT: "+r.Content+
+						"\nEND OF CONTENT\n")
 			}
 		}
 
 		// If allVectorDBResults is empty, call a function for internet search
 		// that originates in llama-server.go
-		if len(resultsSlice) == 0 {
-			WriteBytes(w, "NO RELEVANT RESULTS FOUND!\n")
-		}
-		allVectorDBResults := strings.Join(resultsSlice, "\nEND OF CONTENT\n")
-		WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults+"\n")
+		if len(resultsSlice) != 0 {
+			allVectorDBResults := strings.Join(resultsSlice, "\n")
+			WriteBytes(w, "ALL VECTOR DB RESULTS:\n"+allVectorDBResults+"\n")
 
-		vectorDBAnswer := AnswerWithResults(LlamaClient, chatPrompt.UserPrompt, allVectorDBResults)
-		WriteBytes(w, "\n\n\nANSWER:\n")
-		WriteBytes(w, vectorDBAnswer)
+			vectorDBAnswer := AnswerWithResults(LlamaClient, chatPrompt.UserPrompt, allVectorDBResults)
+			WriteBytes(w, "\n\n\nANSWER:\n")
+			WriteBytes(w, vectorDBAnswer)
+		} // ELSE CALL THE CRAWL SCRIPT AND RERUN THE LOOP AND STORE RELEVANT RESULTS
 
 	case "INVALID":
 		//Initial response
