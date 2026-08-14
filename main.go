@@ -77,24 +77,6 @@ func loadConfig() (*Config, error) {
 	return cfg, nil
 }
 
-func WriteBytes(w http.ResponseWriter, input string) {
-	_, err := w.Write([]byte(input))
-	if err != nil {
-		slog.Error("error writing response body", "err", err)
-	}
-}
-
-// Needs a file extension check
-func ReadMDFile(filePath string) string {
-	resultBytes, err := os.ReadFile(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	resultString := string(resultBytes)
-	return resultString
-}
-
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	WriteBytes(w, "Welcome to the root page. Hit the `/chat` endpoint to chat, or hit the `/collections` endpoint to manage collections.\n(Note: Collections management is not implemented.)")
 }

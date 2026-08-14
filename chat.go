@@ -18,7 +18,7 @@ type ChatPost struct {
 }
 
 // THE SEARCH QUERY IS BEING GENERATED TWICE!!!! Or the update for it is being printed twice...
-// I can't seem to figure out why.
+// I can't seem to figure out why (might have something to do with the mysterious black box that is Docker...)
 // ALSO the invalid prompt responses are being printed twice...
 // No matter, this can be fixed but not right now.
 
@@ -32,11 +32,11 @@ func InitialResponse(w http.ResponseWriter, chatPost ChatPost) string {
 	userPrompt := chatPost.UserPrompt
 	WriteBytes(w, "Introductory user prompt: "+userPrompt+"\n")
 
-	InitialResponseSysPrompt := ReadMDFile("prompts/initialPromptSysPrompt.md")
-	InitialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, InitialResponseSysPrompt, userPrompt)
-	WriteBytes(w, "Initial prompt response: "+InitialResponse+"\n")
+	initialResponseSysPrompt := ReadMDFile("prompts/initialPromptSysPrompt.md")
+	initialResponse := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialResponseSysPrompt, userPrompt)
+	WriteBytes(w, "Initial prompt response: "+initialResponse+"\n")
 
-	return InitialResponse
+	return initialResponse
 }
 
 // Evaluate a prompt to determine if it is valid or invalid in the context of
@@ -45,23 +45,23 @@ func InitialResponse(w http.ResponseWriter, chatPost ChatPost) string {
 func InitialPromptValidation(w http.ResponseWriter, chatPost ChatPost) string {
 	userPrompt := chatPost.UserPrompt
 
-	InitialPromptValidationSysPrompt := ReadMDFile("prompts/initialPromptValidationSysPrompt.md")
-	InitialPromptValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, InitialPromptValidationSysPrompt, userPrompt)
-	WriteBytes(w, "Prompt validation result: "+InitialPromptValidation+"\n")
+	initialPromptValidationSysPrompt := ReadMDFile("prompts/initialPromptValidationSysPrompt.md")
+	initialPromptValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, initialPromptValidationSysPrompt, userPrompt)
+	WriteBytes(w, "Prompt validation result: "+initialPromptValidation+"\n")
 
-	return InitialPromptValidation
+	return initialPromptValidation
 }
 
 func AnalyzeContentRelevance(w http.ResponseWriter, llamaClient openai.Client, chatPost ChatPost, vectorDBResult string) string {
 	userPrompt := chatPost.UserPrompt
-	WriteBytes(w, "Analyzing relevance of content: "+vectorDBResult+"\nEND OF CONTENT\n")
+	WriteBytes(w, "Analyzing relevance of content: "+vectorDBResult+"\nEND OF CONTENT\n\n")
 
 	vectorResponseValidationSysPrompt := ReadMDFile("prompts/vectorResponseValidationSysPrompt.md")
-	vectorResponseUserPrompt := "You are given the following prompt : " + userPrompt +
+	vectorResponseUserPrompt := "You are given the following prompt: " + userPrompt +
 		"\n\nBased on the given prompt, strictly classify the following context as RELEVANT or IRRELEVANT:\n" + vectorDBResult
 
 	vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, vectorResponseUserPrompt)
-	WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n")
+	WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n\n")
 
 	return vectorResponseValidation
 }
@@ -73,7 +73,7 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	WriteBytes(w, "Search query generated: "+searchQuery+"\nSearching memory...\n")
 
 	// WWEEEEEEEP WEEEEEEP WEEEEEP WOOOOOOP EMERGENCY BELOW!!!!!!
-	// `NearTextSearch` shouldn't be returning an error. `NearTextSearch` should be handling this on its own... Common bruv
+	// `NearTextSearch` shouldn't be returning an error. `NearTextSearch` should be handling the error on its own... Common bruv
 	nearTextBytes, err := NearTextSearch(WeaviateClient, WebSearchCollection, 3, searchQuery)
 	if err != nil {
 		slog.Error("error running near text search", "err", err)

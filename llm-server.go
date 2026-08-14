@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -71,20 +70,6 @@ func GenerateSearchQuery(client openai.Client, modelName string, prompt string) 
 	}
 
 	return chatResponse
-}
-
-// Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
-func CallCrawlScript() {
-	cmd := exec.Command("python3", "crawl.py")
-
-	// Output to terminal
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		panic(err)
-	}
 }
 
 // Answer a user's question based on results retrieved from the Weaviate database.
