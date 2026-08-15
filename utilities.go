@@ -1,12 +1,18 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
 )
+
+type CrawlResult struct {
+	Href    string `json:"href"`
+	Content string `json:"content"`
+}
 
 // Using `http.ResponseWriter`, write a string to
 // bytes on ze chat interface.
@@ -41,4 +47,19 @@ func CallCrawlScript() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func ReadJSONSearchResults(filePath string) []CrawlResult {
+	bytes, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var results []CrawlResult
+	err = json.Unmarshal(bytes, &results)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return results
 }
