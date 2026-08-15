@@ -52,6 +52,8 @@ func InitialPromptValidation(w http.ResponseWriter, chatPost ChatPost) string {
 	return initialPromptValidation
 }
 
+// Analyze the relevance of given content in relation to the user's prompt.
+// Can be used for vector database and search result validation.
 func AnalyzeContentRelevance(w http.ResponseWriter, llamaClient openai.Client, chatPost ChatPost, vectorDBResult string) string {
 	userPrompt := chatPost.UserPrompt
 	WriteBytes(w, "Analyzing relevance of content: "+vectorDBResult+"\nEND OF CONTENT\n\n")

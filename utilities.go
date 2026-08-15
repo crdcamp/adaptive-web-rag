@@ -8,6 +8,8 @@ import (
 	"os/exec"
 )
 
+// Using `http.ResponseWriter`, write a string to
+// bytes on ze chat interface.
 func WriteBytes(w http.ResponseWriter, input string) {
 	_, err := w.Write([]byte(input))
 	if err != nil {
@@ -15,7 +17,8 @@ func WriteBytes(w http.ResponseWriter, input string) {
 	}
 }
 
-// Needs a file extension check
+// Read a markdown file by inputting a file path.
+// (Needs a file extension check)
 func ReadMDFile(filePath string) string {
 	resultBytes, err := os.ReadFile(filePath)
 	if err != nil {
@@ -26,7 +29,7 @@ func ReadMDFile(filePath string) string {
 	return resultString
 }
 
-// Calls crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
+// Callx crawl.py to conduct web search. Results are saved to `server/crawl_data/crawl_results.json`.
 func CallCrawlScript() {
 	cmd := exec.Command("python3", "crawl.py")
 
