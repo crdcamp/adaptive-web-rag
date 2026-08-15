@@ -68,6 +68,11 @@ func AnalyzeContentRelevance(w http.ResponseWriter, llamaClient openai.Client, c
 	return vectorResponseValidation
 }
 
+func AnswerWithSearchResults(searchQuery string, searchResultsFilePath string) {
+	CallCrawlScript()
+	ReadJSONSearchResults("crawl_data/crawl_results.json")
+}
+
 func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 	userPrompt := chatPost.UserPrompt
 
@@ -104,10 +109,12 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 
 	if len(resultsSlice) != 0 {
 		allVectorDBResults := strings.Join(resultsSlice, "\n")
-		vectorDBAnswer := AnswerWithResults(LlamaClient, userPrompt, allVectorDBResults)
+		vectorDBAnswer := AnswerWithVectorDBResults(LlamaClient, userPrompt, allVectorDBResults)
 		WriteBytes(w, "\n\n\nANSWER:\n")
 		WriteBytes(w, vectorDBAnswer)
-	} // ELSE CALL THE CRAWL SCRIPT AND STORE RELEVANT RESULTS (TBD)
+	} else {
+		AnswerWithSearchResults(searchQuery)
+	}
 }
 
 func InvalidPromptHandling(w http.ResponseWriter, InitialResponse string, InitialPromptValidation string) {
