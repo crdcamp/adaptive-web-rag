@@ -116,9 +116,15 @@ This project has three different services hosted on three different ports; all o
 
 ## Challenges
 
-This was easily the most difficult and complex project I've ever done. I grew tired of the abstractions of Python and wanted a more efficient language.
+This was easily the most difficult and complex project I've ever done so far. I grew tired of the abstractions of Python, wanted a more efficient language, and wanted a much greater challenge than my previous projects have posed.
 
-This naturally led me to Golang; a language I haven't used before. Between learning this and Docker for the first time, this entire endeavor was a headache (as I hoped it would be).
+This led me to Golang; a language I haven't used before and knew very little about. Between Golang's efficiency, scalability, general design towards network handling, and its small step towards a "lower-level" language, it turned out to be the perfect choice. I truly love this language and hope I get to use it professionally one day.
+
+There was also the issue of diving head first into Docker for the first time; a software that still seems like a black box to me, but I'm glad I learned a bit about it. It was a **massive** headache, and that's exactly what I was hoping for. I'll likely continue to use and learn more about this software as I keep adding repositories. It's undoubtedly something I'll need to be comfortable with professionally one day anyway.
+
+Moreover, due to the complexity, I had to refactor the code at least five separate times. While at times a bit exhausting, this was also sometimes pretty fun to do. Learning about what it takes to start with a blank canvas like this, iterate over and over, and see an idea come to fruition like this is a rewarding process at the end of the day. I have absolute control over every aspect of these files... and something about that makes me a happy boy. While I could take some more time to clean it up, eventually you just have to tell yourself that you need to get it done.
+
+All in all, this has been quite the process. It's definitely increased my programming confidence and might've even eliminated that little bit of imposter syndrome I had left before beginning it.
 
 ## Limitations
 
