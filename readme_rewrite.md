@@ -105,7 +105,7 @@ This project has three different services hosted on three different ports; all o
 **If the vector database results are `IRRELEVANT`:**
 
 * Conduct an internet search by reusing the generated search query and passing it to `crawl.py`.
-* Determine the validity of the retrieved search results. If they are relevant, answer the user's prompt and then store the results in the vector database. Otherwise, apologize to the user and explain 
+* Determine the validity of the retrieved search results. If they are relevant, answer the user's prompt and then store the results in the vector database. Otherwise, apologize to the user and explain that this project has a lot of limitations.
 
 ## If You Want to Experiment a Bit...
 
@@ -113,5 +113,13 @@ This project has three different services hosted on three different ports; all o
 * You can also adjust the system prompts for the model in the `prompts` directory if you'd like to mess around with the model's behavior a bit.
 
 # Challenges and Limitations
+
+## Challenges
+
+This was easily the most difficult and complex project I've ever done. I grew tired of the abstractions of Python and wanted a more efficient language.
+
+This naturally led me to Golang; a language I haven't used before. Between learning this and Docker for the first time, this entire endeavor was a headache (as I hoped it would be).
+
+## Limitations
 
 # Issues to Address in the Next Iteration
