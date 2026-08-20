@@ -128,4 +128,49 @@ All in all, this has been quite the process. It's definitely increased my progra
 
 ## Limitations
 
+Due to my goal of actually finishing this project, it comes with a lot of limitations.
+
+### Chat Limitations
+
+* No chat history or continuation of conversation.
+* No timestamps for chat history (pretty essential feature that's missing but not relevant to the project's scope).
+* No follow up questions (would greatly increase the size of the codebase to handle)
+* No updates from the chat server. User must watch the Docker logs to find out what's going on.
+
+### Web Search Limitations
+
+* No check for already visited websites.
+* DockDuckGo search in Python is inconsistent in its results. The same search query can result in different results.
+* No list of blocked sites that may contain unreliable information.
+
+### Vector Database Limitations
+
+* No dates included. Prevents the ability to update the vector database if the information is considered outdated.
+* No "chat memory" collection included. Was originally a project requirement but would take too much additional time to implement.
+* No endpoint to easily manage the vector database's collections. Would require yet another Golang file with a bunch of hand-written functions to implement.
+
+### Structural Issues
+
+* Good structure in general (sorta), yet the Golang scripts would ideally be but in their own directory. They would also ideally be further factored by their functionality, yet this requires reconfiguring Docker a bit.
+* Error handling is inconsistent.
+* Some LLM functions send posts to the server, some don't. This also ties into the chat limitation on not sending updates. Would unfortunately require a lot of effort to implement (there were already enough concepts I had to learn in the first place).
+
+### Potential Optimizations
+
+
+
+* Doesn't check whether site had been visited when embedding.
+* Needs to check if question requires a search result in the first place.
+* Needs a way to adjust desired search results from Go scripts.
+* Web search data quality isn't exactly what we need (could be solved with chain-of-thought web search)
+* Web search doesn't produce contextual searches well at all. Could also be solved with the above suggestion.
+* `docker-compose.yml` doesn't set everything up in a fresh environment.
+* Data handling between Go and Python could be much more elegant (maybe they can share data with memory?).
+* No updates on progress sent from server. This is a... pretty annoying issue.
+* Left out an API for managing collections. Not a huge deal at the moment, but will definitely need to be done in the next project.
+* Python script can be included in the REST API instead of saving files.
+* Pretty certain the Docker implementation requires specifying the device's GPU.
+* No handling for further questions about a mentioned topic.
+* This project desperately needs structured outputs implemented. Problem for the next one!
+
 # Issues to Address in the Next Iteration
