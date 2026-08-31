@@ -1,5 +1,7 @@
 # Adaptive Web Search Rag for Local LLMs
 
+**README IS STILL IN PROGRESS**
+
 Low parameter local LLMs are kind of dumb. So, I'm *trying* to address that problem.
 # Overview
 
