@@ -18,7 +18,7 @@ type ChatPost struct {
 }
 
 // THE SEARCH QUERY IS BEING GENERATED TWICE!!!! Or the update for it is being printed twice...
-// I can't seem to figure out why (might have something to do with the mysterious black box that is Docker...)
+// I can't seem to figure out why (might have something to do with the mysterious black box that is Docker... probably not though)
 // ALSO the invalid prompt responses are being printed twice...
 // No matter, this can be fixed but not right now.
 
@@ -54,13 +54,13 @@ func InitialPromptValidation(w http.ResponseWriter, chatPost ChatPost) string {
 
 // Analyze the relevance of given content in relation to the user's prompt.
 // Can be used for vector database and search result validation.
-func AnalyzeContentRelevance(w http.ResponseWriter, llamaClient openai.Client, chatPost ChatPost, vectorDBResult string) string {
+func AnalyzeContentRelevance(w http.ResponseWriter, llamaClient openai.Client, chatPost ChatPost, contentToAnalyze string) string {
 	userPrompt := chatPost.UserPrompt
-	WriteBytes(w, "Analyzing relevance of content: "+vectorDBResult+"\nEND OF CONTENT\n\n")
+	WriteBytes(w, "Analyzing relevance of content: "+contentToAnalyze+"\nEND OF CONTENT\n\n")
 
 	vectorResponseValidationSysPrompt := ReadMDFile("prompts/vectorResponseValidationSysPrompt.md")
 	vectorResponseUserPrompt := "You are given the following prompt: " + userPrompt +
-		"\n\nBased on the given prompt, strictly classify the following context as RELEVANT or IRRELEVANT:\n" + vectorDBResult
+		"\n\nBased on the given prompt, strictly classify the following context as RELEVANT or IRRELEVANT:\n" + contentToAnalyze
 
 	vectorResponseValidation := CreateChatCompletion(LlamaClient, AppConfig.ChatModelNoThink, vectorResponseValidationSysPrompt, vectorResponseUserPrompt)
 	WriteBytes(w, "Content relevancy conclusion: "+vectorResponseValidation+"\n\n")
@@ -68,9 +68,27 @@ func AnalyzeContentRelevance(w http.ResponseWriter, llamaClient openai.Client, c
 	return vectorResponseValidation
 }
 
-func AnswerWithSearchResults(searchQuery string, searchResultsFilePath string) {
+// If a vector DB search fails to provide relevant results, conduct an
+// internet search and store relevant results in the vector DB.
+func AnswerWithCrawlResults(w http.ResponseWriter, chatPost ChatPost, searchQuery string, crawlResultsFilePath string) {
 	CallCrawlScript()
-	ReadJSONSearchResults("crawl_data/crawl_results.json")
+	crawlResults := ReadCrawlResults(crawlResultsFilePath)
+	// content = crawlresults (find out how to parse through the json with something like this)
+	for _, r := range crawlResults {
+		relevance := AnalyzeContentRelevance(w, LlamaClient, chatPost, r.Content)
+		///////////////////////////
+		// TERRIBLE ERROR HANDLING/
+		///////////////////////////
+		switch relevance {
+		case "RELEVANT":
+			answer := AnswerWithVectorDBResults(LlamaClient, chatPost.UserPrompt, r.Content)
+			WriteBytes(w, answer)
+		case "IRRELEVANT":
+			WriteBytes(w, "Irrelevant result\n")
+		default:
+			log.Fatal("FATAL ERROR EVALUATING PROMPT")
+		}
+	}
 }
 
 func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
@@ -113,7 +131,12 @@ func ValidPromptHandling(w http.ResponseWriter, chatPost ChatPost) {
 		WriteBytes(w, "\n\n\nANSWER:\n")
 		WriteBytes(w, vectorDBAnswer)
 	} else {
-		AnswerWithSearchResults(searchQuery)
+		AnswerWithCrawlResults(w, chatPost, searchQuery, "crawl_data/crawl_results.json")
+
+		/////////////////////////////////////////////////
+		// THEN ANALYZE THE RELEVANCE OF THE RESULTS AND
+		// STORE ONLY THE RELEVANT ONES
+		/////////////////////////////////////////////////
 	}
 }
 

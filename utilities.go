@@ -49,7 +49,7 @@ func CallCrawlScript() {
 	}
 }
 
-func ReadJSONSearchResults(filePath string) []CrawlResult {
+func ReadCrawlResults(filePath string) []CrawlResult {
 	bytes, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal(err)

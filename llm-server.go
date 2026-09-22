@@ -74,7 +74,7 @@ func GenerateSearchQuery(client openai.Client, modelName string, prompt string) 
 
 // Answer a user's question based on results retrieved from the Weaviate database.
 func AnswerWithVectorDBResults(llamaClient openai.Client, userPrompt string, vectorDBResult string) string {
-	sysPrompt := ReadMDFile("prompts/AnswerWithVectorDBResultsSysPrompt.md")
+	sysPrompt := ReadMDFile("prompts/answerWithResultsSysPrompt.md")
 	promptInput := "QUESTION: " + userPrompt + "\n\n" + vectorDBResult
 	result := CreateChatCompletion(llamaClient, AppConfig.ChatModelThink, sysPrompt, promptInput)
 

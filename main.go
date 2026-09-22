@@ -23,8 +23,10 @@ var AppConfig *Config
 var LlamaClient openai.Client
 var WeaviateClient *weaviate.Client
 var WebSearchCollection string
+var CrawlResultsFilePath string // Needs to be implemented
 
 func main() {
+	// Doesn't work in Docker. Leaving it here for the next iteration.
 	err := godotenv.Load(".env")
 
 	if err != nil {

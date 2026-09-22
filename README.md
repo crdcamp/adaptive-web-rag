@@ -1,11 +1,14 @@
 # Adaptive Web Search Rag for Local LLMs
 
-**README IS STILL IN PROGRESS**
-
 Low parameter local LLMs are kind of dumb. So, I'm *trying* to address that problem.
+
+**An important disclaimer:** This project neared completion... until I realized it takes too long to load answers. Between the prompt restrictions and evaluations and the vector database embeddings... it's simply too ambitious for a local application. There simply isn't enough processing power on my M4 Macbook and I do not have enough knowledge to make this dream come true at the moment. Now... if I had a 5090 that would be a different story...
+
+As a final note: This could be viable assuming I had the knowhow to distill models, but unfortunately I don't. That is a project in itself that I'll have to revisit years from now. Man... why didn't I start programming in middle school?
+
 # Overview
 
-This project improves on a "rough draft" repository I wrote in Python called [llama-cpp-llm-embedding](https://github.com/crdcamp/llama-cpp-llm-embedding). The goal here is to confine a local LLM in a manner that prevents hallucinations, ensures the model is always referring to internet sources (via [crawl4ai](https://github.com/unclecode/crawl4AI)), maintains a minimal footprint on the context window, and automatically updates and checks it's "memory" using a vector database. 
+This project improves on a "rough draft" repository I wrote in Python called [llama-cpp-llm-embedding](https://github.com/crdcamp/llama-cpp-llm-embedding). The goal here is to confine a local LLM in a manner that prevents hallucinations, ensures the model is always referring to internet sources (via [crawl4ai](https://github.com/unclecode/crawl4AI)), maintains a minimal footprint on the context window, and automatically updates and checks it's "memory" using a vector database.
 
 All of these requirements have led to the model being **confined strictly to research-oriented questions**. The model **will not** accept any prompts other than those pertaining to research.
 
@@ -158,3 +161,7 @@ Due to my goal of actually finishing this project, it comes with a lot of limita
 * Error handling is inconsistent and not very harmonious with how the chat server operates (a byproduct of starting with a blank canvas).
 * Some LLM functions send posts to the server, some don't. This also ties into the chat limitation on not sending updates. Would unfortunately require a lot of effort to implement (there were already enough concepts I had to learn in the first place).
 * Data sharing from Golang scripts to `chat.py` could be handled more elegantly. As of now data is shared by reading/writing files.
+
+# Conclusion
+
+This project was far too ambitious, but taught me so *freaking* much in the process. It's my ugly imperfect piece of garbage and I love it.
